@@ -267,39 +267,46 @@ def cadastrar_musico():
 # ======================================================
 @app.route('/reservar', methods=['POST'])
 def reservar():
-    # Coleta os dados do formulário
+    # 1. COLETA TODOS OS NOVOS DADOS DO FORMULÁRIO
     musico_id = request.form.get('musico_id')
+    nome_solicitante = request.form.get('nome_solicitante')
+    email_solicitante = request.form.get('email_solicitante')
+    telefone_solicitante = request.form.get('telefone_solicitante')
     data_evento = request.form.get('data_evento')
+    local_evento = request.form.get('local_evento')
     tipo_evento = request.form.get('tipo')
     
     try:
-        # 1. BUSCA O E-MAIL DA BANDA NO BANCO DE DADOS
-        # Acessamos o documento da banda pelo ID enviado pelo formulário
+        # 2. BUSCA O E-MAIL DA BANDA NO BANCO DE DADOS
         musico_ref = db.collection('artistas').document(musico_id).get()
         
         if not musico_ref.exists:
             return jsonify({"status": "error", "message": "Banda não encontrada"}), 404
             
         dados_musico = musico_ref.to_dict()
-        email_da_banda = dados_musico.get('dono_email') # O e-mail que a banda usou no cadastro
+        email_da_banda = dados_musico.get('dono_email')
 
-        # 2. SALVA O PEDIDO NO BANCO (Isso vai ativar o ícone de mensagem)
+        # 3. SALVA O PEDIDO DETALHADO NO BANCO
+        # Adicionamos os campos de contato para você poder intermediar depois
         db.collection('pedidos_reserva').add({
             'musico_id': musico_id,
+            'nome_contratante': nome_solicitante,
+            'email_contratante': email_solicitante,
+            'telefone_contratante': telefone_solicitante,
             'data_evento': data_evento,
+            'local_evento': local_evento,
             'tipo_evento': tipo_evento,
-            'status': 'novo', # Status inicial para a banda ver no painel
-            'cliente_email': session.get('user_email', 'Visitante'),
-            'lido': False, # Para sabermos se a banda já viu a mensagem
-            'criado_em': firestore.SERVER_TIMESTAMP
+            'status': 'novo',
+            'lido': False,
+            'criado_em': firestore.SERVER_TIMESTAMP,
+            # Mantemos quem enviou (caso esteja logado) para auditoria
+            'usuario_logado': session.get('user_email', 'Visitante')
         })
 
-        # Nota: A parte de enviar o e-mail real precisaria daquelas configurações SMTP.
-        # Por enquanto, o sistema já sabe QUAL é o e-mail da banda (email_da_banda).
-
+        # Retorno de sucesso
         return jsonify({
             "status": "success", 
-            "message": f"Pedido enviado para {email_da_banda}!",
+            "message": f"Pedido enviado com sucesso para a banda!",
             "redirect": url_for('perfil_musico', musico_id=musico_id)
         })
 

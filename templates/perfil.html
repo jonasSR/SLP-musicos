@@ -7,7 +7,9 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/dark.css">
+    
 </head>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <body class="profile-body">
     <div id="cursor-aura"></div>
 
@@ -72,20 +74,42 @@
                         <input type="hidden" name="musico_id" value="{{ id }}">
                         
                         <div class="input-modern">
+                            <label class="label-fixed">SEU NOME</label>
+                            <input type="text" name="nome_solicitante" placeholder="Ex: João Silva" required>
+                        </div>
+
+                        <div class="input-modern">
+                            <label class="label-fixed">E-MAIL DE CONTATO</label>
+                            <input type="email" name="email_solicitante" placeholder="seu@email.com" required>
+                        </div>
+
+                        <div class="input-modern">
+                            <label class="label-fixed">WHATSAPP / TELEFONE</label>
+                            <input type="tel" name="telefone_solicitante" placeholder="(12) 99999-9999" required>
+                        </div>
+
+                        <div class="input-modern">
                             <label class="label-fixed">DATA DO EVENTO</label>
                             <input type="text" name="data_evento" id="data-criativa" placeholder="Selecione o dia..." required>
                         </div>
-        
+
+                        <div class="input-modern">
+                            <label class="label-fixed">LOCAL DO EVENTO</label>
+                            <input type="text" name="local_evento" placeholder="Ex: Pousada do Sol ou Endereço" required>
+                        </div>
+
                         <div class="input-modern">
                             <label class="label-fixed">TIPO DE EVENTO</label>
                             <select name="tipo">
                                 <option value="casamento">Casamento</option>
                                 <option value="corporativo">Corporativo</option>
                                 <option value="festival">Festival / Bar</option>
+                                <option value="aniversario">Aniversário / Particular</option>
                             </select>
                         </div>
 
-                        <button type="submit" class="btn-profile-action">SOLICITAR ORÇAMENTO</button>
+                        <button type="submit" class="btn-plasma" style="width: 100%; margin-top: 20px;">SOLICITAR ORÇAMENTO</button>
+                    </form>
                     </form>
                 </div>
 
@@ -157,5 +181,56 @@
             });
         </script>
 
+<script>
+            document.querySelector('.profile-form').addEventListener('submit', async (e) => {
+                e.preventDefault(); // Impede o navegador de abrir a página de JSON puro
+
+                const formData = new FormData(e.target);
+                const submitBtn = e.target.querySelector('button');
+                
+                // Desativa o botão para evitar cliques duplos
+                submitBtn.disabled = true;
+                submitBtn.innerText = "ENVIANDO...";
+
+                try {
+                    const response = await fetch('/reservar', {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    const result = await response.json();
+
+                    if (result.status === 'success') {
+                        Swal.fire({
+                            title: 'Sucesso!',
+                            text: result.message,
+                            icon: 'success',
+                            background: '#1a1a1a', // Cor escura para combinar com seu tema
+                            color: '#fff',
+                            confirmButtonColor: '#6200ea',
+                            confirmButtonText: 'OK'
+                        }).then(() => {
+                            // Redireciona de volta para o perfil do músico
+                            window.location.href = result.redirect;
+                        });
+                    } else {
+                        Swal.fire({
+                            title: 'Erro',
+                            text: result.message,
+                            icon: 'error',
+                            background: '#1a1a1a',
+                            color: '#fff'
+                        });
+                        submitBtn.disabled = false;
+                        submitBtn.innerText = "SOLICITAR ORÇAMENTO";
+                    }
+                } catch (error) {
+                    console.error('Erro:', error);
+                    Swal.fire('Erro', 'Ocorreu uma falha na conexão.', 'error');
+                    submitBtn.disabled = false;
+                    submitBtn.innerText = "SOLICITAR ORÇAMENTO";
+                }
+            });
+        </script>
     </body>
 </html>

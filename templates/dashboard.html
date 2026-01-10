@@ -92,7 +92,7 @@
             <div class="messages-list">
                 {% for pedido in pedidos %}
                 <div class="message-item {% if not pedido.lido %}unread{% endif %}" 
-                    onclick="abrirMensagem('{{ pedido.id }}', '{{ pedido.cliente_email }}', '{{ pedido.data_evento }}', '{{ pedido.tipo_evento }}')">
+                    onclick="abrirMensagem('{{ pedido.id }}', '{{ pedido.nome_contratante }}', '{{ pedido.email_contratante }}', '{{ pedido.telefone_contratante }}', '{{ pedido.data_evento }}', '{{ pedido.local_evento }}', '{{ pedido.tipo_evento }}')">
                     <div class="msg-status"></div>
                     <div class="msg-info">
                         <span class="msg-sender">{{ pedido.cliente_email }}</span> 
@@ -226,12 +226,27 @@
             <h3>Detalhes da Solicitação</h3>
             <hr class="modal-divider">
             <div class="modal-body">
-                <p><strong>Cliente:</strong> <span id="view-email"></span></p>
-                <p><strong>Data:</strong> <span id="view-data"></span></p>
-                <p><strong>Evento:</strong> <span id="view-tipo"></span></p>
-                <div class="alert-info">O cliente aguarda seu contato.</div>
+                <p><strong>Solicitante:</strong> <span id="view-nome"></span></p>
+                <p><strong>E-mail:</strong> <span id="view-email"></span></p>
+                <p>
+                    <strong>WhatsApp:</strong> 
+                    <a href="#" id="link-telefone-zap" target="_blank" style="color: #25d366; text-decoration: none; font-weight: bold;">
+                        <span id="view-telefone"></span>
+                    </a>
+                </p>
+                <hr class="modal-divider-vagas">
+                <p><strong>Data do Evento:</strong> <span id="view-data"></span></p>
+                <p><strong>Local:</strong> <span id="view-local"></span></p>
+                <p><strong>Tipo de Evento:</strong> <span id="view-tipo"></span></p>
+                
+                <div class="alert-info">Combine os detalhes e o cachê diretamente com o cliente.</div>
             </div>
-            <a href="" id="btn-responder" class="btn-glow-action" style="text-decoration: none; text-align: center; display: block;">
+
+            <a href="" id="btn-whats-action" target="_blank" class="btn-glow-action" style="text-decoration: none; text-align: center; display: block; background: #25d366; margin-bottom: 10px;">
+                <span>RESPONDER PELO WHATSAPP</span>
+            </a>
+
+            <a href="" id="btn-responder" class="btn-glow-action" style="text-decoration: none; text-align: center; display: block; opacity: 0.8;">
                 <span>RESPONDER POR E-MAIL</span>
             </a>
         </div>
@@ -346,11 +361,40 @@
             }
         }
 
-        function abrirMensagem(id, email, data, tipo) {
-            document.getElementById('view-email').innerText = email;
-            document.getElementById('view-data').innerText = data;
-            document.getElementById('view-tipo').innerText = tipo;
-            document.getElementById('btn-responder').href = `mailto:${email}?subject=Orçamento Rio de Sons`;
+        function abrirMensagem(id, nome, email, tel, data, local, tipo) {
+            // 1. Preenche os textos básicos no Modal
+            document.getElementById('view-nome').innerText = nome || 'Não informado';
+            document.getElementById('view-email').innerText = email || 'Não informado';
+            document.getElementById('view-telefone').innerText = tel || 'Não informado';
+            document.getElementById('view-data').innerText = data || 'Não informada';
+            document.getElementById('view-local').innerText = local || 'Não informado';
+            document.getElementById('view-tipo').innerText = tipo || 'Não informado';
+
+            // 2. Lógica para o WhatsApp
+            if (tel) {
+                const numeroLimpo = tel.replace(/\D/g, "");
+                const msgZap = `Olá ${nome}, vi seu interesse no portal Rio de Sons para o evento no dia ${data} em ${local}. Podemos conversar?`;
+                const linkZap = `https://wa.me/55${numeroLimpo}?text=${encodeURIComponent(msgZap)}`;
+                
+                document.getElementById('link-telefone-zap').href = linkZap;
+                document.getElementById('btn-whats-action').href = linkZap;
+            }
+
+            // 3. Lógica para abrir GMAIL em outra aba
+            if (email) {
+                const banda = "{{ musico.nome }}";
+                const assunto = `Orçamento Rio de Sons: ${tipo}`;
+                const corpo = `Olá ${nome},\n\nRecebi seu pedido para o dia ${data} em ${local}. Gostaria de confirmar minha disponibilidade.\n\nAguardo seu retorno!\n\nAtenciosamente,\n${banda}`;
+
+                // Link oficial do Gmail para compor mensagem (Abre em aba do navegador)
+                const linkGmail = `https://mail.google.com/mail/?view=cm&fs=1&to=${email}&su=${encodeURIComponent(assunto)}&body=${encodeURIComponent(corpo)}`;
+
+                const btnEmail = document.getElementById('btn-responder');
+                btnEmail.href = linkGmail;
+                btnEmail.target = "_blank"; // ISSO garante que abra em outra aba
+            }
+
+            // 4. Abre o modal e marca como lido
             document.getElementById('modal-leitura').classList.add('active');
             fetch(`/marcar_lido/${id}`, { method: 'POST' });
         }
