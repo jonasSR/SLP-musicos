@@ -7,14 +7,25 @@ import firebase_admin
 from firebase_admin import credentials, firestore
 from werkzeug.utils import secure_filename
 
+import json
+from firebase_admin import credentials, initialize_app
+
 # ======================================================
 # 🔧 CONFIGURAÇÃO INICIAL
 # ======================================================
 
 base_path = os.path.dirname(os.path.abspath(__file__))
 
-cred = credentials.Certificate("serviceAccountKey.json")
-firebase_admin.initialize_app(cred)
+#cred = credentials.Certificate("serviceAccountKey.json")
+#firebase_admin.initialize_app(cred)
+
+cred_json = os.environ.get("FIREBASE_CREDENTIALS")
+if not cred_json:
+    raise Exception("Variável FIREBASE_CREDENTIALS não encontrada!")
+
+cred_dict = json.loads(cred_json)
+cred = credentials.Certificate(cred_dict)
+initialize_app(cred)
 
 db = firestore.client()
 
