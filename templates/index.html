@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PULSA SÃO LUIZ | O Futuro da Tradição</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div id="cursor-aura"></div>
+    
+    <div class="bg-scene">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+        <div class="orb orb-3"></div>
+    </div>
+
+    <nav class="glass-nav">
+        <div class="logo">PULSA<span>PARAITINGA</div>
+        <div class="nav-actions">
+            {% if session.get('user_email') %}
+                <a href="/dashboard" class="btn-user-status">PAINEL</a>
+                <a href="/logout" class="btn-logout">SAIR</a>
+            {% else %}
+                <a href="/dashboard" class="btn-plasma-small">MEMBRO</a>
+            {% endif %}
+        </div>
+    </nav>
+
+    <header class="hero" style="background-image: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.7)), url('{{ url_for('static', filename='img/logo.jpeg') }}');">
+        <div class="hero-content">
+            <h1 class="hero-main-title">SÃO LUIZ</h1>
+            <h2 class="sub-hero">DO PARAITINGA</h2>
+            <div class="hero-divider"></div>
+            <p class="hero-tagline">Onde o som flui como rio e a alma ecoa tradição.</p>
+            
+            <div class="hero-cta">
+                <a href="#artistas" class="btn-plasma">EXPLORAR</a>
+            </div>
+        </div>
+    </header>
+
+    <main class="gallery-section" id="artistas">
+        <div class="section-header">
+            <h2 class="section-title">ARTISTAS LOCAIS</h2>
+        </div>
+
+        <div class="artist-grid">
+            {% for musico in musicos %}
+            <article class="modern-card" data-tilt>
+                <div class="card-image" style="background-image: url('{{ musico.foto }}');"></div>
+                <div class="card-overlay">
+                    <span class="tag">{{ musico.estilo }}</span>
+                    <h3>{{ musico.nome }}</h3>
+                    <a href="/musico/{{ musico.id }}" class="btn-explore">
+                        <span>VER PERFIL</span>
+                        <svg viewBox="0 0 24 24"><path d="M5 12h14m-7-7 7 7-7 7"/></svg>
+                    </a>
+                </div>
+            </article>
+            {% endfor %}
+        </div>
+    </main>
+
+    
+</body>
+</html>

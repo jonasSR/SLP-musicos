@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ musico.nome }} | Rio de Sons</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/dark.css">
+</head>
+<body class="profile-body">
+    <div id="cursor-aura"></div>
+
+    <main class="profile-split">
+        <section class="artist-stage">
+            <div class="artist-image-fixed" style="background-image: url('{{ musico.foto }}');">
+                <div class="image-overlay"></div>
+                
+                <div class="artist-titles">
+                    <h1 class="artist-main-name">{{ musico.nome }}</h1>
+                </div>
+            </div>
+        </section>
+
+        <section class="artist-details">
+            <a href="/" class="btn-back-minimal">← VOLTAR</a>
+
+            <div class="content-scroll-box">
+                <div class="info-group">
+                    <h2 class="section-label">ESTILO</h2>
+                    <span class="genre-badge">{{ musico.estilo }}</span>
+                </div>
+
+                <div class="bio-container">
+                    <h2 class="section-label">DESCRIÇÃO</h2>
+                    <div class="bio-text">
+                        {{ musico.bio }}
+                    </div>
+                </div>
+
+                <div class="player-wrapper">
+                    <h2 class="section-label">VIBRAÇÃO</h2>
+                    <div class="glass-player">
+                        <div class="play-icon">▶</div>
+                        <div class="wave-animation">
+                            <span></span><span></span><span></span><span></span><span></span>
+                        </div>
+                        <p>PREVIEW SONORO DISPONÍVEL</p>
+                    </div>
+                </div>
+
+                <div class="booking-glass-card">
+                    <div class="card-header">
+                        <h3>RESERVE A DATA</h3>
+                        <p>Conecte este artista ao seu evento.</p>
+                    </div>
+
+                    {% with messages = get_flashed_messages(with_categories=true) %}
+                        {% if messages %}
+                        <div id="flash-container">
+                            {% for category, message in messages %}
+                            <div class="alert-glass {{ category }}">
+                                <span class="icon">{% if category == 'success' %}✨{% else %}⚠️{% endif %}</span>
+                                {{ message }}
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    {% endwith %}
+
+                    <form action="/reservar" method="POST" class="profile-form">
+                        <input type="hidden" name="musico_id" value="{{ id }}">
+                        
+                        <div class="input-modern">
+                            <label class="label-fixed">DATA DO EVENTO</label>
+                            <input type="text" name="data_evento" id="data-criativa" placeholder="Selecione o dia..." required>
+                        </div>
+        
+                        <div class="input-modern">
+                            <label class="label-fixed">TIPO DE EVENTO</label>
+                            <select name="tipo">
+                                <option value="casamento">Casamento</option>
+                                <option value="corporativo">Corporativo</option>
+                                <option value="festival">Festival / Bar</option>
+                            </select>
+                        </div>
+
+                        <button type="submit" class="btn-profile-action">SOLICITAR ORÇAMENTO</button>
+                    </form>
+                </div>
+
+                <div class="agenda-container">
+                    <h2 class="section-label">LINHA DO TEMPO</h2>
+                    <div class="agenda-list">
+                        {% for show in agenda %}
+                        <div class="agenda-item">
+                            <div class="agenda-date-box">
+                                <span class="day">{{ show.data_dia }}</span>
+                                <span class="month">{{ show.data_mes }}</span>
+                            </div>
+                            <div class="agenda-info">
+                                {% if show.nome_festa %}
+                                    <strong style="color: var(--primary); display: block; font-size: 0.8rem;">{{ show.nome_festa | upper }}</strong>
+                                {% endif %}
+                                
+                                <span class="venue-name">{{ show.local }}</span>
+                                
+                                <div style="display: flex; gap: 10px; align-items: center;">
+                                    <span class="city-tag">{{ show.cidade }}</span>
+                                    <span style="font-size: 0.75rem; color: #888;">🕒 {{ show.horario }}</span>
+                                </div>
+                            </div>
+                            <div class="agenda-status">
+                                <div class="pulse-dot"></div>
+                                CONFIRMADO
+                            </div>
+                        </div>
+                        {% else %}
+                        <div class="empty-state">
+                            <p>A agenda de shows está sendo atualizada.</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+        <script src="https://npmcdn.com/flatpickr/dist/l10n/pt.js"></script>
+
+        <script>
+            flatpickr("#data-criativa", {
+                "locale": "pt", 
+                dateFormat: "d/m/Y",
+                disableMobile: "true", 
+                minDate: "today", 
+                onReady: function(selectedDates, dateStr, instance) {
+                    instance.calendarContainer.classList.add("custom-flatpickr");
+                }, // <--- Faltava essa vírgula e o fechamento da chave
+                onOpen: function(selectedDates, dateStr, instance) {
+                    instance.calendarContainer.classList.add("open");
+                }
+            });
+        </script>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const flashContainer = document.getElementById('flash-container');
+                if (flashContainer) {
+                    setTimeout(() => {
+                        flashContainer.style.transition = "opacity 0.8s ease";
+                        flashContainer.style.opacity = "0";
+                        setTimeout(() => flashContainer.remove(), 800);
+                    }, 5000); // 5 segundos
+                }
+            });
+        </script>
+
+    </body>
+</html>

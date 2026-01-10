@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard | Rio de Sons</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        /* CSS Extra para garantir que os ícones fiquem escondidos */
+        input::-webkit-calendar-picker-indicator,
+        input::-webkit-inner-spin-button,
+        input::-webkit-clear-button {
+            display: none !important;
+            -webkit-appearance: none !important;
+        }
+    </style>
+</head>
+<body>
+    {% set foto_url = musico.foto if musico.foto else 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?q=80&w=1000' %}
+
+    <div id="cursor-aura"></div>
+    <div class="bg-scene">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+        <div class="orb orb-3"></div>
+    </div>
+
+        <nav class="glass-nav">
+            <a href="/" style="text-decoration: none;">
+                <div class="logo">PULSA<span>PARAITINGA</span></div>
+            </a>
+
+            <div class="nav-actions">
+                <a href="/" class="btn-nav-link">HOME</a>
+
+                {% if session.get('user_email') %}
+                    <a href="/dashboard" class="btn-user-status">PAINEL</a>
+                    <a href="/logout" class="btn-logout">SAIR</a>
+                {% endif %}
+            </div>
+        </nav>
+
+    <main class="dash-main">
+        <header class="dash-intro">
+            <h1 class="reveal-text">PAINEL<span>CRIATIVO</span></h1>
+            <p>Gerencie seus pedidos e sua presença digital.</p>
+        </header>
+
+        <section class="inbox-section">
+            <div class="section-header">
+                <h2 class="section-label">📩 CAIXA DE ENTRADA</h2>
+                <span class="count-badge">{{ pedidos|length }} Mensagens</span>
+            </div>
+            <div class="messages-list">
+                {% for pedido in pedidos %}
+                <div class="message-item {% if not pedido.lido %}unread{% endif %}" 
+                    onclick="abrirMensagem('{{ pedido.id }}', '{{ pedido.cliente_email }}', '{{ pedido.data_evento }}', '{{ pedido.tipo_evento }}')">
+                    <div class="msg-status"></div>
+                    <div class="msg-info">
+                        <span class="msg-sender">{{ pedido.cliente_email }}</span> 
+                        <span class="msg-preview">Evento: {{ pedido.tipo_evento }}</span>
+                    </div>
+                    <span class="msg-date">{{ pedido.data_evento }}</span>
+                </div>
+                {% else %}
+                <div class="empty-inbox">Nenhuma solicitação recebida ainda.</div>
+                {% endfor %}
+            </div>
+        </section>
+
+        <section class="agenda-manager-section" style="margin-top: 40px;">
+            <div class="section-header">
+                <h2 class="section-label">📅 GESTÃO DE AGENDA</h2>
+            </div>
+            
+            <div class="glass-card" style="padding: 20px; margin-bottom: 20px;">
+                <form action="/adicionar_agenda" method="POST" autocomplete="off" aria-autocomplete="none" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; align-items: end;">
+                    
+                    <input type="text" name="fake_user" style="display:none" aria-hidden="true">
+                    <input type="password" name="fake_pass" style="display:none" aria-hidden="true">
+
+                    <div class="input-modern">
+                        <input type="date" name="data_show" required data-lpignore="true" data-1p-ignore>
+                        <label class="label-fixed">DATA</label>
+                    </div>
+                    
+                    <div class="input-modern">
+                        <input type="time" name="horario_show" required data-lpignore="true" data-1p-ignore> 
+                        <label class="label-fixed">HORÁRIO</label>
+                    </div>
+
+                    <div class="input-modern">
+                        <input type="text" name="nome_festa" placeholder="Ex: Festival..." autocomplete="new-password" data-lpignore="true"> 
+                        <label class="label-fixed">NOME DA FESTA</label>
+                    </div>
+
+                    <div class="input-modern">
+                        <input type="text" name="local" placeholder="Ex: Praça..." required autocomplete="new-password" data-lpignore="true">
+                        <label class="label-fixed">LOCAL</label>
+                    </div>
+
+                    <div class="input-modern">
+                        <input type="text" name="cidade" placeholder="Ex: São Luiz..." required autocomplete="new-password" data-lpignore="true">
+                        <label class="label-fixed">CIDADE</label>
+                    </div>
+
+                    <button type="submit" class="btn-glow-action" style="height: 45px;">
+                        <span>+ ADD SHOW</span>
+                    </button>
+                </form>
+            </div>
+
+            <div class="messages-list">
+                {% for show in agenda %}
+                <div class="message-item">
+                    <div class="msg-info">
+                        <span class="msg-sender">{{ show.data_dia }}/{{ show.data_mes }} - {{ show.local }}</span>
+                        <span class="msg-preview">{{ show.cidade }}</span>
+                    </div>
+                    <form action="/remover_agenda/{{ show.id }}" method="POST">
+                        <button type="submit" style="background: none; border: none; color: #ff4444; cursor: pointer; font-size: 0.8rem;">[EXCLUIR]</button>
+                    </form>
+                </div>
+                {% else %}
+                <div class="empty-inbox">Nenhum show na agenda ainda.</div>
+                {% endfor %}
+            </div>
+        </section>
+
+        <section class="config-grid">
+            <div class="preview-panel" id="card-preview">
+                <div class="preview-sticky">
+                    <span class="label-mini">PRÉVIA DO PERFIL</span>
+                    <div class="modern-card preview-card">
+                        <div class="card-image" id="preview-img" style="background-image: url('{{ foto_url }}');"></div>
+                        <div class="card-overlay">
+                            <span class="tag" id="preview-tag">{{ musico.estilo or 'Estilo' }}</span>
+                            <h3 id="preview-name">{{ musico.nome or 'Nome do Artista' }}</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-panel">
+                <form action="{{ url_for('cadastrar_musico') }}" method="POST" enctype="multipart/form-data" class="nebula-form" autocomplete="off">
+                    <div class="form-section">
+                        <h2 class="section-label">DADOS DO PERFIL</h2>
+                        
+                        <div class="input-modern">
+                            <input type="text" name="nome" id="input-name" required placeholder=" " value="{{ musico.nome or '' }}" data-lpignore="true">
+                            <label>NOME DA BANDA / ARTISTA</label>
+                        </div>
+
+                        <div class="input-modern">
+                            <select name="estilo" id="select-style">
+                                <option value="Marchinha" {% if musico.estilo == 'Marchinha' %}selected{% endif %}>Marchinha</option>
+                                <option value="Regional / MPB" {% if musico.estilo == 'Regional / MPB' %}selected{% endif %}>Regional / MPB</option>
+                                <option value="Choro" {% if musico.estilo == 'Choro' %}selected{% endif %}>Choro</option>
+                                <option value="Rock Rural" {% if musico.estilo == 'Rock Rural' %}selected{% endif %}>Rock Rural</option>
+                                
+                                <option value="Samba" {% if musico.estilo == 'Samba' %}selected{% endif %}>Samba</option>
+                                <option value="Forró / Xote" {% if musico.estilo == 'Forró / Xote' %}selected{% endif %}>Forró / Xote</option>
+                                <option value="Sertanejo Raiz" {% if musico.estilo == 'Sertanejo Raiz' %}selected{% endif %}>Sertanejo Raiz</option>
+                                <option value="Instrumental" {% if musico.estilo == 'Instrumental' %}selected{% endif %}>Instrumental</option>
+                                <option value="Jazz / Blues" {% if musico.estilo == 'Jazz / Blues' %}selected{% endif %}>Jazz / Blues</option>
+                                <option value="Pop Rock" {% if musico.estilo == 'Pop Rock' %}selected{% endif %}>Pop Rock</option>
+                                <option value="Bossa Nova" {% if musico.estilo == 'Bossa Nova' %}selected{% endif %}>Bossa Nova</option>
+                                <option value="Cultura Popular" {% if musico.estilo == 'Cultura Popular' %}selected{% endif %}>Cultura Popular (Congada/Moçambique)</option>
+                            </select>
+                            <label class="label-fixed">GÊNERO MUSICAL</label>
+                        </div>
+
+                        <div class="image-config-box" style="background: rgba(255,255,255,0.03); padding: 20px; border-radius: 15px; border: 1px solid rgba(255,255,255,0.05); margin-bottom: 25px;">
+                            <div class="input-modern" style="margin-bottom: 10px;">
+                                <input type="url" name="foto_url" id="input-url" placeholder=" " value="{{ musico.foto if musico.foto and musico.foto.startswith('http') else '' }}" data-lpignore="true">
+                                <label>URL DA FOTO (LINK EXTERNO)</label>
+                            </div>
+                            <div style="text-align: center; margin: 10px 0; font-size: 0.7rem; color: #555; letter-spacing: 2px;">OU FAÇA UPLOAD</div>
+                            <div class="input-modern">
+                                <input type="file" name="foto_arquivo" id="input-file" accept="image/*" style="padding-top: 10px;">
+                                <label class="label-fixed">ARQUIVO LOCAL (PASTA IMG)</label>
+                            </div>
+                        </div>
+
+                        <div class="input-modern">
+                            <textarea name="bio" rows="4" placeholder=" " data-lpignore="true">{{ musico.bio or '' }}</textarea>
+                            <label>SUA HISTÓRIA (BIO)</label>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn-glow-action">
+                        <span>SALVAR ALTERAÇÕES</span>
+                    </button>
+                </form>
+            </div>
+        </section>
+    </main>
+
+    <div id="modal-leitura" class="modal-overlay">
+        <div class="modal-content glass-card">
+            <button class="close-modal" onclick="fecharModal()">×</button>
+            <h3>Detalhes da Solicitação</h3>
+            <hr class="modal-divider">
+            <div class="modal-body">
+                <p><strong>Cliente:</strong> <span id="view-email"></span></p>
+                <p><strong>Data:</strong> <span id="view-data"></span></p>
+                <p><strong>Evento:</strong> <span id="view-tipo"></span></p>
+                <div class="alert-info">O cliente aguarda seu contato.</div>
+            </div>
+            <a href="" id="btn-responder" class="btn-glow-action" style="text-decoration: none; text-align: center; display: block;">
+                <span>RESPONDER POR E-MAIL</span>
+            </a>
+        </div>
+    </div>
+
+    <script>
+        // Scripts de Preview permanecem iguais
+        const inputName = document.getElementById('input-name');
+        const inputUrl = document.getElementById('input-url');
+        const inputFile = document.getElementById('input-file');
+        const selectStyle = document.getElementById('select-style');
+        const previewName = document.getElementById('preview-name');
+        const previewTag = document.getElementById('preview-tag');
+        const previewImg = document.getElementById('preview-img');
+        const imagemDoBanco = "{{ musico.foto or 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?q=80&w=1000' }}";
+
+        function atualizarCard() {
+            previewName.innerText = inputName.value.trim() || "{{ musico.nome or 'Nome do Artista' }}";
+            previewTag.innerText = selectStyle.value || "{{ musico.estilo or 'Estilo' }}";
+            if (inputFile.files && inputFile.files[0]) {
+                const reader = new FileReader();
+                reader.onload = (e) => previewImg.style.backgroundImage = `url('${e.target.result}')`;
+                reader.readAsDataURL(inputFile.files[0]);
+            } else if (inputUrl.value.trim() !== "") {
+                previewImg.style.backgroundImage = `url('${inputUrl.value.trim()}')`;
+            } else {
+                previewImg.style.backgroundImage = `url('${imagemDoBanco}')`;
+            }
+        }
+
+        inputName.addEventListener('input', atualizarCard);
+        inputUrl.addEventListener('input', atualizarCard);
+        inputFile.addEventListener('change', atualizarCard);
+        selectStyle.addEventListener('change', atualizarCard);
+        window.addEventListener('DOMContentLoaded', atualizarCard);
+
+        function abrirMensagem(id, email, data, tipo) {
+            document.getElementById('view-email').innerText = email;
+            document.getElementById('view-data').innerText = data;
+            document.getElementById('view-tipo').innerText = tipo;
+            document.getElementById('btn-responder').href = `mailto:${email}?subject=Orçamento Rio de Sons`;
+            document.getElementById('modal-leitura').classList.add('active');
+            fetch(`/marcar_lido/${id}`, { method: 'POST' });
+        }
+
+        function fecharModal() {
+            document.getElementById('modal-leitura').classList.remove('active');
+            location.reload(); 
+        }
+    </script>
+</body>
+</html>
