@@ -29,22 +29,60 @@
             <a href="/" style="text-decoration: none;">
                 <div class="logo">PULSA<span>PARAITINGA</span></div>
             </a>
-
-            <div class="nav-actions">
-                <a href="/" class="btn-nav-link">HOME</a>
-
-                {% if session.get('user_email') %}
-                    <a href="/dashboard" class="btn-user-status">PAINEL</a>
-                    <a href="/logout" class="btn-logout">SAIR</a>
-                {% endif %}
+            <div class="menu-toggle" id="mobile-menu">
+                <span class="bar"></span><span class="bar"></span><span class="bar"></span>
             </div>
+            <ul class="nav-links" id="nav-links">
+                <li><a href="/" class="btn-nav-link">HOME</a></li>
+                {% if session.get('user_email') %}
+                    <li><a href="/dashboard" class="btn-user-status">PAINEL</a></li>
+                    <li><a href="javascript:void(0)" onclick="abrirModalSenha()" class="btn-user-status">ALTERAR SENHA</a></li>
+                    <li><a href="/logout" class="btn-logout">SAIR</a></li>
+                {% endif %}
+            </ul>
         </nav>
+
+        <div id="modal-senha" class="modal-overlay">
+            <div class="modal-content glass-card">
+                <button class="close-modal" onclick="fecharModalSenha()">×</button>
+                <h3>Trocar Senha</h3>
+                <p style="font-size: 0.8rem; opacity: 0.7; margin-bottom: 20px;">Digite sua nova senha abaixo.</p>
+                
+                <form id="form-trocar-senha" class="nebula-form">
+                    <div class="input-modern">
+                        <input type="password" id="nova-senha" required placeholder=" ">
+                        <label>NOVA SENHA</label>
+                    </div>
+                    <div class="input-modern" style="margin-top: 15px;">
+                        <input type="password" id="confirma-senha" required placeholder=" ">
+                        <label>CONFIRMAR SENHA</label>
+                    </div>
+                    
+                    <button type="submit" class="btn-glow-action" style="margin-top: 25px; width: 100%;">
+                        <span>ATUALIZAR SENHA</span>
+                    </button>
+                </form>
+            </div>
+        </div>
 
     <main class="dash-main">
         <header class="dash-intro">
             <h1 class="reveal-text">PAINEL<span>CRIATIVO</span></h1>
             <p>Gerencie seus pedidos e sua presença digital.</p>
         </header>
+        <section class="config-grid">
+            <div class="preview-panel" id="card-preview">
+                <div class="preview-sticky">
+                    <span class="label-mini">PRÉVIA DO PERFIL</span>
+                    <div class="modern-card preview-card">
+                        <div class="card-image" id="preview-img" style="background-image: url('{{ foto_url }}');"></div>
+                        <div class="card-overlay">
+                            <span class="tag" id="preview-tag">{{ musico.estilo or 'Estilo' }}</span>
+                            <h3 id="preview-name">{{ musico.nome or 'Nome do Artista' }}</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
         <section class="inbox-section">
             <div class="section-header">
@@ -127,20 +165,6 @@
             </div>
         </section>
 
-        <section class="config-grid">
-            <div class="preview-panel" id="card-preview">
-                <div class="preview-sticky">
-                    <span class="label-mini">PRÉVIA DO PERFIL</span>
-                    <div class="modern-card preview-card">
-                        <div class="card-image" id="preview-img" style="background-image: url('{{ foto_url }}');"></div>
-                        <div class="card-overlay">
-                            <span class="tag" id="preview-tag">{{ musico.estilo or 'Estilo' }}</span>
-                            <h3 id="preview-name">{{ musico.nome or 'Nome do Artista' }}</h3>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
             <div class="form-panel">
                 <form action="{{ url_for('cadastrar_musico') }}" method="POST" enctype="multipart/form-data" class="nebula-form" autocomplete="off">
                     <div class="form-section">
@@ -175,7 +199,7 @@
                                 <input type="url" name="foto_url" id="input-url" placeholder=" " value="{{ musico.foto if musico.foto and musico.foto.startswith('http') else '' }}" data-lpignore="true">
                                 <label>URL DA FOTO (LINK EXTERNO)</label>
                             </div>
-                            <div style="text-align: center; margin: 10px 0; font-size: 0.7rem; color: #555; letter-spacing: 2px;">OU FAÇA UPLOAD</div>
+                            <div style="text-align: center; margin: 10px 0; font-size: 0.7rem; color: #ffffff; letter-spacing: 2px;">OU FAÇA UPLOAD</div>
                             <div class="input-modern">
                                 <input type="file" name="foto_arquivo" id="input-file" accept="image/*" style="padding-top: 10px;">
                                 <label class="label-fixed">ARQUIVO LOCAL (PASTA IMG)</label>
@@ -225,24 +249,102 @@
         const imagemDoBanco = "{{ musico.foto or 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?q=80&w=1000' }}";
 
         function atualizarCard() {
-            previewName.innerText = inputName.value.trim() || "{{ musico.nome or 'Nome do Artista' }}";
-            previewTag.innerText = selectStyle.value || "{{ musico.estilo or 'Estilo' }}";
+            // Pega os valores dos inputs ou usa o valor padrão do Jinja
+            const nomeVal = inputName.value.trim() || "{{ musico.nome or 'Nome do Artista' }}";
+            const estiloVal = selectStyle.value || "{{ musico.estilo or 'Estilo' }}";
+            
+            previewName.innerText = nomeVal;
+            previewTag.innerText = estiloVal;
+
+            // Lógica da Imagem
             if (inputFile.files && inputFile.files[0]) {
+                // 1. Prioridade: Se o usuário selecionou um arquivo agora
                 const reader = new FileReader();
                 reader.onload = (e) => previewImg.style.backgroundImage = `url('${e.target.result}')`;
                 reader.readAsDataURL(inputFile.files[0]);
             } else if (inputUrl.value.trim() !== "") {
+                // 2. Segunda prioridade: Se o usuário colou um link
                 previewImg.style.backgroundImage = `url('${inputUrl.value.trim()}')`;
             } else {
+                // 3. Fallback: Imagem que veio do banco de dados (variável imagemDoBanco)
                 previewImg.style.backgroundImage = `url('${imagemDoBanco}')`;
             }
         }
+
+        // Garante que o card apareça assim que o site abrir
+        window.addEventListener('load', () => {
+            console.log("Carregando prévia com a imagem:", imagemDoBanco);
+            atualizarCard();
+        });
 
         inputName.addEventListener('input', atualizarCard);
         inputUrl.addEventListener('input', atualizarCard);
         inputFile.addEventListener('change', atualizarCard);
         selectStyle.addEventListener('change', atualizarCard);
         window.addEventListener('DOMContentLoaded', atualizarCard);
+
+        // Funções para a Modal de Senha
+        function abrirModalSenha() {
+            document.getElementById('modal-senha').classList.add('active');
+        }
+
+        function fecharModalSenha() {
+            document.getElementById('modal-senha').classList.remove('active');
+        }
+
+        // <<< COLOQUE O CÓDIGO AQUI >>>
+        document.addEventListener('DOMContentLoaded', function () {
+            const formSenha = document.getElementById('form-trocar-senha');
+
+            if (!formSenha) {
+                console.error("❌ Formulário de troca de senha não encontrado");
+                return;
+            }
+
+            formSenha.addEventListener('submit', function(e) {
+                e.preventDefault();
+
+                const novaSenha = document.getElementById('nova-senha').value;
+                const confirmaSenha = document.getElementById('confirma-senha').value;
+
+                if (novaSenha !== confirmaSenha) {
+                    alert("As senhas não coincidem!");
+                    return;
+                }
+
+                fetch('/api_registrar_troca_senha', {
+                    method: 'POST',
+                    credentials: 'same-origin',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ nova_senha: novaSenha })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    console.log("🔥 RESPOSTA:", data);
+
+                    if (data.status === 'success') {
+                        alert("Senha atualizada com sucesso!");
+                        fecharModalSenha();
+                        formSenha.reset();
+                    } else {
+                        alert("Erro: " + data.message);
+                    }
+                })
+                .catch(err => {
+                    console.error("❌ Erro:", err);
+                    alert("Erro ao comunicar com o servidor.");
+                });
+            });
+        });
+
+
+        // Fechar modal ao clicar fora dela (opcional, mas recomendado)
+        window.onclick = function(event) {
+            const modalSenha = document.getElementById('modal-senha');
+            if (event.target == modalSenha) {
+                fecharModalSenha();
+            }
+        }
 
         function abrirMensagem(id, email, data, tipo) {
             document.getElementById('view-email').innerText = email;
@@ -257,6 +359,33 @@
             document.getElementById('modal-leitura').classList.remove('active');
             location.reload(); 
         }
+
+
+        const mobileMenu = document.getElementById('mobile-menu');
+            const navLinks = document.getElementById('nav-links');
+
+            mobileMenu.addEventListener('click', () => {
+                mobileMenu.classList.toggle('active');
+                navLinks.classList.toggle('active');
+                
+                // Trava o scroll do corpo quando o menu estiver aberto
+                if (navLinks.classList.contains('active')) {
+                    document.body.style.overflow = 'hidden';
+                } else {
+                    document.body.style.overflow = 'auto';
+                }
+            });
+
+            // Fecha o menu ao clicar em qualquer link
+            document.querySelectorAll('.nav-links a').forEach(link => {
+                link.addEventListener('click', () => {
+                    mobileMenu.classList.remove('active');
+                    navLinks.classList.remove('active');
+                    document.body.style.overflow = 'auto';
+                });
+            });
     </script>
+
+    
 </body>
 </html>

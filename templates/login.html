@@ -2,23 +2,26 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>Acesso Artista | Rio de Sons</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> <title>Acesso Artista | Rio de Sons</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@800&display=swap" rel="stylesheet">
 
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@800&display=swap" rel="stylesheet">
 </head>
 
 <body class="login-page-root">
     <div class="log-bg-mesh"></div>
 
     <div class="log-card-container">
-        <h1 class="log-glitch-title">ENTRAR NO <span>FLUXO</span></h1>
-        <p class="log-subtitle">Acesse seu painel criativo.</p>
+        <h1 class="log-glitch-title">Acesso ao <span>Painel</span></h1>
+        <p class="log-subtitle">Gestão de Perfil Artístico | Pulsa São Luiz.</p>
 
         <form id="auth-form" class="log-form-wrapper">
             <div class="log-field-group">
                 <input type="email" id="email" class="log-input-field" required placeholder=" ">
-                <label class="log-field-label">E-MAIL</label>
+                <label class="log-field-label">E-MAIL CORPORATIVO OU ARTÍSTICO</label>
             </div>
 
             <div class="log-field-group log-pass-group">
@@ -31,11 +34,11 @@
             </div>
 
             <button type="submit" id="btn-login" class="log-btn-main">
-                CONECTAR UNIVERSO
+                CONECTAR
             </button>
 
             <button type="button" id="btn-signup" class="log-btn-main log-btn-outline">
-                CRIAR PASSAPORTE
+                CRIAR CONTA
             </button>
         </form>
     </div>

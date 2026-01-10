@@ -2,6 +2,9 @@ import os
 from functools import wraps
 from flask import Flask, render_template, request, redirect, url_for, session, jsonify, flash
 import urllib.parse
+from werkzeug.security import generate_password_hash
+from werkzeug.security import check_password_hash
+from firebase_admin import auth as firebase_auth
 
 import firebase_admin
 from firebase_admin import credentials, firestore
@@ -16,18 +19,23 @@ from firebase_admin import credentials, initialize_app
 
 base_path = os.path.dirname(os.path.abspath(__file__))
 
-#cred = credentials.Certificate("serviceAccountKey.json")
-#firebase_admin.initialize_app(cred)
-
+# Tenta pegar as credenciais do Firebase da variável de ambiente
 cred_json = os.environ.get("FIREBASE_CREDENTIALS")
-if not cred_json:
-    raise Exception("Variável FIREBASE_CREDENTIALS não encontrada!")
 
-cred_dict = json.loads(cred_json)
-cred = credentials.Certificate(cred_dict)
-initialize_app(cred)
+if cred_json:
+    # Se existir, usa a variável de ambiente
+    cred_dict = json.loads(cred_json)
+    cred = credentials.Certificate(cred_dict)
+else:
+    # Se não existir, usa o arquivo local
+    cred = credentials.Certificate(os.path.join(base_path, "serviceAccountKey.json"))
+
+# Inicializa o Firebase apenas UMA vez
+if not firebase_admin._apps:
+    initialize_app(cred)
 
 db = firestore.client()
+
 
 app = Flask(__name__)
 
@@ -110,10 +118,6 @@ def login_page():
 
 @app.route('/set_session', methods=['POST'])
 def set_session():
-    """
-    Cria sessão após login no Firebase (front-end)
-    e garante que o usuário esteja salvo no banco (Firestore Admin)
-    """
     data = request.get_json()
 
     if not data or 'email' not in data:
@@ -121,25 +125,20 @@ def set_session():
 
     email = data.get('email')
 
-    # cria sessão
+    # 🔐 CRIA SESSÃO (ESSENCIAL)
     session['user_email'] = email
-    print(f"Sessão iniciada para: {email}")
 
-    # garante usuário no banco (BACKEND É A FONTE DA VERDADE)
-    usuarios_ref = db.collection('usuarios')
-    existente = usuarios_ref.where('email', '==', email).limit(1).stream()
+    user_ref = db.collection('usuarios').document(email)
 
-    if not any(existente):
-        usuarios_ref.add({
+    if not user_ref.get().exists:
+        user_ref.set({
             'email': email,
             'tipo': 'musico',
             'criado_em': firestore.SERVER_TIMESTAMP
         })
-        print(f"Usuário salvo no banco: {email}")
-    else:
-        print(f"Usuário já existia no banco: {email}")
 
     return jsonify({"status": "success"}), 200
+
 
 
 @app.route('/logout')
@@ -350,7 +349,62 @@ def remover_agenda(show_id):
     for doc in artista_query:
         db.collection('artistas').document(doc.id).collection('agenda').document(show_id).delete()
         
-    return redirect(url_for('dashboard'))    
+    return redirect(url_for('dashboard'))  
+
+    
+# ======================================================
+# TROCAR SENHA USUARIO
+# ======================================================   
+   
+@app.route('/api_registrar_troca_senha', methods=['POST'])
+@login_required
+def registrar_troca_senha():
+    data = request.get_json()
+    nova_senha = data.get('nova_senha')
+    email = session.get('user_email')
+
+    # 🔎 Busca usuário no Firebase
+    user = firebase_auth.get_user_by_email(email)
+
+    # 🔐 Atualiza senha (sobrescreve a antiga)
+    firebase_auth.update_user(
+        user.uid,
+        password=nova_senha
+    )
+
+    # 🚨 INVALIDA TODOS OS LOGINS ANTIGOS
+    firebase_auth.revoke_refresh_tokens(user.uid)
+
+    return jsonify({
+        "status": "success",
+        "message": "Senha alterada e sessões antigas invalidadas"
+    })
+
+    
+@app.route('/api_login_interno', methods=['POST'])
+def login_interno():
+    data = request.get_json()
+    email = data.get('email')
+    senha_digitada = data.get('password')
+
+    user_ref = db.collection('usuarios').document(email)
+    user_doc = user_ref.get()
+
+    if not user_doc.exists:
+        return jsonify({"status": "use_firebase"})
+
+    user_data = user_doc.to_dict()
+
+    if 'password' not in user_data:
+        return jsonify({"status": "use_firebase"})
+
+    if check_password_hash(user_data['password'], senha_digitada):
+        session['user_email'] = email
+        return jsonify({"status": "success"})
+    else:
+        return jsonify({"status": "error", "message": "Senha incorreta"}), 401
+ 
+
 
 # ======================================================
 # 🚀 START

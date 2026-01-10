@@ -5,7 +5,8 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebas
 import {
     getAuth,
     signInWithEmailAndPassword,
-    createUserWithEmailAndPassword
+    createUserWithEmailAndPassword,
+    updatePassword
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
 import {
@@ -15,7 +16,7 @@ import {
     serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-// 🔥 CONFIG FIREBASE (APP WEB JÁ CRIADO)
+// 🔥 CONFIG FIREBASE
 const firebaseConfig = {
     apiKey: "AIzaSyByff364YvPXLeo6k1ccquKTX4Jv-CeOhA",
     authDomain: "slp-musicos-turismo.firebaseapp.com",
@@ -25,60 +26,64 @@ const firebaseConfig = {
     appId: "1:289743101948:web:c11cb6910506e84d405c79"
 };
 
-// 🚀 INICIALIZA
+// 🚀 INICIALIZA FIREBASE
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-// 🎯 ELEMENTOS HTML
-const form = document.getElementById("auth-form");
+// 🎯 ELEMENTOS HTML (LOGIN)
+const formLogin = document.getElementById("auth-form");
 const btnSignup = document.getElementById("btn-signup");
 const emailInput = document.getElementById("email");
 const passwordInput = document.getElementById("password");
 
 // 🔐 LOGIN
-form.addEventListener("submit", async (e) => {
-    e.preventDefault();
+if (formLogin) {
+    formLogin.addEventListener("submit", async (e) => {
+        e.preventDefault();
 
-    const email = emailInput.value;
-    const password = passwordInput.value;
+        try {
+            await signInWithEmailAndPassword(
+                auth,
+                emailInput.value,
+                passwordInput.value
+            );
 
-    try {
-        await signInWithEmailAndPassword(auth, email, password);
-        await iniciarSessao(email);
-        window.location.href = "/dashboard";
-    } catch (error) {
-        console.error(error);
-        alert(traduzirErroFirebase(error));
-    }
-});
+            await iniciarSessao(emailInput.value);
+            window.location.href = "/dashboard";
+
+        } catch (error) {
+            console.error(error);
+            alert(traduzirErroFirebase(error));
+        }
+    });
+}
 
 // 🆕 CADASTRO
-btnSignup.addEventListener("click", async () => {
-    const email = emailInput.value;
-    const password = passwordInput.value;
+if (btnSignup) {
+    btnSignup.addEventListener("click", async () => {
+        try {
+            const userCredential = await createUserWithEmailAndPassword(
+                auth,
+                emailInput.value,
+                passwordInput.value
+            );
 
-    try {
-        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+            await setDoc(doc(db, "usuarios", userCredential.user.uid), {
+                email: emailInput.value,
+                tipo: "musico",
+                data_cadastro: serverTimestamp()
+            });
 
-        console.log("🔥 Salvando usuário no Firestore...");
+            await iniciarSessao(emailInput.value);
+            window.location.href = "/dashboard";
 
-        await setDoc(doc(db, "usuarios", userCredential.user.uid), {
-            email: email,
-            tipo: "musico",
-            data_cadastro: serverTimestamp()
-        });
-
-        console.log("✅ Usuário salvo com sucesso");
-
-        await iniciarSessao(email);
-        window.location.href = "/dashboard";
-
-    } catch (error) {
-        console.error(error);
-        alert(traduzirErroFirebase(error));
-    }
-});
+        } catch (error) {
+            console.error(error);
+            alert(traduzirErroFirebase(error));
+        }
+    });
+}
 
 // 🔁 CRIA SESSÃO NO FLASK
 async function iniciarSessao(email) {
@@ -89,11 +94,11 @@ async function iniciarSessao(email) {
     });
 }
 
-// 🌎 TRADUÇÃO DOS ERROS FIREBASE (PT-BR)
+// 🌎 TRADUÇÃO DE ERROS FIREBASE
 function traduzirErroFirebase(error) {
     switch (error.code) {
         case "auth/email-already-in-use":
-            return "Este e-mail já está cadastrado. Faça login.";
+            return "Este e-mail já está cadastrado.";
         case "auth/invalid-email":
             return "E-mail inválido.";
         case "auth/weak-password":
@@ -103,26 +108,50 @@ function traduzirErroFirebase(error) {
         case "auth/wrong-password":
             return "Senha incorreta.";
         case "auth/invalid-credential":
-            return "Credenciais inválidas. Verifique e tente novamente.";
-        case "auth/network-request-failed":
-            return "Erro de conexão. Verifique sua internet.";
+            return "Credenciais inválidas.";
         default:
             return "Erro inesperado. Tente novamente.";
     }
 }
 
-// Localize o botão usando a classe correta do novo HTML
+// 👁️ MOSTRAR / ESCONDER SENHA
 const togglePasswordBtn = document.querySelector(".log-toggle-eye");
 
-if (togglePasswordBtn) {
+if (togglePasswordBtn && passwordInput) {
     togglePasswordBtn.addEventListener("click", () => {
-        // Verifica se o tipo atual é password
-        const isHidden = passwordInput.type === "password";
-
-        // Alterna entre text (visível) e password (escondido)
-        passwordInput.type = isHidden ? "text" : "password";
-        
-        // Opcional: muda o ícone para dar feedback visual
-        togglePasswordBtn.textContent = isHidden ? "🙈" : "👁";
+        const oculto = passwordInput.type === "password";
+        passwordInput.type = oculto ? "text" : "password";
+        togglePasswordBtn.textContent = oculto ? "🙈" : "👁";
     });
 }
+
+// 🔐 TROCAR SENHA (SOBRESCREVE A ANTIGA NO FIREBASE)
+document.addEventListener("DOMContentLoaded", () => {
+    const formSenha = document.getElementById("form-trocar-senha");
+    if (!formSenha) return;
+
+    formSenha.addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        const novaSenha = document.getElementById("nova-senha").value;
+        const confirmaSenha = document.getElementById("confirma-senha").value;
+
+        if (novaSenha !== confirmaSenha) {
+            alert("As senhas não coincidem");
+            return;
+        }
+
+        try {
+            await updatePassword(auth.currentUser, novaSenha);
+
+            alert("Senha alterada com sucesso!");
+
+            await auth.signOut();
+            window.location.href = "/login";
+
+        } catch (error) {
+            console.error(error);
+            alert("Erro ao trocar senha. Faça login novamente.");
+        }
+    });
+});

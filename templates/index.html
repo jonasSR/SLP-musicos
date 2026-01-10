@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PULSA SÃO LUIZ | O Futuro da Tradição</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 <body>
     <div id="cursor-aura"></div>
@@ -27,7 +28,7 @@
         </div>
     </nav>
 
-    <header class="hero" style="background-image: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.7)), url('{{ url_for('static', filename='img/logo.jpeg') }}');">
+    <header class="hero" style="background-image: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.9)), url('{{ url_for('static', filename='img/logo.jpeg') }}');">
         <div class="hero-content">
             <h1 class="hero-main-title">SÃO LUIZ</h1>
             <h2 class="sub-hero">DO PARAITINGA</h2>
@@ -61,7 +62,34 @@
             {% endfor %}
         </div>
     </main>
+<footer class="main-footer">
+        <div class="footer-content">
+            <div class="footer-brand">
+                <div class="logo">PULSA<span>PARAITINGA</span></div>
+                <p>Preservando a cultura, impulsionando talentos.</p>
+            </div>
+            
+            <div class="footer-links">
+                <h4>Navegação</h4>
+                <ul>
+                    <li><a href="#">Início</a></li>
+                    <li><a href="#artistas">Artistas</a></li>
+                    <li><a href="/dashboard">Área do Membro</a></li>
+                </ul>
+            </div>
 
+            <div class="footer-social">
+                </div>
+            </div>
+        </div>
+        
+        <div class="footer-bottom">
+            <p>&copy; 2024 Pulsa São Luiz do Paraitinga. O Futuro da Tradição.</p>
+        </div>
+    </footer>
     
+<script>
+      lucide.createIcons();
+    </script>
 </body>
 </html>
