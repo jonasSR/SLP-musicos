@@ -411,7 +411,31 @@ def login_interno():
     else:
         return jsonify({"status": "error", "message": "Senha incorreta"}), 401
  
+# ======================================================
+# EXCLUIR MENSAGENS
+# ======================================================
 
+@app.route('/excluir_pedidos', methods=['POST'])
+@login_required
+def excluir_pedidos():
+    try:
+        data = request.get_json()
+        ids = data.get('ids', [])
+
+        if not ids:
+            return jsonify({'status': 'error', 'message': 'Nenhuma mensagem selecionada.'}), 400
+
+        pedidos_ref = db.collection('pedidos_reserva')
+
+        for pedido_id in ids:
+            pedidos_ref.document(pedido_id).delete()
+
+        # O JavaScript vai ler este 'success' para mostrar o alert
+        return jsonify({'status': 'success', 'message': 'Excluído com sucesso'})
+
+    except Exception as e:
+        print(f"Erro ao excluir: {e}")
+        return jsonify({'status': 'error', 'message': str(e)}), 500
 
 # ======================================================
 # 🚀 START

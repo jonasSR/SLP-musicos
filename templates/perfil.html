@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ musico.nome }} | Rio de Sons</title>
+    <title>{{ musico.nome }} | Pulsa São Luiz</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/dark.css">
@@ -101,10 +101,28 @@
                         <div class="input-modern">
                             <label class="label-fixed">TIPO DE EVENTO</label>
                             <select name="tipo">
-                                <option value="casamento">Casamento</option>
-                                <option value="corporativo">Corporativo</option>
-                                <option value="festival">Festival / Bar</option>
-                                <option value="aniversario">Aniversário / Particular</option>
+                                <optgroup label="Sociais">
+                                    <option value="casamento">Casamento</option>
+                                    <option value="aniversario">Aniversário / Particular</option>
+                                    <option value="formatura">Formatura</option>
+                                    <option value="batizado">Batizado / Confraternização</option>
+                                </optgroup>
+                                
+                                <optgroup label="Públicos e Culturais">
+                                    <option value="festival">Festival / Evento Público</option>
+                                    <option value="carnaval">Carnaval / Bloco</option>
+                                    <option value="festa_religiosa">Festa Religiosa (Quermesse/Congada)</option>
+                                    <option value="prefeitura">Evento Governamental / Prefeitura</option>
+                                </optgroup>
+
+                                <optgroup label="Comerciais">
+                                    <option value="bar">Bar / Restaurante</option>
+                                    <option value="pousada">Pousada / Hotel</option>
+                                    <option value="corporativo">Corporativo / Empresa</option>
+                                    <option value="lancamento">Lançamento de Produto / Loja</option>
+                                </optgroup>
+                                
+                                <option value="outro">Outros</option>
                             </select>
                         </div>
 

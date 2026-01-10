@@ -2640,13 +2640,83 @@ html {
         display: flex;
     }
 
+/* O Overlay precisa ser um flex container para centralizar a modal */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(8px);
+    display: none; /* JS troca para 'flex' ao abrir */
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    padding: 20px; /* Margem de segurança para não encostar nas bordas do celular */
+}
+
+/* Quando estiver ativa, usamos flex em vez de block */
+.modal-overlay.active {
+    display: flex !important;
+}
+
+.modal-content.glass-card {
+    background: rgba(20, 20, 20, 0.95); /* Um pouco mais opaco para leitura */
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 30px 20px;
+    border-radius: 20px;
+    position: relative;
+    width: 100%;
+    max-width: 450px;
+    max-height: 90vh; /* Não deixa a modal ser maior que a altura da tela */
+    overflow-y: auto; /* Adiciona rolagem interna se o texto for grande */
+    box-shadow: 0 20px 50px rgba(0,0,0,0.8);
+    
+    /* Garante que a modal não "pule" */
+    margin: auto;
+}
+
+/* Ajuste específico para dispositivos pequenos */
+@media (max-width: 480px) {
     .modal-content.glass-card {
-        background: rgba(20, 20, 20, 0.8);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        padding: 40px;
-        border-radius: 20px;
-        position: relative;
-        width: 90%;
-        max-width: 400px;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        padding: 25px 15px;
+        width: 95%;
     }
+    
+    .modal-content h3 {
+        font-size: 1.2rem;
+        margin-bottom: 15px;
+    }
+}
+
+/* Notificação Toast */
+.toast-container {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 10000;
+}
+
+.toast {
+    background: rgba(20, 20, 20, 0.95);
+    color: #fff;
+    padding: 15px 25px;
+    border-radius: 10px;
+    border-left: 4px solid #ff4444; /* Cor vermelha para exclusão */
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5), 0 0 15px rgba(255, 68, 68, 0.2);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    backdrop-filter: blur(10px);
+    transform: translateY(100px);
+    opacity: 0;
+    transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.toast.show {
+    transform: translateY(0);
+    opacity: 1;
+}
