@@ -6,7 +6,9 @@ import {
     getAuth,
     signInWithEmailAndPassword,
     createUserWithEmailAndPassword,
-    updatePassword
+    updatePassword,
+    GoogleAuthProvider, // <--- ADICIONAR ESTE
+    signInWithPopup     // <--- ADICIONAR ESTE
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
 import {
@@ -155,3 +157,36 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 });
+
+// CONFIGURAÇÃO DO PROVEDOR GOOGLE (VERSÃO MODERNA)
+const provider = new GoogleAuthProvider();
+provider.setCustomParameters({
+    prompt: 'select_account'
+});
+
+// Tornamos a função global para o HTML conseguir chamar
+window.loginComGoogle = async function() {
+    try {
+        const result = await signInWithPopup(auth, provider);
+        const idToken = await result.user.getIdToken();
+
+        const response = await fetch('/login_google', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ idToken: idToken })
+        });
+
+        const data = await response.json();
+
+        if (data.status === 'success') {
+            window.location.href = '/dashboard';
+        } else {
+            alert("Erro ao sincronizar com o servidor: " + data.message);
+        }
+    } catch (error) {
+        console.error("Erro Google:", error.code);
+        if (error.code !== 'auth/cancelled-popup-request' && error.code !== 'auth/popup-closed-by-user') {
+            alert("Falha na autenticação: " + traduzirErroFirebase(error));
+        }
+    }
+}

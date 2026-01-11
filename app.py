@@ -437,6 +437,42 @@ def excluir_pedidos():
         print(f"Erro ao excluir: {e}")
         return jsonify({'status': 'error', 'message': str(e)}), 500
 
+
+# ======================================================
+# LOGIN GOOGLE
+# ======================================================
+@app.route('/login_google', methods=['POST'])
+def login_google():
+    data = request.get_json()
+    id_token = data.get('idToken')
+    
+    try:
+        # Valida o token vindo do front-end
+        decoded_token = firebase_auth.verify_id_token(id_token)
+        email = decoded_token['email']
+        nome = decoded_token.get('name', 'Usuário Google')
+        foto = decoded_token.get('picture', '')
+
+        # Inicia a sessão
+        session['user_email'] = email
+        
+        # Verifica se o usuário já existe na coleção 'usuarios'
+        user_ref = db.collection('usuarios').document(email)
+        if not user_ref.get().exists:
+            user_ref.set({
+                'email': email,
+                'nome': nome,
+                'foto_google': foto,
+                'tipo': 'musico',
+                'criado_em': firestore.SERVER_TIMESTAMP
+            })
+            
+        return jsonify({"status": "success"}), 200
+        
+    except Exception as e:
+        print(f"Erro na validação Google: {e}")
+        return jsonify({"status": "error", "message": "Token inválido"}), 401
+    
 # ======================================================
 # 🚀 START
 # ======================================================

@@ -98,32 +98,31 @@
                             <input type="text" name="local_evento" placeholder="Ex: Pousada do Sol ou Endereço" required>
                         </div>
 
-                        <div class="input-modern">
+                        <div class="custom-select-container" id="tipoEventoContainer">
                             <label class="label-fixed">TIPO DE EVENTO</label>
-                            <select name="tipo">
-                                <optgroup label="Sociais">
-                                    <option value="casamento">Casamento</option>
-                                    <option value="aniversario">Aniversário / Particular</option>
-                                    <option value="formatura">Formatura</option>
-                                    <option value="batizado">Batizado / Confraternização</option>
-                                </optgroup>
-                                
-                                <optgroup label="Públicos e Culturais">
-                                    <option value="festival">Festival / Evento Público</option>
-                                    <option value="carnaval">Carnaval / Bloco</option>
-                                    <option value="festa_religiosa">Festa Religiosa (Quermesse/Congada)</option>
-                                    <option value="prefeitura">Evento Governamental / Prefeitura</option>
-                                </optgroup>
+                            
+                            <div class="select-trigger" onclick="toggleDropdown()">
+                                <span id="selected-text">Selecione o tipo...</span>
+                                <i class="arrow-icon">▼</i>
+                            </div>
 
-                                <optgroup label="Comerciais">
-                                    <option value="bar">Bar / Restaurante</option>
-                                    <option value="pousada">Pousada / Hotel</option>
-                                    <option value="corporativo">Corporativo / Empresa</option>
-                                    <option value="lancamento">Lançamento de Produto / Loja</option>
-                                </optgroup>
+                            <div class="select-options" id="optionsList">
+                                <div class="option-group">SOCIAIS</div>
+                                <div class="option-item" onclick="selectOption('Casamento', 'casamento')">Casamento</div>
+                                <div class="option-item" onclick="selectOption('Aniversário', 'aniversario')">Aniversário / Particular</div>
                                 
-                                <option value="outro">Outros</option>
-                            </select>
+                                <div class="option-group">PÚBLICOS E CULTURAIS</div>
+                                <div class="option-item" onclick="selectOption('Festival', 'festival')">Festival / Evento Público</div>
+                                <div class="option-item" onclick="selectOption('Carnaval', 'carnaval')">Carnaval / Bloco</div>
+
+                                <div class="option-group">COMERCIAIS</div>
+                                <div class="option-item" onclick="selectOption('Bar / Restaurante', 'bar')">Bar / Restaurante</div>
+
+                                <div class="option-group">DIVERSOS</div>
+                                <div class="option-item" onclick="selectOption('Outros', 'outro')">Outros</div>
+                            </div>
+
+                            <input type="hidden" name="tipo" id="tipo_hidden_input">
                         </div>
 
                         <button type="submit" class="btn-plasma" style="width: 100%; margin-top: 20px;">SOLICITAR ORÇAMENTO</button>
@@ -199,7 +198,7 @@
             });
         </script>
 
-<script>
+        <script>
             document.querySelector('.profile-form').addEventListener('submit', async (e) => {
                 e.preventDefault(); // Impede o navegador de abrir a página de JSON puro
 
@@ -249,6 +248,32 @@
                     submitBtn.innerText = "SOLICITAR ORÇAMENTO";
                 }
             });
+
+            function toggleDropdown() {
+                document.getElementById('optionsList').classList.toggle('active');
+            }
+
+            function selectOption(texto, valor) {
+                // Atualiza o texto que o usuário vê
+                document.getElementById('selected-text').innerText = texto;
+                document.getElementById('selected-text').style.color = "#00d2ff";
+                
+                // Salva o valor no input escondido para o Flask receber
+                document.getElementById('tipo_hidden_input').value = valor;
+                
+                // Fecha o menu
+                toggleDropdown();
+            }
+
+            // Fecha o menu se clicar fora dele
+            window.onclick = function(event) {
+                if (!event.target.matches('.select-trigger') && !event.target.matches('#selected-text')) {
+                    const dropdown = document.getElementById('optionsList');
+                    if (dropdown.classList.contains('active')) {
+                        dropdown.classList.remove('active');
+                    }
+                }
+            }
         </script>
     </body>
 </html>

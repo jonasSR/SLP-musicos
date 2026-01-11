@@ -2725,3 +2725,146 @@ html {
 }
 
 
+.custom-select-container {
+    position: relative;
+    width: 100%;
+    margin-bottom: 25px;
+}
+
+/* O campo principal */
+.select-trigger {
+    background: rgba(255, 255, 255, 0.03);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 15px 20px;
+    color: #fff;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: all 0.3s ease;
+}
+
+.select-trigger:hover {
+    border-color: #00d2ff;
+    background: rgba(0, 210, 255, 0.05);
+}
+
+/* A lista que abre */
+.select-options {
+    position: absolute;
+    top: 110%;
+    left: 0;
+    width: 100%;
+    background: rgba(15, 15, 15, 0.98);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(0, 210, 255, 0.3);
+    border-radius: 12px;
+    max-height: 250px;
+    overflow-y: auto;
+    z-index: 999;
+    display: none; /* Escondido por padrão */
+    box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+}
+
+/* Grupos (Sociais, Comerciais...) */
+.option-group {
+    padding: 12px 15px 5px;
+    font-size: 0.7rem;
+    color: #00d2ff;
+    letter-spacing: 2px;
+    font-weight: 800;
+}
+
+/* Itens da lista */
+.option-item {
+    padding: 12px 20px;
+    color: rgba(255,255,255,0.8);
+    cursor: pointer;
+    transition: 0.2s;
+    font-size: 0.95rem;
+}
+
+.option-item:hover {
+    background: rgba(0, 210, 255, 0.15);
+    color: #fff;
+    padding-left: 25px; /* Efeito de deslize no hover */
+}
+
+/* Mostra a lista quando ativo */
+.select-options.active {
+    display: block;
+    animation: fadeInSlide 0.3s ease;
+}
+
+@keyframes fadeInSlide {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+
+
+/* Estilo para Computador (Desktop) */
+.google-btn-modern {
+    width: 280px;           
+    margin: 15px auto;      
+    height: 45px;           
+    background-color: #fff;
+    border-radius: 12px;
+    border: none;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    padding: 2px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+}
+
+/* Ajuste específico para Celulares (Dispositivos Móveis) */
+@media (max-width: 480px) {
+    .google-btn-modern {
+        width: 220px;       /* Botão mais estreito no celular */
+        height: 40px;       /* Um pouco mais baixo */
+        border-radius: 10px;
+    }
+
+    .btn-text {
+        font-size: 13px;    /* Letra levemente menor para caber */
+        padding-right: 36px; /* Ajuste do alinhamento central */
+    }
+
+    .google-icon-wrapper {
+        width: 36px;
+        height: 36px;
+    }
+}
+
+.google-btn-modern:hover {
+    box-shadow: 0 0 20px rgba(0, 210, 255, 0.4);
+    transform: translateY(-2px);
+}
+
+.google-icon-wrapper {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.google-icon { 
+    width: 20px; 
+}
+
+.btn-text {
+    flex-grow: 1;
+    color: #444;
+    font-size: 14px;
+    font-weight: 600;
+    margin: 0;
+    text-align: center;
+    padding-right: 40px;
+    font-family: 'Syne', sans-serif;
+    white-space: nowrap; /* Impede que o texto quebre em duas linhas */
+}

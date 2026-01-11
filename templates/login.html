@@ -7,6 +7,10 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Syne:wght@800&display=swap" rel="stylesheet">
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+
+    <script type="module" src="{{ url_for('static', filename='js/auth.js') }}"></script>
 
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
@@ -35,6 +39,13 @@
 
             <button type="submit" id="btn-login" class="log-btn-main">
                 CONECTAR
+            </button>
+
+            <button type="button" onclick="loginComGoogle()" class="google-btn-modern">
+                <div class="google-icon-wrapper">
+                    <img class="google-icon" src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google">
+                </div>
+                <span class="btn-text">ENTRAR COM GOOGLE</span>
             </button>
 
             <button type="button" id="btn-signup" class="log-btn-main log-btn-outline">
