@@ -5,6 +5,7 @@ import urllib.parse
 from werkzeug.security import generate_password_hash
 from werkzeug.security import check_password_hash
 from firebase_admin import auth as firebase_auth
+from flask_cors import CORS
 
 import firebase_admin
 from firebase_admin import credentials, firestore
@@ -38,6 +39,8 @@ db = firestore.client()
 
 
 app = Flask(__name__)
+# 3. ATIVA O CORS (Logo aqui no começo!)
+CORS(app)
 
 # 🔐 Sessão
 app.secret_key = "FLUXO_DYNAMO_SLP_2024_KEY"
@@ -472,6 +475,33 @@ def login_google():
     except Exception as e:
         print(f"Erro na validação Google: {e}")
         return jsonify({"status": "error", "message": "Token inválido"}), 401
+
+
+@app.route('/api/artistas_vitrine')
+def api_artistas_vitrine():
+    try:
+        # Pega 4 artistas aleatórios ou os últimos
+        musicos_ref = db.collection('artistas').limit(4).stream()
+        musicos = []
+
+        for doc in musicos_ref:
+            dados = doc.to_dict()
+            foto = dados.get('foto', '')
+            
+            # Se a foto for um caminho interno, coloca o domínio completo
+            if foto and foto.startswith('/static'):
+                foto = f"https://slp-musicos-3.onrender.com{foto}"
+
+            musicos.append({
+                'id': doc.id,
+                'nome': dados.get('nome'),
+                'estilo': dados.get('estilo'),
+                'foto': foto
+            })
+
+        return jsonify(musicos)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500        
     
 # ======================================================
 # 🚀 START
