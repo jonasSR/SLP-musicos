@@ -2690,14 +2690,14 @@ html {
     }
 }
 
+/* Notificação Toast */
 .toast-container {
     position: fixed;
-    bottom: 30px;
-    left: 50%;
-    transform: translateX(-50%); /* Centraliza no mobile */
+    bottom: 20px;
+    right: 20px;
     z-index: 10000;
+    transform: translateX(-50%);
     width: 90%; /* Ocupa quase toda a largura no celular */
-    max-width: 400px;
 }
 
 .toast {
@@ -2725,24 +2725,3 @@ html {
 }
 
 
-/* Impede que elementos causem scroll horizontal */
-html, body {
-    max-width: 100%;
-    overflow-x: hidden;
-    margin: 0;
-    padding: 0;
-}
-
-/* Garante que imagens e cards não ultrapassem a largura da tela */
-img, .modern-card, .glass-card, .preview-panel {
-    max-width: 100% !important;
-    box-sizing: border-box;
-}
-
-/* Ajuste na Grid para celular */
-.config-grid {
-    display: flex;
-    flex-direction: column; /* Em vez de grid com colunas fixas */
-    width: 100%;
-    padding: 10px;
-}
