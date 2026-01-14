@@ -20,8 +20,29 @@ from firebase_admin import credentials, initialize_app
 
 base_path = os.path.dirname(os.path.abspath(__file__))
 
-# Tenta pegar as credenciais do Firebase da variável de ambiente
+
 cred_json = os.environ.get("FIREBASE_CREDENTIALS")
+
+if cred_json:
+    # Se estiver no servidor, usa a variável
+    cred_dict = json.loads(cred_json)
+    cred = credentials.Certificate(cred_dict)
+else:
+    # Se estiver no PC, procura o arquivo local
+    # Certifique-se que o arquivo serviceAccountKey.json está na mesma pasta do app.py
+    try:
+        cred = credentials.Certificate("serviceAccountKey.json")
+    except Exception as e:
+        print(f"ERRO: Não encontrou FIREBASE_CREDENTIALS nem o arquivo JSON local. {e}")
+        raise e
+
+if not firebase_admin._apps:
+    initialize_app(cred)
+
+db = firestore.client()
+
+# Tenta pegar as credenciais do Firebase da variável de ambiente
+"""cred_json = os.environ.get("FIREBASE_CREDENTIALS")
 
 if cred_json:
     # Se existir, usa a variável de ambiente
@@ -35,7 +56,7 @@ else:
 if not firebase_admin._apps:
     initialize_app(cred)
 
-db = firestore.client()
+db = firestore.client()"""
 
 
 app = Flask(__name__)
