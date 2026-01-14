@@ -20,36 +20,7 @@ from firebase_admin import credentials, initialize_app
 
 base_path = os.path.dirname(os.path.abspath(__file__))
 
-def init_firebase():
-    if firebase_admin._apps:
-        return firestore.client()
-
-    cred_json = os.environ.get("FIREBASE_CREDENTIALS")
-
-    # 🔹 PRODUÇÃO (Render)
-    if cred_json:
-        cred_dict = json.loads(cred_json)
-        cred = credentials.Certificate(cred_dict)
-
-    # 🔹 DESENVOLVIMENTO LOCAL
-    else:
-        base_path = os.path.dirname(os.path.abspath(__file__))
-        cred_path = os.path.join(base_path, "serviceAccountKey.json")
-
-        if not os.path.exists(cred_path):
-            raise RuntimeError(
-                "Firebase credentials não encontradas. "
-                "Configure FIREBASE_CREDENTIALS (Render) "
-                "ou adicione serviceAccountKey.json (local)."
-            )
-
-        cred = credentials.Certificate(cred_path)
-
-    firebase_admin.initialize_app(cred)
-    return firestore.client()
-
-
-"""# Tenta pegar as credenciais do Firebase da variável de ambiente
+# Tenta pegar as credenciais do Firebase da variável de ambiente
 cred_json = os.environ.get("FIREBASE_CREDENTIALS")
 
 if cred_json:
@@ -64,8 +35,7 @@ else:
 if not firebase_admin._apps:
     initialize_app(cred)
 
-db = firestore.client()"""
-
+db = firestore.client()
 
 
 app = Flask(__name__)
