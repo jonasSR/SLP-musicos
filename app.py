@@ -18,26 +18,41 @@ from firebase_admin import credentials, initialize_app
 # 🔧 CONFIGURAÇÃO INICIAL
 # ======================================================
 
-base_path = os.path.dirname(os.path.abspath(__file__))
+"""base_path = os.path.dirname(os.path.abspath(__file__))
 
-cred = None
+# Tenta pegar as credenciais do Firebase da variável de ambiente
 cred_json = os.environ.get("FIREBASE_CREDENTIALS")
 
 if cred_json:
-    try:
-        print("FIREBASE_CREDENTIALS existe:", bool(cred_json))
+    # Se existir, usa a variável de ambiente
+    cred_dict = json.loads(cred_json)
+    cred = credentials.Certificate(cred_dict)
+else:
+    # Se não existir, usa o arquivo local
+    cred = credentials.Certificate(os.path.join(base_path, "serviceAccountKey.json"))
 
-        cred_dict = json.loads(cred_json)
-        cred = credentials.Certificate(cred_dict)
-    except Exception as e:
-        raise RuntimeError("FIREBASE_CREDENTIALS inválida ou mal formatada") from e
+# Inicializa o Firebase apenas UMA vez
+if not firebase_admin._apps:
+    initialize_app(cred)
+
+db = firestore.client()"""
+
+base_path = os.path.dirname(os.path.abspath(__file__))
+
+cred_json = os.environ.get("FIREBASE_CREDENTIALS")
+
+if cred_json:
+    cred_dict = json.loads(cred_json)
+    cred = credentials.Certificate(cred_dict)
 else:
     cred = credentials.Certificate(os.path.join(base_path, "serviceAccountKey.json"))
 
 if not firebase_admin._apps:
     initialize_app(cred)
 
-db = firestore.client()
+# ✅ NOVO: Firestore lazy (evita crash no Render)
+def get_db():
+    return firestore.client()
 
 
 app = Flask(__name__)
@@ -77,6 +92,7 @@ def login_required(f):
 @app.route('/')
 def index():
     """Página inicial com todos os artistas do fluxo"""
+    db = get_db()
     musicos_ref = db.collection('artistas')
     musicos = []
 
@@ -91,6 +107,7 @@ def index():
 @app.route('/musico/<musico_id>')
 def perfil_musico(musico_id):
     """Página detalhada de cada artista"""
+    db = get_db()
     doc_ref = db.collection('artistas').document(musico_id)
     musico = doc_ref.get()
 
@@ -133,7 +150,9 @@ def set_session():
     # 🔐 CRIA SESSÃO (ESSENCIAL)
     session['user_email'] = email
 
+    db = get_db()
     user_ref = db.collection('usuarios').document(email)
+
 
     if not user_ref.get().exists:
         user_ref.set({
@@ -173,6 +192,7 @@ def dashboard():
         artista_dados['id'] = artista_id
         
         # BUSCAR PEDIDOS
+        db = get_db()
         pedidos_ref = db.collection('pedidos_reserva').where('musico_id', '==', artista_id).stream()
         for p in pedidos_ref:
             p_dados = p.to_dict()
@@ -199,6 +219,7 @@ def dashboard():
 @app.route('/marcar_lido/<pedido_id>', methods=['POST'])
 @login_required
 def marcar_lido(pedido_id):
+    db = get_db()
     db.collection('pedidos_reserva').document(pedido_id).update({'lido': True})
     return jsonify({"status": "success"})
 
@@ -260,8 +281,10 @@ def cadastrar_musico():
         dados['foto'] = final_path
 
     if artista_doc:
+        db = get_db()
         db.collection('artistas').document(artista_doc.id).update(dados)
     else:
+        db = get_db()
         db.collection('artistas').add(dados)
 
     return redirect(url_for('dashboard'))
@@ -283,6 +306,7 @@ def reservar():
     
     try:
         # 2. BUSCA O E-MAIL DA BANDA NO BANCO DE DADOS
+        db = get_db()
         musico_ref = db.collection('artistas').document(musico_id).get()
         
         if not musico_ref.exists:
@@ -331,6 +355,7 @@ def adicionar_agenda():
     local = request.form.get('local')
     cidade = request.form.get('cidade')
 
+    db = get_db()
     artista_query = db.collection('artistas').where('dono_email', '==', email).limit(1).stream()
     artista_id = None
     for doc in artista_query:
@@ -356,6 +381,7 @@ def adicionar_agenda():
 @login_required
 def remover_agenda(show_id):
     email = session['user_email']
+    db = get_db()
     artista_query = db.collection('artistas').where('dono_email', '==', email).limit(1).stream()
     
     for doc in artista_query:
@@ -398,7 +424,7 @@ def login_interno():
     data = request.get_json()
     email = data.get('email')
     senha_digitada = data.get('password')
-
+    db = get_db()
     user_ref = db.collection('usuarios').document(email)
     user_doc = user_ref.get()
 
@@ -429,7 +455,7 @@ def excluir_pedidos():
 
         if not ids:
             return jsonify({'status': 'error', 'message': 'Nenhuma mensagem selecionada.'}), 400
-
+        db = get_db()
         pedidos_ref = db.collection('pedidos_reserva')
 
         for pedido_id in ids:
@@ -462,6 +488,7 @@ def login_google():
         session['user_email'] = email
         
         # Verifica se o usuário já existe na coleção 'usuarios'
+        db = get_db()
         user_ref = db.collection('usuarios').document(email)
         if not user_ref.get().exists:
             user_ref.set({
@@ -483,6 +510,7 @@ def login_google():
 def api_artistas_vitrine():
     try:
         # Pega 4 artistas aleatórios ou os últimos
+        db = get_db()
         musicos_ref = db.collection('artistas').limit(4).stream()
         musicos = []
 
