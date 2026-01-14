@@ -20,43 +20,24 @@ from firebase_admin import credentials, initialize_app
 
 base_path = os.path.dirname(os.path.abspath(__file__))
 
-
-# Tenta pegar a variável de ambiente primeiro
+cred = None
 cred_json = os.environ.get("FIREBASE_CREDENTIALS")
 
 if cred_json:
-    # Se estiver no Render, usa a variável (Não precisa do arquivo no Git!)
-    cred_dict = json.loads(cred_json)
-    cred = credentials.Certificate(cred_dict)
+    try:
+        print("FIREBASE_CREDENTIALS existe:", bool(cred_json))
+
+        cred_dict = json.loads(cred_json)
+        cred = credentials.Certificate(cred_dict)
+    except Exception as e:
+        raise RuntimeError("FIREBASE_CREDENTIALS inválida ou mal formatada") from e
 else:
-    # Se estiver no seu PC, tenta o arquivo
-    file_path = "serviceAccountKey.json"
-    if os.path.exists(file_path):
-        cred = credentials.Certificate(file_path)
-    else:
-        raise Exception("Nenhuma credencial do Firebase encontrada!")
-
-if not firebase_admin._apps:
-    firebase_admin.initialize_app(cred)
-
-db = firestore.client()
-
-# Tenta pegar as credenciais do Firebase da variável de ambiente
-"""cred_json = os.environ.get("FIREBASE_CREDENTIALS")
-
-if cred_json:
-    # Se existir, usa a variável de ambiente
-    cred_dict = json.loads(cred_json)
-    cred = credentials.Certificate(cred_dict)
-else:
-    # Se não existir, usa o arquivo local
     cred = credentials.Certificate(os.path.join(base_path, "serviceAccountKey.json"))
 
-# Inicializa o Firebase apenas UMA vez
 if not firebase_admin._apps:
     initialize_app(cred)
 
-db = firestore.client()"""
+db = firestore.client()
 
 
 app = Flask(__name__)
@@ -528,9 +509,5 @@ def api_artistas_vitrine():
 # 🚀 START
 # ======================================================
 
-"""if __name__ == '__main__':
-    app.run(debug=True)"""
-
-if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 10000))
-    app.run(host='0.0.0.0', port=port)
+if __name__ == '__main__':
+    app.run(debug=True)
