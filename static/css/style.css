@@ -2868,3 +2868,67 @@ html {
     font-family: 'Syne', sans-serif;
     white-space: nowrap; /* Impede que o texto quebre em duas linhas */
 }
+
+/* Estilo Base (Desktop) */
+.btn-back-home {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: rgba(255, 255, 255, 0.5);
+    text-decoration: none;
+    font-family: 'Syne', sans-serif;
+    font-size: 0.75rem;
+    letter-spacing: 1px;
+    margin-bottom: 20px;
+    padding: 8px 12px;
+    border-radius: 6px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: 0.3s;
+}
+
+.btn-back-home:hover {
+    color: #fff;
+    background: rgba(255, 255, 255, 0.05);
+}
+
+/* MODAL AJUSTADO PARA CELULAR */
+.modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.95);
+    backdrop-filter: blur(10px);
+    z-index: 10000;
+    align-items: center;
+    justify-content: center;
+    padding: 20px; /* Margem de segurança */
+}
+
+.modal-content {
+    background: #111;
+    border: 1px solid #ff4444;
+    padding: 30px 20px;
+    border-radius: 15px;
+    width: 100%;
+    max-width: 320px; /* Largura ideal para iPhone SE/Androids pequenos */
+    text-align: center;
+}
+
+/* RESPONSIVIDADE ESPECÍFICA */
+@media (max-width: 480px) {
+    .log-card-container {
+        padding: 20px;
+        margin: 10px;
+        width: 95%;
+    }
+
+    .log-glitch-title {
+        font-size: 1.8rem; /* Diminui um pouco o título no celular */
+    }
+
+    .btn-back-home {
+        width: fit-content;
+        align-self: flex-start; /* Alinha à esquerda no mobile */
+    }
+}
