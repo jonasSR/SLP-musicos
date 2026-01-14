@@ -20,27 +20,7 @@ from firebase_admin import credentials, initialize_app
 
 base_path = os.path.dirname(os.path.abspath(__file__))
 
-
-firebase_app = None
-db = None
-
-def get_db():
-    global firebase_app, db
-    if firebase_app is None:
-        base_path = os.path.dirname(os.path.abspath(__file__))
-
-        cred_json = os.environ.get("FIREBASE_CREDENTIALS")
-        if cred_json:
-            cred_dict = json.loads(cred_json)
-            cred = credentials.Certificate(cred_dict)
-        else:
-            cred = credentials.Certificate(os.path.join(base_path, "serviceAccountKey.json"))
-
-        firebase_app = initialize_app(cred)
-        db = firestore.client(app=firebase_app)
-    return db
-
-"""# Tenta pegar as credenciais do Firebase da variável de ambiente
+# Tenta pegar as credenciais do Firebase da variável de ambiente
 cred_json = os.environ.get("FIREBASE_CREDENTIALS")
 
 if cred_json:
@@ -55,7 +35,7 @@ else:
 if not firebase_admin._apps:
     initialize_app(cred)
 
-db = firestore.client()"""
+db = firestore.client()
 
 
 app = Flask(__name__)
@@ -92,15 +72,9 @@ def login_required(f):
 # 🌎 ROTAS PÚBLICAS
 # ======================================================
 
-@app.route("/")
-def health():
-    return "ok", 200
-
-
 @app.route('/')
 def index():
     """Página inicial com todos os artistas do fluxo"""
-    db = get_db()
     musicos_ref = db.collection('artistas')
     musicos = []
 
@@ -115,7 +89,6 @@ def index():
 @app.route('/musico/<musico_id>')
 def perfil_musico(musico_id):
     """Página detalhada de cada artista"""
-    db = get_db()
     doc_ref = db.collection('artistas').document(musico_id)
     musico = doc_ref.get()
 
@@ -157,7 +130,7 @@ def set_session():
 
     # 🔐 CRIA SESSÃO (ESSENCIAL)
     session['user_email'] = email
-    db = get_db()
+
     user_ref = db.collection('usuarios').document(email)
 
     if not user_ref.get().exists:
@@ -423,7 +396,7 @@ def login_interno():
     data = request.get_json()
     email = data.get('email')
     senha_digitada = data.get('password')
-    db = get_db()
+
     user_ref = db.collection('usuarios').document(email)
     user_doc = user_ref.get()
 
@@ -487,7 +460,6 @@ def login_google():
         session['user_email'] = email
         
         # Verifica se o usuário já existe na coleção 'usuarios'
-        db = get_db()
         user_ref = db.collection('usuarios').document(email)
         if not user_ref.get().exists:
             user_ref.set({
