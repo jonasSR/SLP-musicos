@@ -21,18 +21,24 @@ from firebase_admin import credentials, initialize_app
 base_path = os.path.dirname(os.path.abspath(__file__))
 
 
-# O segredo está aqui:
+# Tenta pegar a variável de ambiente primeiro
 cred_json = os.environ.get("FIREBASE_CREDENTIALS")
 
 if cred_json:
-    # No Render/Vercel, ele usa a chave que você colou no painel (Seguro!)
-    cred = credentials.Certificate(json.loads(cred_json))
+    # Se estiver no Render, usa a variável (Não precisa do arquivo no Git!)
+    cred_dict = json.loads(cred_json)
+    cred = credentials.Certificate(cred_dict)
 else:
-    # No seu PC, ele usa o arquivo local (O gitignore protege ele)
-    cred = credentials.Certificate("serviceAccountKey.json")
+    # Se estiver no seu PC, tenta o arquivo
+    file_path = "serviceAccountKey.json"
+    if os.path.exists(file_path):
+        cred = credentials.Certificate(file_path)
+    else:
+        raise Exception("Nenhuma credencial do Firebase encontrada!")
 
 if not firebase_admin._apps:
     firebase_admin.initialize_app(cred)
+
 db = firestore.client()
 
 # Tenta pegar as credenciais do Firebase da variável de ambiente
