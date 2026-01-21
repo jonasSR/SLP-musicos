@@ -2313,13 +2313,12 @@ input::-webkit-credentials-auto-fill-button {
         top: 0 !important;
         width: 100% !important;
         padding: 20px !important;
-        background: transparent !important; /* Remove fundos pesados */
+        background: rgba(255, 255, 255, 0) !important; /* Remove fundos pesados */
         backdrop-filter: none !important;
         display: flex !important;
         justify-content: space-between !important;
         align-items: center !important;
         border: none !important;
-        z-index: 9999 !important;
         
     }
 
@@ -2333,10 +2332,10 @@ input::-webkit-credentials-auto-fill-button {
     /* 3. BOTÃO MEMBRO - Estilo "Pílula de Vidro" no topo direito */
     .btn-plasma-small, 
     .btn-user-status {
-        background: rgba(255, 255, 255, 0.1) !important;
+        background: rgba(255, 255, 255, 0.1)rtant;
         backdrop-filter: blur(10px) !important; /* Efeito de vidro */
         border: 1px solid rgba(255, 255, 255, 0.2) !important;
-        color: #fff !important;
+        color: #000000 !important;
         font-size: 9px !important;
         font-weight: 600 !important;
         padding: 8px 16px !important;
@@ -3119,12 +3118,25 @@ html {
         font-size: 0.85rem;
     }
 
-    /* 5. Grid de Artistas */
     .artist-grid {
         order: 3;
         margin-top: 25px;
+        display: grid !important;
+        /* Define duas colunas com tamanhos iguais */
+        grid-template-columns: repeat(2, 1fr) !important; 
+        gap: 10px !important; /* Espaçamento menor para caber melhor lado a lado */
+    }
+
+    /* Ajuste opcional nos textos do card para não amontoar em telas muito pequenas */
+    .card-overlay h3 {
+        font-size: 0.9rem !important;
+    }
+
+    .card-location {
+        font-size: 0.6rem !important;
     }
 }
+
 
 
 
