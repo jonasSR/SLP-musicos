@@ -14,6 +14,7 @@ from werkzeug.utils import secure_filename
 import json
 from firebase_admin import credentials, initialize_app
 
+
 # ======================================================
 # 🔧 CONFIGURAÇÃO INICIAL
 # ======================================================
@@ -66,6 +67,11 @@ def login_required(f):
             return redirect(url_for('login_page'))
         return f(*args, **kwargs)
     return decorated
+from config import ESTILOS
+
+@app.context_processor
+def inject_estilos():
+    return dict(estilos=ESTILOS)
 
 
 # ======================================================
@@ -74,7 +80,6 @@ def login_required(f):
 
 @app.route('/')
 def index():
-    """Página inicial com todos os artistas do fluxo"""
     musicos_ref = db.collection('artistas')
     musicos = []
 
@@ -83,7 +88,10 @@ def index():
         dados['id'] = doc.id
         musicos.append(dados)
 
-    return render_template('index.html', musicos=musicos)
+    return render_template(
+        'index.html',
+        musicos=musicos
+    )
 
 
 @app.route('/musico/<musico_id>')
@@ -206,6 +214,8 @@ def marcar_lido(pedido_id):
 def cadastrar_musico():
     nome = request.form.get('nome')
     estilo = request.form.get('estilo')
+    cidade = request.form.get('cidade')
+    estado = request.form.get('estado')
     bio = request.form.get('bio')
     foto_url = request.form.get('foto_url')
     file = request.files.get('foto_arquivo')
@@ -247,6 +257,8 @@ def cadastrar_musico():
 
     dados = {
         'nome': nome,
+        'cidade': cidade,
+        'estado': estado,
         'estilo': estilo,
         'bio': bio,
         'dono_email': email,

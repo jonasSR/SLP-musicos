@@ -1,6 +1,6 @@
 /* 1. CONFIGURAÇÕES GLOBAIS E VARIÁVEIS */
 @import url('https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Plus+Jakarta+Sans:wght@200;400;700&display=swap');
-
+/*#################################### CORES GLOBAIS #################################### */
 :root {
     --accent: #00f2ff;
     --accent-2: #ff0054;
@@ -9,6 +9,7 @@
     --border: rgba(255, 255, 255, 0.08);
 }
 
+/*#################################### GERAIS #################################### */
 * { 
     margin: 0; 
     padding: 0; 
@@ -23,7 +24,6 @@ body {
     overflow-x: hidden;
 }
 
-/* 2. BACKGROUND ANIMADO (ORBES) E CURSOR */
 .bg-scene {
     position: fixed;
     inset: 0;
@@ -58,7 +58,8 @@ body {
     transition: transform 0.1s ease-out;
 }
 
-/* 3. NAVEGAÇÃO GLASS */
+
+/*#################################### NAVEGAÇÃO GLASS #################################### */
 .glass-nav {
     position: fixed;
     top: 25px;
@@ -86,7 +87,7 @@ body {
 
 .logo span { color: var(--accent); }
 
-/* 4. HERO SECTION (DESTAQUE PRINCIPAL) */
+/*#################################### HERO SECTION (DESTAQUE PRINCIPAL) #################################### */
 .hero {
     height: 100vh;
     display: flex;
@@ -94,6 +95,13 @@ body {
     justify-content: left;
     text-align: center;
     padding: 0 5%;
+     /* Caminho relativo partindo de static/css para static/img */
+    background-image: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.9)), 
+                      url('../img/logo.jpeg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    /* Adicione aqui a altura (height) que você já estava usando, ex: 100vh */
 }
 
 
@@ -133,43 +141,22 @@ body {
     box-shadow: 0 15px 35px rgba(0, 242, 255, 0.4);
 }
 
-.gallery-section {
-    padding: 100px 5%;
-    max-width: 1600px;
-    margin: 0 auto;
-    /* Adicione as linhas abaixo: */
-    border-top: 1px solid rgba(255, 255, 255, 0.1); 
-    position: relative;
-}
-
-/* Um detalhe extra: uma pequena linha centralizada */
-.gallery-section::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 100px;
-    height: 3px;
-    background: #ffffff; /* Ou a cor de destaque do seu site */
-}
-
-
-
+/*#################################### CARDS HOME #################################### */
 .artist-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-    gap: 40px;
+    grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); 
+    gap: 15px; /* Reduzi o gap entre os cards para ficarem mais próximos */
 }
 
 .modern-card {
-    height: 550px;
-    border-radius: 40px;
+    aspect-ratio: 1 / 1; 
+    height: auto;
+    border-radius: 20px;
     position: relative;
     overflow: hidden;
     background: var(--glass);
     border: 1px solid var(--border);
-    transition: border-color 0.4s;
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .modern-card:hover {
@@ -193,10 +180,19 @@ body {
 .card-overlay {
     position: absolute;
     bottom: 0;
-    padding: 40px;
+    padding: 12px; /* Reduzi o padding para o texto encostar mais nas bordas do card */
     width: 100%;
     background: linear-gradient(transparent, rgba(0,0,0,0.95));
     z-index: 2;
+}
+
+.card-overlay h3 {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.2rem;
+    text-transform: uppercase;
+    margin-bottom: 4px; /* Reduzi drasticamente o espaço abaixo do nome */
+    line-height: 1.0;    /* Juntei as linhas do nome se ele quebrar */
+    letter-spacing: -0.5px; /* Aproxima as letras uma da outra */
 }
 
 .tag {
@@ -204,17 +200,60 @@ body {
     color: var(--accent);
     text-transform: uppercase;
     font-weight: 900;
-    letter-spacing: 3px;
-    margin-bottom: 10px;
+    letter-spacing: 1px; /* Diminuí o espaço entre letras da tag */
+    margin-bottom: 2px;  /* Colou a tag no nome do artista */
     display: block;
 }
 
-.card-overlay h3 {
-    font-family: 'Syne', sans-serif;
-    font-size: 2.2rem;
-    text-transform: uppercase;
-    margin-bottom: 15px;
+/* Caso tenha o botão "VER PERFIL", vamos colá-lo também */
+.btn-explore {
+    margin-top: 2px;
+    gap: 6px;
+    font-size: 0.75rem;
 }
+
+.card-location {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.70rem;
+    color: rgba(255, 255, 255, 0.7); /* Branco suave */
+    text-transform: uppercase;
+    margin-bottom: 8px; /* Espaço antes do botão */
+    margin-top: 2px;    /* Cola no nome acima */
+}
+
+.card-location svg {
+    width: 12px;
+    height: 12px;
+    color: var(--accent); /* Usa a cor de destaque no ícone */
+}
+
+/*#################################### ?????? #################################### */
+.gallery-section {
+    padding: 100px 5%;
+    max-width: 1600px;
+    margin: 0 auto;
+    /* Adicione as linhas abaixo: */
+    border-top: 1px solid rgba(255, 255, 255, 0.1); 
+    position: relative;
+}
+
+
+.gallery-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100px;
+    height: 3px;
+    background: #ffffff; /* Ou a cor de destaque do seu site */
+}
+
+
+
+
 
 .btn-explore {
     display: flex;
@@ -239,7 +278,8 @@ body {
     transform: translateX(10px);
 }
 
-/* 6. RESPONSIVIDADE */
+
+/*#################################### RESPONSIVIDADE #################################### */
 @media (max-width: 768px) {
     .glass-nav { padding: 15px 25px; }
     .hero-main-title { font-size: 4rem; }
@@ -879,7 +919,7 @@ body {
 .hero-main-title {
     font-family: 'Syne', sans-serif;
     /* Ajuste do tamanho: maior no desktop, fluído no mobile */
-    font-size: clamp(3.5rem, 18vw, 12rem); 
+    font-size: clamp(3.5rem, 10vw, 12rem); 
     
     /* Aumentado para 1.0 ou 1.1 para evitar que letras altas sejam cortadas */
     line-height: 1; 
@@ -937,68 +977,6 @@ body {
     background: var(--accent);
     transform: translateY(-5px) scale(1.05);
     box-shadow: 0 15px 35px rgba(0, 242, 255, 0.4);
-}
-
-
-
-.artist-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-    gap: 40px;
-}
-
-.modern-card {
-    height: 550px;
-    border-radius: 40px;
-    position: relative;
-    overflow: hidden;
-    background: var(--glass);
-    border: 1px solid var(--border);
-    transition: border-color 0.4s;
-}
-
-.modern-card:hover {
-    border-color: var(--accent);
-}
-
-.card-image {
-    position: absolute;
-    inset: 0;
-    background-size: cover;
-    background-position: center;
-    filter: grayscale(1) brightness(0.5);
-    transition: 0.8s cubic-bezier(0.2, 1, 0.3, 1);
-}
-
-.modern-card:hover .card-image {
-    filter: grayscale(0) brightness(0.7);
-    transform: scale(1.1);
-}
-
-.card-overlay {
-    position: absolute;
-    bottom: 0;
-    padding: 40px;
-    width: 100%;
-    background: linear-gradient(transparent, rgba(0,0,0,0.95));
-    z-index: 2;
-}
-
-.tag {
-    font-size: 0.7rem;
-    color: var(--accent);
-    text-transform: uppercase;
-    font-weight: 900;
-    letter-spacing: 3px;
-    margin-bottom: 10px;
-    display: block;
-}
-
-.card-overlay h3 {
-    font-family: 'Syne', sans-serif;
-    font-size: 2.2rem;
-    text-transform: uppercase;
-    margin-bottom: 15px;
 }
 
 .btn-explore {
@@ -2335,12 +2313,14 @@ input::-webkit-credentials-auto-fill-button {
         top: 0 !important;
         width: 100% !important;
         padding: 20px !important;
-        background: transparent !important; /* Remove fundos pesados */
+        background: rgba(255, 255, 255, 0.1) !important; /* Remove fundos pesados */
         backdrop-filter: none !important;
         display: flex !important;
         justify-content: space-between !important;
         align-items: center !important;
         border: none !important;
+        
+        
     }
 
     /* 2. LOGO - Mais discreto no canto superior */
@@ -2353,10 +2333,10 @@ input::-webkit-credentials-auto-fill-button {
     /* 3. BOTÃO MEMBRO - Estilo "Pílula de Vidro" no topo direito */
     .btn-plasma-small, 
     .btn-user-status {
-        background: rgba(255, 255, 255, 0.1) !important;
+        background: rgba(255, 255, 255, 0.1)rtant;
         backdrop-filter: blur(10px) !important; /* Efeito de vidro */
         border: 1px solid rgba(255, 255, 255, 0.2) !important;
-        color: #fff !important;
+        color: #000000 !important;
         font-size: 9px !important;
         font-weight: 600 !important;
         padding: 8px 16px !important;
@@ -2731,78 +2711,6 @@ html {
     margin-bottom: 25px;
 }
 
-/* O campo principal */
-.select-trigger {
-    background: rgba(255, 255, 255, 0.03);
-    backdrop-filter: blur(12px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 12px;
-    padding: 15px 20px;
-    color: #fff;
-    cursor: pointer;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    transition: all 0.3s ease;
-}
-
-.select-trigger:hover {
-    border-color: #00d2ff;
-    background: rgba(0, 210, 255, 0.05);
-}
-
-/* A lista que abre */
-.select-options {
-    position: absolute;
-    top: 110%;
-    left: 0;
-    width: 100%;
-    background: rgba(15, 15, 15, 0.98);
-    backdrop-filter: blur(20px);
-    border: 1px solid rgba(0, 210, 255, 0.3);
-    border-radius: 12px;
-    max-height: 250px;
-    overflow-y: auto;
-    z-index: 999;
-    display: none; /* Escondido por padrão */
-    box-shadow: 0 10px 30px rgba(0,0,0,0.8);
-}
-
-/* Grupos (Sociais, Comerciais...) */
-.option-group {
-    padding: 12px 15px 5px;
-    font-size: 0.7rem;
-    color: #00d2ff;
-    letter-spacing: 2px;
-    font-weight: 800;
-}
-
-/* Itens da lista */
-.option-item {
-    padding: 12px 20px;
-    color: rgba(255,255,255,0.8);
-    cursor: pointer;
-    transition: 0.2s;
-    font-size: 0.95rem;
-}
-
-.option-item:hover {
-    background: rgba(0, 210, 255, 0.15);
-    color: #fff;
-    padding-left: 25px; /* Efeito de deslize no hover */
-}
-
-/* Mostra a lista quando ativo */
-.select-options.active {
-    display: block;
-    animation: fadeInSlide 0.3s ease;
-}
-
-@keyframes fadeInSlide {
-    from { opacity: 0; transform: translateY(-10px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
 
 
 /* Estilo para Computador (Desktop) */
@@ -2931,4 +2839,341 @@ html {
         width: fit-content;
         align-self: flex-start; /* Alinha à esquerda no mobile */
     }
+}
+
+
+
+
+
+
+/*#################### SELECIONAR TIPO DE EVENTO PERFIL ####################*/
+:root {
+    --primary-glow: #6200ff;
+    --secondary-glow: #9d00ff;
+    --glass-bg: rgba(255, 255, 255, 0.05);
+    --glass-border: rgba(255, 255, 255, 0.12);
+    --text-muted: rgba(255, 255, 255, 0.6);
+}
+
+.select-trigger {
+    background: rgba(20, 2, 2, 0.03);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 15px 20px;
+    color: #fff;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: all 0.3s ease;
+}
+
+.select-trigger:hover {
+    border-color: #00d2ff;
+    background: rgba(0, 210, 255, 0.05);
+}
+
+/* A lista que abre */
+.select-options {
+    position: absolute;
+    top: 110%;
+    left: 0;
+    width: 100%;
+    background: rgba(15, 15, 15, 0.98);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(0, 210, 255, 0.3);
+    border-radius: 12px;
+    max-height: 250px;
+    overflow-y: auto;
+    z-index: 999;
+    display: none; /* Escondido por padrão */
+    box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+}
+
+/* Grupos (Sociais, Comerciais...) */
+.option-group {
+    padding: 12px 15px 5px;
+    font-size: 0.7rem;
+    color: #00d2ff;
+    letter-spacing: 2px;
+    font-weight: 800;
+}
+
+/* Itens da lista */
+.option-item {
+    padding: 12px 20px;
+    color: rgba(255,255,255,0.8);
+    cursor: pointer;
+    transition: 0.2s;
+    font-size: 0.95rem;
+}
+
+.option-item:hover {
+    background: rgba(0, 210, 255, 0.15);
+    color: #fff;
+    padding-left: 25px; /* Efeito de deslize no hover */
+}
+
+/* Mostra a lista quando ativo */
+.select-options.active {
+    display: block;
+    animation: fadeInSlide 0.3s ease;
+}
+
+@keyframes fadeInSlide {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+
+
+
+/* #################### BUSCA GENERO MUSICAL #################### */
+/* Container de Posicionamento */
+.filter-section-header {
+    padding-top: 0 !important;
+    margin-top: 0 !important;
+}
+
+.music-filter-wrapper {
+    position: relative;
+    z-index: 100;
+    display: flex;
+    flex-direction: column; 
+    align-items: flex-end; 
+    margin: -70px 0 40px 0;
+}
+
+.music-filter-title {
+    margin: 0 0 8px 0;
+    color: white;
+    font-size: 0.7rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    text-transform: uppercase;
+    opacity: 0.7;
+}
+
+.music-select-box {
+    width: 260px; /* Largura retangular fixa */
+    position: relative;
+}
+
+/* Gatilho (Botão Principal) */
+.music-select-btn {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 10px 16px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    color: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.music-select-btn:hover {
+    border-color: var(--primary-glow);
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.music-select-btn span {
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+}
+
+/* Lista de Opções (O Segredo do Formato Retangular) */
+.music-options-list {
+    position: absolute;
+    top: calc(100% + 5px);
+    right: 0;
+    width: 100%;
+    background: rgba(12, 12, 14, 0.98);
+    backdrop-filter: blur(25px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    padding: 5px;
+    z-index: 110;
+    display: none; 
+    box-shadow: 0 15px 30px rgba(0,0,0,0.5);
+
+    /* Formato Fixo e Scroll */
+    max-height: 200px; /* Impede que cresça demais para baixo */
+    overflow-y: auto;  /* Ativa o scroll se houver muitos itens */
+}
+
+/* Estilização da barra de scroll para manter o visual limpo */
+.music-options-list::-webkit-scrollbar {
+    width: 4px;
+}
+.music-options-list::-webkit-scrollbar-thumb {
+    background: var(--primary-glow);
+    border-radius: 10px;
+}
+
+/* Estado Ativo */
+.music-select-box.is-active .music-options-list {
+    display: block;
+}
+
+.music-select-box.is-active .music-select-btn {
+    border-color: var(--primary-glow);
+}
+
+.music-select-box.is-active .music-select-btn svg {
+    transform: rotate(180deg);
+}
+
+/* Itens Individuais */
+.music-opt-item {
+    padding: 8px 12px;
+    color: rgba(255,255,255,0.5);
+    font-size: 0.75rem;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.music-opt-item:hover {
+    background: rgba(255, 255, 255, 0.05);
+    color: white;
+}
+
+.music-opt-item.active {
+    background: linear-gradient(135deg, var(--primary-glow), var(--secondary-glow));
+    color: white !important;
+    font-weight: 600;
+}
+
+
+
+/* #################### RESPONSIVIDADE MOBILE ATUALIZADA #################### */
+@media (max-width: 768px) {
+    
+    /* 1. Container Principal: Ajuste de Fluxo */
+    .gallery-section {
+        display: flex !important;
+        flex-direction: column !important;
+        padding: 40px 5%; /* Reduzi um pouco o padding superior */
+    }
+
+    /* 2. Inversão Visual: Filtro sobe, Título desce */
+    .filter-section-header {
+        order: 1; 
+        width: 100%;
+        margin-bottom: 20px;
+    }
+
+    .section-header {
+        order: 2; 
+        margin-top: 10px;
+        text-align: left;
+    }
+
+    /* 3. Ajuste do Componente de Música no Mobile */
+    .music-filter-wrapper {
+        align-items: flex-start !important; /* Alinha à esquerda no mobile */
+        margin: 0 0 15px 0 !important; /* Remove o margin negativo do desktop */
+    }
+
+    .search-group {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .music-filter-title {
+        font-size: 0.7rem;
+        margin-bottom: 8px;
+        opacity: 0.9;
+    }
+
+    .music-select-box {
+        width: 100%; /* Ocupa a largura disponível */
+        max-width: 100%; /* Permite expansão total no mobile se desejar */
+    }
+
+    .music-select-btn {
+        padding: 14px 18px; /* Botão um pouco maior para facilitar o toque (touch) */
+    }
+
+    /* 4. Lista de Opções no Mobile */
+    .music-options-list {
+        position: absolute;
+        width: 100%;
+        max-height: 250px; /* Um pouco maior no mobile para scroll mais fácil */
+        z-index: 1100;
+        /* Garante que a lista não quebre o layout */
+    }
+
+    .music-opt-item {
+        padding: 12px 15px; /* Altura de toque confortável para o dedo */
+        font-size: 0.85rem;
+    }
+
+    .artist-grid {
+        order: 3;
+        margin-top: 25px;
+        display: grid !important;
+        /* Define duas colunas com tamanhos iguais */
+        grid-template-columns: repeat(2, 1fr) !important; 
+        gap: 10px !important; /* Espaçamento menor para caber melhor lado a lado */
+    }
+
+    /* Ajuste opcional nos textos do card para não amontoar em telas muito pequenas */
+    .card-overlay h3 {
+        font-size: 0.9rem !important;
+    }
+
+    .card-location {
+        font-size: 0.6rem !important;
+    }
+}
+
+
+
+
+
+
+
+
+/* #################### LOGO PULSA MUSIC VALE #################### */
+.glass-nav {
+    display: flex;
+    justify-content: space-between; /* Joga a logo pra um lado e botões pro outro */
+    align-items: center;            /* Centraliza tudo verticalmente */
+    padding: 10px 5%;              /* Espaçamento interno */
+    height: 80px;                   /* Defina uma altura fixa para a barra */
+    backdrop-filter: blur(10px);    /* Efeito glass */
+    background: rgba(255, 255, 255, 0.1);
+}
+
+/* O container da logo */
+.logo {
+    display: flex;
+    align-items: center;
+    height: 100%;                   /* Faz o container ocupar a altura da barra */
+}
+
+/* A imagem da logo */
+.logo-img {
+    height: 100%;                   /* A logo tenta ocupar a altura da barra */
+    max-height: 60px;               /* MAS aqui você controla o tamanho real dela */
+    width: auto;
+    object-fit: contain;            /* Garante que a imagem não distorça */
+}
+
+/* O container dos botões */
+.nav-actions {
+    display: flex;
+    align-items: center;
+    gap: 15px;                      /* Espaço entre os botões */
 }

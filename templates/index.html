@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PULSA SÃO LUIZ | O Futuro da Tradição</title>
+    <title>PULSA MUSIC CONECT | O Futuro da Tradição</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <script src="https://unpkg.com/lucide@latest"></script>
 </head>
@@ -16,8 +16,28 @@
         <div class="orb orb-3"></div>
     </div>
 
+{# 
     <nav class="glass-nav">
-        <div class="logo">PULSA<span>PARAITINGA</div>
+        <div class="logo">PULSA<span>MUSIC</span>CONECT</div>
+        <div class="nav-actions">
+            {% if session.get('user_email') %}
+                <a href="/dashboard" class="btn-user-status">PAINEL</a>
+                <a href="/logout" class="btn-logout">SAIR</a>
+            {% else %}
+                <a href="/dashboard" class="btn-plasma-small">MEMBRO</a>
+            {% endif %}
+        </div>
+    </nav>
+#}
+
+
+    <nav class="glass-nav">
+        <div class="logo">
+            <a href="/">
+                <img src="static/img/conect1.png" alt="PULSAMUSICCONECT" class="logo-img">
+            </a>
+        </div>
+        
         <div class="nav-actions">
             {% if session.get('user_email') %}
                 <a href="/dashboard" class="btn-user-status">PAINEL</a>
@@ -28,10 +48,10 @@
         </div>
     </nav>
 
-    <header class="hero" style="background-image: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.9)), url('{{ url_for('static', filename='img/logo.jpeg') }}');">
+    <header class="hero">
         <div class="hero-content">
-            <h1 class="hero-main-title">SÃO LUIZ</h1>
-            <h2 class="sub-hero">DO PARAITINGA</h2>
+            <h1 class="hero-main-title">PULSA</h1>
+            <h2 class="sub-hero">MUSIC CONECT</h2>
             <div class="hero-divider"></div>
             <p class="hero-tagline">Onde o som flui como rio e a alma ecoa tradição.</p>
             
@@ -42,26 +62,56 @@
     </header>
 
     <main class="gallery-section" id="artistas">
-        <div class="section-header">
-            <h2 class="section-title">ARTISTAS LOCAIS</h2>
-        </div>
+    <div class="section-header">
+        <h2 class="section-title">ARTISTAS LOCAIS</h2>
+    </div>
 
-        <div class="artist-grid">
-            {% for musico in musicos %}
-            <article class="modern-card" data-tilt>
+    <div class="filter-section-header">
+        <div class="music-filter-wrapper">
+            <div class="search-group">
+                <h3 class="music-filter-title"><i data-lucide="music-2"></i> GÊNERO</h3>
+                
+                <div class="music-select-box" id="genreFilterContainer">
+                    <div class="music-select-btn" id="genreTrigger">
+                        <span id="genre-label">TODOS OS ESTILOS</span>
+                        <i data-lucide="chevron-down"></i>
+                    </div>
+
+                    <div class="music-options-list">
+                        <div class="music-opt-item active" data-filter="all">Todos os Estilos</div>
+                        {% for estilo in estilos %}
+                            <div class="music-opt-item" data-filter="{{ estilo | lower | replace(' ', '-') | replace('/', '') }}">
+                                {{ estilo }}
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="artist-grid">
+        {% for musico in musicos %}
+            <article class="modern-card" data-tilt data-estilo="{{ musico.estilo | lower | replace(' ', '-') | replace('/', '') }}">
                 <div class="card-image" style="background-image: url('{{ musico.foto }}');"></div>
                 <div class="card-overlay">
                     <span class="tag">{{ musico.estilo }}</span>
                     <h3>{{ musico.nome }}</h3>
+                    
+                    <span class="card-location">
+                        {{ musico.cidade }}  {{ musico.estado }}
+                    </span>
+
                     <a href="/musico/{{ musico.id }}" class="btn-explore">
                         <span>VER PERFIL</span>
                         <svg viewBox="0 0 24 24"><path d="M5 12h14m-7-7 7 7-7 7"/></svg>
                     </a>
                 </div>
             </article>
-            {% endfor %}
-        </div>
-    </main>
+        {% endfor %}
+    </div>
+</main>
+
 <footer class="main-footer">
         <div class="footer-content">
             <div class="footer-brand">
@@ -87,7 +137,7 @@
             <p>&copy; 2024 Pulsa São Luiz do Paraitinga. O Futuro da Tradição.</p>
         </div>
     </footer>
-    
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
 <script>
       lucide.createIcons();
     </script>

@@ -29,3 +29,48 @@ document.addEventListener('DOMContentLoaded', () => {
     // .artist-card { opacity: 0; transform: translateY(20px); transition: all 0.6s ease-out; }
     // .artist-card.visible { opacity: 1; transform: translateY(0); }
 });
+
+document.addEventListener('DOMContentLoaded', function () {
+    const container = document.getElementById('genreFilterContainer');
+    const selectedText = document.getElementById('genre-label');
+    const optionsList = document.querySelector('.music-options-list');
+
+    if (!container || !optionsList) return;
+
+    // Abrir / fechar menu
+    container.addEventListener('click', function (e) {
+        e.stopPropagation();
+        this.classList.toggle('is-active');
+    });
+
+    // Seleção de opções (Usando delegação de eventos)
+    optionsList.addEventListener('click', function (e) {
+        const option = e.target.closest('.music-opt-item');
+        if (!option) return;
+
+        e.stopPropagation();
+
+        // 1. Atualiza o texto do botão
+        const filtro = option.dataset.filter;
+        selectedText.innerText = option.innerText.toUpperCase();
+
+        // 2. Gerencia classe ativa visualmente
+        document.querySelectorAll('.music-opt-item').forEach(opt => opt.classList.remove('active'));
+        option.classList.add('active');
+
+        // 3. Lógica de Filtro dos Cards
+        document.querySelectorAll('.modern-card').forEach(card => {
+            const estilo = card.dataset.estilo;
+            // Se for 'all' mostra todos, senão compara com o dataset do card
+            card.style.display = (filtro === 'all' || estilo === filtro) ? 'block' : 'none';
+        });
+
+        // 4. Fecha o menu
+        container.classList.remove('is-active');
+    });
+
+    // Fechar ao clicar fora de qualquer lugar da janela
+    window.addEventListener('click', function () {
+        container.classList.remove('is-active');
+    });
+});

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard | Pulsa São Luiz</title>
+    <title>Dashboard | Pulsa Music Conect</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <style>
@@ -29,7 +29,7 @@
 
         <nav class="glass-nav">
             <a href="/" style="text-decoration: none;">
-                <div class="logo">PULSA<span>PARAITINGA</span></div>
+                <div class="logo">PULSA<span>MUSIC</span>CONECT</div>
             </a>
             <div class="menu-toggle" id="mobile-menu">
                 <span class="bar"></span><span class="bar"></span><span class="bar"></span>
@@ -81,6 +81,9 @@
                         <div class="card-overlay">
                             <span class="tag" id="preview-tag">{{ musico.estilo or 'Estilo' }}</span>
                             <h3 id="preview-name">{{ musico.nome or 'Nome do Artista' }}</h3>
+                            <p style="font-size: 0.7rem; color: rgba(255,255,255,0.8); margin-top: 5px; font-weight: 500;">
+                                📍 <span id="preview-cidade">{{ musico.cidade or 'Cidade' }}</span> - <span id="preview-estado">{{ musico.estado or 'UF' }}</span>
+                            </p>
                         </div>
                     </div>
                 </div>
@@ -203,22 +206,27 @@
                             <label>NOME DA BANDA / ARTISTA</label>
                         </div>
 
+                        <div style="display: grid; grid-template-columns: 3fr 1fr; gap: 15px;">
+                            <div class="input-modern">
+                                <input type="text" name="cidade" id="input-cidade" required placeholder=" " value="{{ musico.cidade or '' }}" data-lpignore="true">
+                                <label>CIDADE</label>
+                            </div>
+                            <div class="input-modern">
+                                <input type="text" name="estado" id="input-estado" required placeholder=" " maxlength="2" value="{{ musico.estado or '' }}" style="text-transform: uppercase;" data-lpignore="true">
+                                <label>UF</label>
+                            </div>
+                        </div>
+
                         <div class="input-modern">
                             <select name="estilo" id="select-style">
-                                <option value="Marchinha" {% if musico.estilo == 'Marchinha' %}selected{% endif %}>Marchinha</option>
-                                <option value="Regional / MPB" {% if musico.estilo == 'Regional / MPB' %}selected{% endif %}>Regional / MPB</option>
-                                <option value="Choro" {% if musico.estilo == 'Choro' %}selected{% endif %}>Choro</option>
-                                <option value="Rock Rural" {% if musico.estilo == 'Rock Rural' %}selected{% endif %}>Rock Rural</option>
-                                
-                                <option value="Samba" {% if musico.estilo == 'Samba' %}selected{% endif %}>Samba</option>
-                                <option value="Forró / Xote" {% if musico.estilo == 'Forró / Xote' %}selected{% endif %}>Forró / Xote</option>
-                                <option value="Sertanejo Raiz" {% if musico.estilo == 'Sertanejo Raiz' %}selected{% endif %}>Sertanejo Raiz</option>
-                                <option value="Instrumental" {% if musico.estilo == 'Instrumental' %}selected{% endif %}>Instrumental</option>
-                                <option value="Jazz / Blues" {% if musico.estilo == 'Jazz / Blues' %}selected{% endif %}>Jazz / Blues</option>
-                                <option value="Pop Rock" {% if musico.estilo == 'Pop Rock' %}selected{% endif %}>Pop Rock</option>
-                                <option value="Bossa Nova" {% if musico.estilo == 'Bossa Nova' %}selected{% endif %}>Bossa Nova</option>
-                                <option value="Cultura Popular" {% if musico.estilo == 'Cultura Popular' %}selected{% endif %}>Cultura Popular (Congada/Moçambique)</option>
+                                {% for estilo in estilos %}
+                                    <option value="{{ estilo }}"
+                                        {% if musico.estilo == estilo %}selected{% endif %}>
+                                        {{ estilo }}
+                                    </option>
+                                {% endfor %}
                             </select>
+
                             <label class="label-fixed">GÊNERO MUSICAL</label>
                         </div>
 
@@ -281,11 +289,18 @@
     </div>
 
     <script>
-        // Scripts de Preview permanecem iguais
+        // Elementos de Preview
         const inputName = document.getElementById('input-name');
         const inputUrl = document.getElementById('input-url');
         const inputFile = document.getElementById('input-file');
         const selectStyle = document.getElementById('select-style');
+        
+        // ADICIONADO: Elementos de Cidade/Estado
+        const inputCidade = document.getElementById('input-cidade');
+        const inputEstado = document.getElementById('input-estado');
+        const previewCidade = document.getElementById('preview-cidade');
+        const previewEstado = document.getElementById('preview-estado');
+
         const previewName = document.getElementById('preview-name');
         const previewTag = document.getElementById('preview-tag');
         const previewImg = document.getElementById('preview-img');
@@ -296,34 +311,36 @@
             const nomeVal = inputName.value.trim() || "{{ musico.nome or 'Nome do Artista' }}";
             const estiloVal = selectStyle.value || "{{ musico.estilo or 'Estilo' }}";
             
+            // ADICIONADO: Lógica de atualização de localidade
+            previewCidade.innerText = inputCidade.value.trim() || "{{ musico.cidade or 'Cidade' }}";
+            previewEstado.innerText = inputEstado.value.trim().toUpperCase() || "{{ musico.estado or 'UF' }}";
+
             previewName.innerText = nomeVal;
             previewTag.innerText = estiloVal;
 
             // Lógica da Imagem
             if (inputFile.files && inputFile.files[0]) {
-                // 1. Prioridade: Se o usuário selecionou um arquivo agora
                 const reader = new FileReader();
                 reader.onload = (e) => previewImg.style.backgroundImage = `url('${e.target.result}')`;
                 reader.readAsDataURL(inputFile.files[0]);
             } else if (inputUrl.value.trim() !== "") {
-                // 2. Segunda prioridade: Se o usuário colou um link
                 previewImg.style.backgroundImage = `url('${inputUrl.value.trim()}')`;
             } else {
-                // 3. Fallback: Imagem que veio do banco de dados (variável imagemDoBanco)
                 previewImg.style.backgroundImage = `url('${imagemDoBanco}')`;
             }
         }
 
-        // Garante que o card apareça assim que o site abrir
-        window.addEventListener('load', () => {
-            console.log("Carregando prévia com a imagem:", imagemDoBanco);
-            atualizarCard();
-        });
+        window.addEventListener('load', atualizarCard);
 
         inputName.addEventListener('input', atualizarCard);
         inputUrl.addEventListener('input', atualizarCard);
         inputFile.addEventListener('change', atualizarCard);
         selectStyle.addEventListener('change', atualizarCard);
+        
+        // ADICIONADO: Ouvintes de evento para Cidade e Estado
+        inputCidade.addEventListener('input', atualizarCard);
+        inputEstado.addEventListener('input', atualizarCard);
+        
         window.addEventListener('DOMContentLoaded', atualizarCard);
 
         // Funções para a Modal de Senha
@@ -335,18 +352,13 @@
             document.getElementById('modal-senha').classList.remove('active');
         }
 
-        // <<< COLOQUE O CÓDIGO AQUI >>>
         document.addEventListener('DOMContentLoaded', function () {
             const formSenha = document.getElementById('form-trocar-senha');
 
-            if (!formSenha) {
-                console.error("❌ Formulário de troca de senha não encontrado");
-                return;
-            }
+            if (!formSenha) return;
 
             formSenha.addEventListener('submit', function(e) {
                 e.preventDefault();
-
                 const novaSenha = document.getElementById('nova-senha').value;
                 const confirmaSenha = document.getElementById('confirma-senha').value;
 
@@ -363,8 +375,6 @@
                 })
                 .then(res => res.json())
                 .then(data => {
-                    console.log("🔥 RESPOSTA:", data);
-
                     if (data.status === 'success') {
                         alert("Senha atualizada com sucesso!");
                         fecharModalSenha();
@@ -380,8 +390,6 @@
             });
         });
 
-
-        // Fechar modal ao clicar fora dela (opcional, mas recomendado)
         window.onclick = function(event) {
             const modalSenha = document.getElementById('modal-senha');
             if (event.target == modalSenha) {
@@ -390,7 +398,6 @@
         }
 
         function abrirMensagem(id, nome, email, tel, data, local, tipo) {
-            // 1. Preenche os textos básicos no Modal
             document.getElementById('view-nome').innerText = nome || 'Não informado';
             document.getElementById('view-email').innerText = email || 'Não informado';
             document.getElementById('view-telefone').innerText = tel || 'Não informado';
@@ -398,43 +405,25 @@
             document.getElementById('view-local').innerText = local || 'Não informado';
             document.getElementById('view-tipo').innerText = tipo || 'Não informado';
 
-            // Pegamos o nome do artista logado (vinda do seu banco de dados via Jinja)
             const nomeDoArtista = "{{ musico.nome }}";
 
-            // 2. Lógica para o WhatsApp (Personalizada)
             if (tel) {
                 const numeroLimpo = tel.replace(/\D/g, "");
-                // Nova frase: Olá [Cliente], sou [Artista], vi que você pediu um orçamento...
                 const msgZap = `Olá ${nome}, aqui é da banda ${nomeDoArtista}. Vi que você solicitou um orçamento para um show através do portal Pulsa São Luiz para o dia ${data} em ${local}. Podemos conversar?`;
-                
                 const linkZap = `https://wa.me/55${numeroLimpo}?text=${encodeURIComponent(msgZap)}`;
-                
                 document.getElementById('link-telefone-zap').href = linkZap;
                 document.getElementById('btn-whats-action').href = linkZap;
             }
 
-            // 3. Lógica para o GMAIL (Personalizada)
             if (email) {
                 const assunto = `Orçamento Show: ${nomeDoArtista} | Pulsa São Luiz`;
-                
-                const corpoEmail = `Olá ${nome},
-
-        Aqui é da banda ${nomeDoArtista}. Recebi seu pedido de orçamento através do portal Pulsa São Luiz para o evento no dia ${data} em ${local}.
-
-        Gostaria de confirmar minha disponibilidade e conversar sobre os detalhes.
-
-        Aguardo seu retorno!
-        Atenciosamente,
-        ${nomeDoArtista}`;
-
+                const corpoEmail = `Olá ${nome},\n\nAqui é da banda ${nomeDoArtista}. Recebi seu pedido de orçamento através do portal Pulsa São Luiz para o evento no dia ${data} em ${local}.\n\nGostaria de confirmar minha disponibilidade e conversar sobre os detalhes.\n\nAguardo seu retorno!\nAtenciosamente,\n${nomeDoArtista}`;
                 const linkGmail = `https://mail.google.com/mail/?view=cm&fs=1&to=${email}&su=${encodeURIComponent(assunto)}&body=${encodeURIComponent(corpoEmail)}`;
-
                 const btnEmail = document.getElementById('btn-responder');
                 btnEmail.href = linkGmail;
                 btnEmail.target = "_blank";
             }
 
-            // 4. Abre o modal e marca como lido
             document.getElementById('modal-leitura').classList.add('active');
             fetch(`/marcar_lido/${id}`, { method: 'POST' });
         }
@@ -444,32 +433,23 @@
             location.reload(); 
         }
 
-
         const mobileMenu = document.getElementById('mobile-menu');
-            const navLinks = document.getElementById('nav-links');
+        const navLinks = document.getElementById('nav-links');
 
-            mobileMenu.addEventListener('click', () => {
-                mobileMenu.classList.toggle('active');
-                navLinks.classList.toggle('active');
-                
-                // Trava o scroll do corpo quando o menu estiver aberto
-                if (navLinks.classList.contains('active')) {
-                    document.body.style.overflow = 'hidden';
-                } else {
-                    document.body.style.overflow = 'auto';
-                }
+        mobileMenu.addEventListener('click', () => {
+            mobileMenu.classList.toggle('active');
+            navLinks.classList.toggle('active');
+            document.body.style.overflow = navLinks.classList.contains('active') ? 'hidden' : 'auto';
+        });
+
+        document.querySelectorAll('.nav-links a').forEach(link => {
+            link.addEventListener('click', () => {
+                mobileMenu.classList.remove('active');
+                navLinks.classList.remove('active');
+                document.body.style.overflow = 'auto';
             });
+        });
 
-            // Fecha o menu ao clicar em qualquer link
-            document.querySelectorAll('.nav-links a').forEach(link => {
-                link.addEventListener('click', () => {
-                    mobileMenu.classList.remove('active');
-                    navLinks.classList.remove('active');
-                    document.body.style.overflow = 'auto';
-                });
-            });
-
-            // Atualiza a visibilidade do botão de excluir vários
         function updateBulkUI() {
             const checkboxes = document.querySelectorAll('.msg-checkbox:checked');
             const bulkBar = document.getElementById('bulk-actions');
@@ -485,21 +465,18 @@
             }
         }
 
-        // Selecionar/Deselecionar todos
         function toggleSelectAll(master) {
             const checkboxes = document.querySelectorAll('.msg-checkbox');
             checkboxes.forEach(cb => cb.checked = master.checked);
             updateBulkUI();
         }
 
-        // Excluir individual
         function excluirMensagemIndividual(id) {
             if (confirm("Apagar esta mensagem?")) {
                 enviarExclusao([id]);
             }
         }
 
-        // Excluir vários
         function excluirSelecionados() {
             const selecionados = Array.from(document.querySelectorAll('.msg-checkbox:checked')).map(cb => cb.value);
             if (selecionados.length > 0 && confirm(`Apagar as ${selecionados.length} mensagens selecionadas?`)) {
@@ -507,29 +484,22 @@
             }
         }
 
-        // Função para mostrar a mensagem na tela
         function showToast(mensagem) {
             const container = document.getElementById('toast-container');
             const toast = document.createElement('div');
             toast.className = 'toast';
             toast.innerHTML = `<span>🗑️</span> ${mensagem}`;
-            
             container.appendChild(toast);
-
-            // Pequeno delay para a animação de entrada
             setTimeout(() => toast.classList.add('show'), 100);
-
-            // Remove a mensagem após 3 segundos e recarrega a página
             setTimeout(() => {
                 toast.classList.remove('show');
                 setTimeout(() => {
                     toast.remove();
-                    location.reload(); // Recarrega após a mensagem sumir
+                    location.reload();
                 }, 500);
             }, 2500);
         }
 
-        // Função de exclusão atualizada
         function enviarExclusao(listaIds) {
             fetch('/excluir_pedidos', {
                 method: 'POST',
@@ -539,18 +509,13 @@
             .then(res => res.json())
             .then(data => {
                 if (data.status === 'success') {
-                    // Em vez do alert do navegador, usa o nosso Toast
                     showToast(listaIds.length > 1 ? "Mensagens excluídas!" : "Mensagem excluída!");
                 } else {
                     alert("Erro: " + data.message);
                 }
             })
-            .catch(err => {
-                console.error("Erro:", err);
-            });
+            .catch(err => console.error("Erro:", err));
         }
     </script>
-
-    
 </body>
 </html>
