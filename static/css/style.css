@@ -3060,7 +3060,7 @@ html {
     .gallery-section {
         display: flex !important;
         flex-direction: column !important;
-        padding: 40px 5%; /* Reduzi um pouco o padding superior */
+        padding: 40px 5%; 
     }
 
     /* 2. Inversão Visual: Filtro sobe, Título desce */
@@ -3078,8 +3078,8 @@ html {
 
     /* 3. Ajuste do Componente de Música no Mobile */
     .music-filter-wrapper {
-        align-items: flex-start !important; /* Alinha à esquerda no mobile */
-        margin: 0 0 15px 0 !important; /* Remove o margin negativo do desktop */
+        align-items: flex-start !important;
+        margin: 0 0 15px 0 !important;
     }
 
     .search-group {
@@ -3096,44 +3096,77 @@ html {
     }
 
     .music-select-box {
-        width: 100%; /* Ocupa a largura disponível */
-        max-width: 100%; /* Permite expansão total no mobile se desejar */
+        width: 100%;
+        max-width: 100%;
     }
 
     .music-select-btn {
-        padding: 14px 18px; /* Botão um pouco maior para facilitar o toque (touch) */
+        padding: 14px 18px;
     }
 
     /* 4. Lista de Opções no Mobile */
     .music-options-list {
         position: absolute;
         width: 100%;
-        max-height: 250px; /* Um pouco maior no mobile para scroll mais fácil */
+        max-height: 250px;
         z-index: 1100;
-        /* Garante que a lista não quebre o layout */
     }
 
     .music-opt-item {
-        padding: 12px 15px; /* Altura de toque confortável para o dedo */
+        padding: 12px 15px;
         font-size: 0.85rem;
     }
 
+    /* 5. Grid de Artistas: Duas Colunas */
     .artist-grid {
         order: 3;
         margin-top: 25px;
         display: grid !important;
-        /* Define duas colunas com tamanhos iguais */
         grid-template-columns: repeat(2, 1fr) !important; 
-        gap: 10px !important; /* Espaçamento menor para caber melhor lado a lado */
+        gap: 40px 12px !important; 
     }
 
-    /* Ajuste opcional nos textos do card para não amontoar em telas muito pequenas */
+    /* 6. Atualização: Card Retangular (Proporção 158x168) */
+    /* Estado inicial: Invisível e deslocado para baixo */
+    .modern-card {
+        opacity: 0;
+        transform: translateY(50px);
+        transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+        will-change: opacity, transform;
+    }
+
+    /* Estado final: Visível e na posição original */
+    .modern-card.visible {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    /* Ajustes internos para o novo tamanho do card */
+    .card-overlay {
+        padding: 10px !important;
+    }
+
     .card-overlay h3 {
         font-size: 0.9rem !important;
+        line-height: 1.1 !important;
+        margin-bottom: 2px !important;
     }
 
+    /* Localidade abaixo do nome ajustada para o card menor */
     .card-location {
-        font-size: 0.6rem !important;
+        display: block !important;
+        font-size: 0.65rem !important;
+        color: rgba(255, 255, 255, 0.7) !important;
+        text-transform: uppercase;
+        margin-top: 0px !important;
+        margin-bottom: 8px !important;
+        letter-spacing: 0.3px;
+    }
+
+    /* Ajuste do botão dentro do card retangular */
+    .btn-explore {
+        font-size: 0.65rem !important;
+        padding: 4px 0 !important;
     }
 }
 

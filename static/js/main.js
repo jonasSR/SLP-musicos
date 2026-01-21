@@ -74,3 +74,25 @@ document.addEventListener('DOMContentLoaded', function () {
         container.classList.remove('is-active');
     });
 });
+document.addEventListener("DOMContentLoaded", function() {
+    const cards = document.querySelectorAll(".modern-card");
+
+    const appearanceOptions = {
+        threshold: 0.2, // O efeito começa quando 20% do card aparece na tela
+        rootMargin: "0px 0px -50px 0px" // Dispara um pouco antes de chegar na visão total
+    };
+
+    const appearanceObserver = new IntersectionObserver(function(entries, appearanceObserver) {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add("visible");
+                // Uma vez que apareceu, não precisamos mais observar esse card
+                appearanceObserver.unobserve(entry.target);
+            }
+        });
+    }, appearanceOptions);
+
+    cards.forEach(card => {
+        appearanceObserver.observe(card);
+    });
+});
