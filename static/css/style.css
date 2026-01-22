@@ -71,7 +71,7 @@ body {
     background: var(--glass);
     backdrop-filter: blur(25px);
     border: 1px solid var(--border);
-    border-radius: 100px;
+    border-radius: 10px;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -86,6 +86,7 @@ body {
 }
 
 .logo span { color: var(--accent); }
+
 
 /*#################################### HERO SECTION (DESTAQUE PRINCIPAL) #################################### */
 .hero {
@@ -105,7 +106,6 @@ body {
 }
 
 
-
 .sub-hero {
     font-size: clamp(1rem, 3vw, 1.8rem);
     font-weight: 200;
@@ -122,14 +122,16 @@ body {
    
 }
 
+
+/*#################################### BOTÃO EXPLORAR #################################### */
 .btn-plasma {
     margin-top: 50px;
     display: inline-block;
-    padding: 20px 50px;
+    padding: 10px 50px;
     background: #fff;
     color: #000;
     text-decoration: none;
-    border-radius: 100px;
+    border-radius: 10px;
     font-family: 'Syne', sans-serif;
     font-weight: 800;
     transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
@@ -878,34 +880,6 @@ body {
     transition: transform 0.1s ease-out;
 }
 
-/* 3. NAVEGAÇÃO GLASS */
-.glass-nav {
-    position: fixed;
-    top: 25px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 90%;
-    max-width: 1300px;
-    padding: 15px 40px;
-    background: var(--glass);
-    backdrop-filter: blur(25px);
-    border: 1px solid var(--border);
-    border-radius: 100px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    z-index: 1000;
-}
-
-.logo {
-    font-family: 'Syne', sans-serif;
-    font-weight: 800;
-    letter-spacing: 4px;
-    font-size: 1.2rem;
-}
-
-.logo span { color: var(--accent); }
-
 /* 4. HERO SECTION (DESTAQUE PRINCIPAL) */
 .hero {
     height: 100vh;
@@ -957,51 +931,6 @@ body {
     margin-top: -10px; /* Aproxima do título principal */
     opacity: 0.8;
 }
-
-
-
-.btn-plasma {
-    margin-top: 50px;
-    display: inline-block;
-    padding: 20px 50px;
-    background: #fff;
-    color: #000;
-    text-decoration: none;
-    border-radius: 100px;
-    font-family: 'Syne', sans-serif;
-    font-weight: 800;
-    transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-}
-
-.btn-plasma:hover {
-    background: var(--accent);
-    transform: translateY(-5px) scale(1.05);
-    box-shadow: 0 15px 35px rgba(0, 242, 255, 0.4);
-}
-
-.btn-explore {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    color: white;
-    text-decoration: none;
-    font-weight: 700;
-    font-size: 0.8rem;
-    letter-spacing: 1px;
-}
-
-.btn-explore svg {
-    width: 20px;
-    stroke: var(--accent);
-    stroke-width: 3;
-    fill: none;
-    transition: 0.3s;
-}
-
-.btn-explore:hover svg {
-    transform: translateX(10px);
-}
-
 
 /* 3. LAYOUT PERFIL DIVIDIDO (PÁGINA DO MÚSICO) */
 .profile-body {
@@ -1558,191 +1487,10 @@ body {
 .close-modal { position: absolute; top: 10px; right: 15px; background: none; border: none; color: #fff; font-size: 2rem; cursor: pointer; }
 
 
-/* ======================================================
-   7. DASHBOARD (PAINEL DO MÚSICO)
-   ====================================================== */
 
-.dash-page { background: #020202; }
 
-.dash-main {
-    max-width: 1400px;
-    margin: 0 auto;
-    padding: 120px 5% 50px;
-}
+/*##################################################################################################################### */
 
-.dash-intro { margin-bottom: 60px; }
-
-.reveal-text {
-    font-family: 'Syne', sans-serif;
-    font-size: 3rem;
-    text-transform: uppercase;
-}
-.reveal-text span { color: var(--accent); display: block; font-size: 1.5rem; letter-spacing: 10px; }
-
-/* Grid de Configuração */
-.config-grid {
-    display: grid;
-    grid-template-columns: 1fr 1.5fr;
-    gap: 50px;
-    align-items: start;
-}
-
-/* Painel de Preview */
-.preview-sticky {
-    position: sticky;
-    top: 100px;
-}
-
-.label-mini {
-    font-size: 0.6rem;
-    letter-spacing: 3px;
-    color: var(--accent);
-    margin-bottom: 20px;
-    display: block;
-}
-
-.preview-card {
-    height: 450px !important;
-    pointer-events: none;
-    border-color: rgba(0, 242, 255, 0.2);
-}
-
-/* Formulário Nebula */
-.form-panel {
-    background: rgba(255, 255, 255, 0.02);
-    padding: 40px;
-    border-radius: 30px;
-    border: 1px solid var(--border);
-}
-
-.nebula-form .input-modern input, 
-.nebula-form .input-modern textarea,
-.nebula-form .input-modern select {
-    width: 100%;
-    background: transparent;
-    border: none;
-    border-bottom: 1px solid var(--border);
-    padding: 15px 0;
-    color: white;
-    outline: none;
-    font-family: inherit;
-}
-
-.nebula-form .input-modern label {
-    display: block;
-    font-size: 0.7rem;
-    color: var(--accent);
-    letter-spacing: 2px;
-    margin-top: 10px;
-}
-
-/* Estilo para Mensagens (Inbox) */
-.inbox-section {
-    margin-bottom: 60px;
-    background: rgba(255,255,255,0.02);
-    border-radius: 24px;
-    padding: 30px;
-    border: 1px solid var(--border);
-}
-
-.section-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 25px;
-}
-
-.count-badge {
-    background: var(--accent);
-    color: black;
-    padding: 4px 12px;
-    border-radius: 100px;
-    font-size: 0.7rem;
-    font-weight: 900;
-}
-
-.message-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 20px;
-    border-bottom: 1px solid var(--border);
-    transition: 0.3s;
-    cursor: pointer;
-}
-
-.message-item:hover { background: rgba(255,255,255,0.05); }
-
-.message-item.unread {
-    border-left: 4px solid var(--accent);
-    background: rgba(0, 242, 255, 0.03);
-}
-
-.msg-info { display: flex; flex-direction: column; gap: 5px; }
-.msg-sender { font-weight: 800; font-size: 0.9rem; }
-.msg-preview { opacity: 0.5; font-size: 0.8rem; }
-.msg-date { font-size: 0.7rem; opacity: 0.4; }
-
-/* Botão de Ação com Brilho */
-.btn-glow-action {
-    width: 100%;
-    padding: 20px;
-    background: white;
-    color: black;
-    border: none;
-    border-radius: 100px;
-    font-family: 'Syne', sans-serif;
-    font-weight: 900;
-    cursor: pointer;
-    position: relative;
-    overflow: hidden;
-    transition: 0.4s;
-    margin-top: 20px;
-}
-
-.btn-glow-action:hover {
-    background: var(--accent);
-    box-shadow: 0 0 30px rgba(0, 242, 255, 0.4);
-}
-
-/* Modal de Leitura */
-.modal-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.9);
-    backdrop-filter: blur(10px);
-    display: none;
-    align-items: center;
-    justify-content: center;
-    z-index: 2000;
-}
-
-.modal-overlay.active { display: flex; }
-
-.modal-content {
-    width: 90%;
-    max-width: 500px;
-    background: #0a0a0a;
-    border: 1px solid var(--accent);
-    padding: 40px;
-    border-radius: 30px;
-    position: relative;
-}
-
-.modal-divider { margin: 20px 0; border: 0; border-top: 1px solid var(--border); }
-.alert-info { 
-    background: rgba(0, 242, 255, 0.1); 
-    padding: 15px; 
-    border-radius: 10px; 
-    font-size: 0.8rem; 
-    margin: 20px 0; 
-}
-
-/* Responsividade do Dash */
-@media (max-width: 900px) {
-    .config-grid { grid-template-columns: 1fr; }
-    .preview-panel { display: none; } /* Esconde o preview no celular para focar no form */
-}
 
 /* ================================================= */
 /* 7. PÁGINA DE AUTENTICAÇÃO (LOGIN/REGISTER)       */
@@ -1906,9 +1654,157 @@ body {
 }
 
 
-/* ================================================= */
-/* PÁGINA LOGIN*/
-/* ================================================= */
+
+/*#################################### CARD LOGIN #################################### */
+.log-card-container {
+    margin: 20px auto !important; 
+    background: rgba(255, 255, 255, 0.03);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 25px 30px; /* Reduzido para não inflar o card */
+    border-radius: 16px;
+    text-align: center;
+    width: 90%;
+    max-width: 350px; /* Reduzido de 420px para um visual mais clean */
+    box-shadow: 0 15px 35px rgba(0,0,0,0.4);
+    z-index: 100;
+}
+
+.log-glitch-title {
+    color: white;
+    font-size: 1.4rem; /* Reduzido de 1.8rem */
+    font-weight: 700;
+    margin-bottom: 4px;
+    letter-spacing: -0.5px;
+}
+.log-glitch-title span { color: #00f2ff; }
+
+.log-subtitle {
+    font-size: 0.75rem; /* Reduzido de 0.85rem */
+    color: rgba(255,255,255,0.4);
+    margin-bottom: 25px; /* Reduzido de 40px */
+}
+
+/* Grupos de Input */
+.log-field-group {
+    position: relative;
+    margin-bottom: 22px; /* Reduzido de 30px */
+    text-align: left;
+}
+
+.log-input-field {
+    width: 100%;
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid rgba(255,255,255,0.15);
+    padding: 8px 0; /* Reduzido de 12px */
+    color: white;
+    font-size: 0.9rem; /* Reduzido de 1rem */
+    outline: none;
+    transition: 0.3s;
+}
+
+.log-field-label {
+    position: absolute;
+    left: 0;
+    top: 8px;
+    font-size: 0.6rem; /* Reduzido de 0.65rem */
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    color: rgba(255,255,255,0.3);
+    pointer-events: none;
+    transition: 0.3s;
+    text-transform: uppercase;
+}
+
+/* Efeito flutuante ajustado para o novo tamanho */
+.log-input-field:focus ~ .log-field-label,
+.log-input-field:not(:placeholder-shown) ~ .log-field-label {
+    top: -14px;
+    color: #00f2ff;
+    font-size: 0.55rem;
+}
+
+.log-input-field:focus {
+    border-bottom-color: #00f2ff;
+}
+
+/* Botões */
+.log-btn-main {
+    width: 100%; /* Melhor preenchimento interno */
+    max-width: 220px; 
+    background: white;
+    color: black;
+    border: none;
+    padding: 12px; /* Reduzido de 18px */
+    border-radius: 8px;
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    cursor: pointer;
+    transition: 0.4s;
+    margin-bottom: 12px;
+    font-size: 0.85rem;
+}
+
+.log-btn-main:hover {
+    background: #00f2ff;
+    transform: translateY(-1px);
+    box-shadow: 0 8px 15px rgba(0, 242, 255, 0.2);
+}
+
+.log-btn-outline {
+    background: transparent;
+    color: white;
+    border: 1px solid rgba(255,255,255,0.1);
+    font-size: 0.7rem;
+    padding: 8px 16px;
+}
+
+/* Olho da senha */
+.log-pass-group { position: relative; }
+
+.log-toggle-eye {
+    position: absolute;
+    right: 0;
+    top: 6px;
+    background: none;
+    border: none;
+    color: rgba(255,255,255,0.3);
+    cursor: pointer;
+    font-size: 1rem;
+}
+
+.file-input-custom {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px dashed rgba(255, 255, 255, 0.15);
+    padding: 8px;
+    font-size: 0.7rem;
+    width: 100%;
+    color: rgba(255,255,255,0.6);
+    cursor: pointer;
+    border-radius: 6px;
+}
+
+/* Botão Google Moderno */
+.google-btn-modern {
+    width: 100%;
+    max-width: 220px;          
+    margin: 10px auto;      
+    height: 40px; /* Reduzido de 45px */          
+    background-color: #fff;
+    border-radius: 8px;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    padding: 2px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    font-size: 0.8rem;
+}
+
 
 .login-page-root {
     /* Força o preenchimento total da tela */
@@ -1934,372 +1830,6 @@ body {
     inset: 0;
     z-index: -1;
     background: radial-gradient(circle at 50% 50%, rgba(0, 242, 255, 0.1), transparent 70%);
-}
-
-/* Card exclusivo de Login */
-.log-card-container {
-    /* Remove qualquer margem que possa estar empurrando o card */
-    margin: 0 !important; 
-    
-    background: rgba(255, 255, 255, 0.03);
-    backdrop-filter: blur(25px);
-    -webkit-backdrop-filter: blur(25px); /* Suporte para Safari */
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    padding: 60px 45px;
-    border-radius: 40px;
-    text-align: center;
-    width: 90%; /* Responsivo para telas pequenas */
-    max-width: 420px;
-    box-shadow: 0 20px 50px rgba(0,0,0,0.5);
-    z-index: 100; /* Garante que fique na frente de tudo */
-}
-.log-glitch-title {
-    color: white;
-    font-size: 1.8rem;
-    font-weight: 800;
-    margin-bottom: 8px;
-    letter-spacing: -1px;
-}
-.log-glitch-title span { color: #00f2ff; }
-
-.log-subtitle {
-    font-size: 0.85rem;
-    color: rgba(255,255,255,0.5);
-    margin-bottom: 40px;
-}
-
-/* Grupos de Input com nomes únicos */
-.log-field-group {
-    position: relative;
-    margin-bottom: 30px;
-    text-align: left;
-}
-
-.log-input-field {
-    width: 100%;
-    background: transparent;
-    border: none;
-    border-bottom: 1px solid rgba(255,255,255,0.2);
-    padding: 12px 0;
-    color: white;
-    font-size: 1rem;
-    outline: none;
-    transition: 0.3s;
-}
-
-.log-field-label {
-    position: absolute;
-    left: 0;
-    top: 12px;
-    font-size: 0.65rem;
-    font-weight: 800;
-    letter-spacing: 2px;
-    color: rgba(255,255,255,0.3);
-    pointer-events: none;
-    transition: 0.3s;
-    text-transform: uppercase;
-}
-
-/* Efeito flutuante isolado */
-.log-input-field:focus ~ .log-field-label,
-.log-input-field:not(:placeholder-shown) ~ .log-field-label {
-    top: -18px;
-    color: #00f2ff;
-    font-size: 0.6rem;
-}
-
-.log-input-field:focus {
-    border-bottom-color: #00f2ff;
-}
-
-/* Botões exclusivos */
-.log-btn-main {
-    width: 100%;
-    background: white;
-    color: black;
-    border: none;
-    padding: 18px;
-    border-radius: 100px;
-    font-family: 'Syne', sans-serif;
-    font-weight: 800;
-    cursor: pointer;
-    transition: 0.4s;
-    margin-bottom: 15px;
-    font-size: 0.9rem;
-}
-
-.log-btn-main:hover {
-    background: #00f2ff;
-    transform: translateY(-2px);
-    box-shadow: 0 10px 20px rgba(0, 242, 255, 0.3);
-}
-
-.log-btn-outline {
-    background: transparent;
-    color: white;
-    border: 1px solid rgba(255,255,255,0.15);
-    font-size: 0.75rem;
-}
-
-.log-btn-outline:hover {
-    background: rgba(255,255,255,0.05);
-    border-color: white;
-}
-
-/* Olho da senha isolado */
-.log-pass-group { position: relative; }
-
-.log-toggle-eye {
-    position: absolute;
-    right: 0;
-    top: 8px;
-    background: none;
-    border: none;
-    color: rgba(255,255,255,0.4);
-    cursor: pointer;
-    font-size: 1.1rem;
-}
-
-
-
-
-.file-input-custom {
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px dashed rgba(255, 255, 255, 0.2);
-    padding: 10px;
-    width: 100%;
-    color: white;
-    cursor: pointer;
-    border-radius: 8px;
-}
-
-.file-input-custom:hover {
-    background: rgba(255, 255, 255, 0.1);
-    border-color: #fff;
-}
-
-/* ======================================================
-   📅 ESTILO ESPECÍFICO: GESTÃO DE AGENDA
-   ====================================================== */
-
-/* GESTÃO DE AGENDA */
-.agenda-manager-section {
-    background: rgba(255, 255, 255, 0.02);
-    padding: 30px;
-    border-radius: 24px;
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    margin-top: 50px;
-}
-
-/* Título da Seção */
-.section-header {
-    display: flex;
-    align-items: center;
-    margin-bottom: 25px;
-}
-
-.section-label {
-    font-size: 0.9rem;
-    font-weight: 700;
-    color: #4facfe;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-}
-
-/* Card do Formulário */
-.glass-card {
-    background: rgba(255, 255, 255, 0.03);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 15px;
-    transition: 0.3s;
-    overflow: hidden; /* Garante que nada saia do card */
-}
-
-/* Inputs da Agenda */
-.input-modern {
-    display: flex;
-    flex-direction: column-reverse;
-    position: relative;
-}
-
-.input-modern input {
-    background: rgba(0, 0, 0, 0.2);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 8px;
-    padding: 12px;
-    color: #fff;
-    font-size: 0.85rem; /* Diminuído levemente para caber melhor */
-    transition: 0.3s;
-    width: 100%;
-    box-sizing: border-box;
-}
-
-/* --- REMOVER ÍCONES DE CALENDÁRIO, RELÓGIO E EXTENSÕES --- */
-/* Remove ícones nativos (Chrome/Edge/Safari) */
-input::-webkit-calendar-picker-indicator,
-input::-webkit-inner-spin-button,
-input::-webkit-clear-button {
-    display: none !important;
-    -webkit-appearance: none !important;
-}
-
-/* Remove ícones de extensões (quadradinhos cinzas) */
-input::-webkit-contacts-auto-fill-button,
-input::-webkit-credentials-auto-fill-button {
-    display: none !important;
-    visibility: hidden !important;
-    pointer-events: none !important;
-}
-
-.input-modern input:focus {
-    border-color: #00f2fe;
-    outline: none;
-    box-shadow: 0 0 10px rgba(0, 242, 254, 0.2);
-}
-
-.label-fixed {
-    font-size: 0.6rem; /* Menor para não ocupar muito espaço vertical */
-    color: #888;
-    margin-bottom: 5px;
-    font-weight: 600;
-    letter-spacing: 1px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-/* Ajuste do Botão para não sair do card */
-.btn-glow-action {
-    background: #fff;
-    color: #000;
-    border: none;
-    border-radius: 50px;
-    font-weight: 800;
-    font-size: 0.7rem;
-    cursor: pointer;
-    transition: 0.3s;
-    white-space: nowrap;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-/* Lista de Mensagens/Shows */
-.messages-list {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-}
-
-.message-item {
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    border-radius: 12px;
-    padding: 15px 20px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    transition: 0.3s ease;
-}
-
-
-/* Inputs da Agenda */
-.input-modern {
-    display: flex;
-    flex-direction: column-reverse;
-    position: relative;
-}
-
-.input-modern input {
-    background: rgba(0, 0, 0, 0.2);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 8px;
-    padding: 12px;
-    color: #fff;
-    font-size: 0.85rem;
-    transition: 0.3s;
-    width: 100%;
-    box-sizing: border-box;
-}
-
-/* --- ATIVAÇÃO APENAS PARA O CALENDÁRIO (input type="date") --- */
-
-/* Faz o gatilho do calendário ocupar o campo todo apenas no campo de DATA */
-.input-modern input[type="date"]::-webkit-calendar-picker-indicator {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    width: auto;
-    height: auto;
-    color: transparent;
-    background: transparent;
-    cursor: pointer;
-    z-index: 5;
-    display: block !important; /* Garante que ele apareça */
-}
-
-/* Esconde o ícone de relógio no campo de HORA e mantém os outros limpos */
-.input-modern input[type="time"]::-webkit-calendar-picker-indicator,
-.input-modern input::-webkit-inner-spin-button,
-.input-modern input::-webkit-clear-button {
-    display: none !important;
-    -webkit-appearance: none !important;
-}
-
-/* Esconde quadradinhos de extensões (Bitwarden, etc) */
-input::-webkit-contacts-auto-fill-button,
-input::-webkit-credentials-auto-fill-button {
-    display: none !important;
-    visibility: hidden !important;
-    pointer-events: none !important;
-}
-
-.input-modern input:focus {
-    border-color: #00f2fe;
-    outline: none;
-    box-shadow: 0 0 10px rgba(0, 242, 254, 0.2);
-}
-
-.nav-actions {
-    display: flex;
-    align-items: center;
-    gap: 20px; /* Espaçamento entre os botões */
-}
-
-.btn-nav-link {
-    color: #fff;
-    text-decoration: none;
-    font-size: 0.8rem;
-    font-weight: 700;
-    letter-spacing: 1px;
-    opacity: 0.7;
-    transition: 0.3s;
-}
-
-.btn-nav-link:hover {
-    opacity: 1;
-    color: #4facfe; /* Cor azul que você usa no destaque */
-}
-
-/* Estilo do botão PAINEL que você já deve ter, para referência */
-.btn-user-status {
-    background: rgba(255, 255, 255, 0.05);
-    padding: 8px 15px;
-    border-radius: 50px;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    color: #fff;
-    font-size: 0.75rem;
-    font-weight: 700;
-    text-decoration: none;
-    transition: 0.3s;
-}
-
-.btn-user-status:hover {
-    background: #fff;
-    color: #000;
 }
 
 /* =====================================================
@@ -2398,33 +1928,6 @@ input::-webkit-credentials-auto-fill-button {
 html {
     scroll-behavior: smooth;
 }
-/* Forçar o card de preview a aparecer */
-.preview-panel {
-    display: block !important;
-    opacity: 1 !important;
-    visibility: visible !important;
-    min-height: 400px;
-}
-
-.modern-card.preview-card {
-    display: flex !important;
-    flex-direction: column;
-    width: 100% !important;
-    height: 400px !important; /* Altura fixa para teste */
-    background: rgba(255, 255, 255, 0.05); /* Fundo caso a imagem falhe */
-    border-radius: 20px;
-    overflow: hidden;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-#preview-img {
-    flex: 1; /* Faz a imagem ocupar o espaço disponível */
-    width: 100%;
-    background-size: cover !important;
-    background-position: center !important;
-    min-height: 250px; /* Garante que a foto apareça */
-}
-
 /* =====================================================
    FOOTER
    ===================================================== */
@@ -2536,70 +2039,6 @@ html {
     align-items: center;
 }
 
-/* Menu Toggle (Hambúrguer) */
-.menu-toggle {
-    display: none;
-    flex-direction: column;
-    cursor: pointer;
-    gap: 6px;
-    z-index: 1100;
-}
-
-.menu-toggle .bar {
-    width: 28px;
-    height: 3px;
-    background-color: #fff;
-    border-radius: 10px;
-    transition: all 0.3s ease;
-}
-
-/* Responsividade Mobile */
-@media (max-width: 768px) {
-    .menu-toggle {
-        display: flex;
-    }
-
-    .nav-links {
-        position: fixed;
-        right: -100%;
-        top: 0;
-        width: 100%;
-        height: 100vh;
-        background: rgba(0, 0, 0, 0.9);
-        backdrop-filter: blur(20px);
-        flex-direction: column;
-        justify-content: center;
-        transition: 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55);
-        z-index: 1050;
-    }
-
-    .nav-links.active {
-        right: 0;
-    }
-
-    .nav-links li {
-        margin: 20px 0;
-        opacity: 0;
-        transform: translateY(20px);
-    }
-
-    .nav-links.active li {
-        opacity: 1;
-        transform: translateY(0);
-        transition: 0.4s ease forwards;
-    }
-
-    /* Animação do X no Hambúrguer */
-    .menu-toggle.active .bar:nth-child(2) { opacity: 0; }
-    .menu-toggle.active .bar:nth-child(1) {
-        transform: translateY(9px) rotate(45deg);
-        background-color: #00d4ff;
-    }
-    .menu-toggle.active .bar:nth-child(3) {
-        transform: translateY(-9px) rotate(-45deg);
-        background-color: #00d4ff;
-    }
-}
 
 .modal-overlay {
         position: fixed;
@@ -2711,23 +2150,6 @@ html {
 }
 
 
-
-/* Estilo para Computador (Desktop) */
-.google-btn-modern {
-    width: 280px;           
-    margin: 15px auto;      
-    height: 45px;           
-    background-color: #fff;
-    border-radius: 12px;
-    border: none;
-    display: flex;
-    align-items: center;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    padding: 2px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-}
-
 /* Ajuste específico para Celulares (Dispositivos Móveis) */
 @media (max-width: 480px) {
     .google-btn-modern {
@@ -2761,7 +2183,7 @@ html {
 }
 
 .google-icon { 
-    width: 20px; 
+    width: 10px; 
 }
 
 .btn-text {
@@ -2771,7 +2193,7 @@ html {
     font-weight: 600;
     margin: 0;
     text-align: center;
-    padding-right: 40px;
+    padding-right: 10px;
     font-family: 'Syne', sans-serif;
     white-space: nowrap; /* Impede que o texto quebre em duas linhas */
 }
@@ -3208,4 +2630,45 @@ html {
     display: flex;
     align-items: center;
     gap: 15px;                      /* Espaço entre os botões */
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+.social-icon-link {
+    color: #fff;
+    font-size: 1.8rem; /* Tamanho do ícone */
+    transition: all 0.3s ease;
+    opacity: 0.7;
+    text-decoration: none;
+}
+
+.social-icon-link:hover {
+    opacity: 1;
+    transform: translateY(-5px); /* Efeito de flutuar ao passar o mouse */
+    color: #00d2ff; /* Cor azul neon que você usa nos rótulos */
+    text-shadow: 0 0 15px rgba(0, 210, 255, 0.5);
+}
+
+/* Garante que o título "REDES SOCIAIS" siga o estilo dos outros */
+.section-label {
+    font-size: 0.75rem;
+    letter-spacing: 2px;
+    color: #00d2ff; /* Ajuste para a cor exata do seu tema */
+    margin-bottom: 10px;
+    display: block;
 }

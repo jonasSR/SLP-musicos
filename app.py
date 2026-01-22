@@ -73,7 +73,6 @@ from config import ESTILOS
 def inject_estilos():
     return dict(estilos=ESTILOS)
 
-
 # ======================================================
 # 🌎 ROTAS PÚBLICAS
 # ======================================================
@@ -98,6 +97,14 @@ def index():
 def perfil_musico(musico_id):
     """Página detalhada de cada artista"""
     doc_ref = db.collection('artistas').document(musico_id)
+    
+    # --- NOVO: CONTADOR DE CLIQUES ---
+    # Isso dispara a contagem no banco de dados toda vez que a rota é acessada
+    doc_ref.update({
+        'cliques': firestore.Increment(1)
+    })
+    # ---------------------------------
+
     musico = doc_ref.get()
 
     if not musico.exists:
@@ -113,7 +120,6 @@ def perfil_musico(musico_id):
         agenda=agenda,
         id=musico_id
     )
-
 
 # ======================================================
 # 🔐 AUTENTICAÇÃO
@@ -172,11 +178,15 @@ def dashboard():
     pedidos = []
     agenda = [] # <--- Adicione esta lista
     artista_dados = None 
+    total_cliques = 0 # <--- Inicializa a variável para o contador
 
     for doc in artista_query:
         artista_id = doc.id
         artista_dados = doc.to_dict()
         artista_dados['id'] = artista_id
+        
+        # --- BUSCAR CLICKS ---
+        total_cliques = artista_dados.get('cliques', 0) # <--- Pega os cliques do banco
         
         # BUSCAR PEDIDOS
         pedidos_ref = db.collection('pedidos_reserva').where('musico_id', '==', artista_id).stream()
@@ -198,7 +208,8 @@ def dashboard():
         'dashboard.html', 
         pedidos=pedidos, 
         musico=artista_dados,
-        agenda=agenda  # <--- Certifique-se de enviar a agenda aqui
+        agenda=agenda,
+        total_cliques=total_cliques # <--- Envia para o HTML
     )
 
 # NOVA ROTA: Para marcar como lida via JavaScript quando você clicar
@@ -219,6 +230,12 @@ def cadastrar_musico():
     bio = request.form.get('bio')
     foto_url = request.form.get('foto_url')
     file = request.files.get('foto_arquivo')
+    
+    # --- NOVOS CAMPOS REDES SOCIAIS ---
+    instagram = request.form.get('instagram')
+    facebook = request.form.get('facebook')
+    youtube = request.form.get('youtube')
+    # ----------------------------------
 
     email = session['user_email']
 
@@ -237,45 +254,45 @@ def cadastrar_musico():
         artista_data = doc.to_dict()
         break
 
-    # Se não existir artista ainda
     if not artista_doc:
         artista_data = {}
 
     # 🧠 Foto atual (fallback)
     final_path = artista_data.get('foto')
 
-    # 🔗 Caso usuário tenha informado um link
     if foto_url:
         final_path = foto_url
 
-    # 📤 Caso usuário tenha feito upload
     if file and file.filename != '' and allowed_file(file.filename):
         filename = secure_filename(file.filename)
         filename = f"upload_{filename}"
         file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
         final_path = f"/static/img/{filename}"
 
+    # Dicionário de dados atualizado com as redes sociais
     dados = {
         'nome': nome,
         'cidade': cidade,
         'estado': estado,
         'estilo': estilo,
         'bio': bio,
+        'instagram': instagram, # Salva no banco
+        'facebook': facebook,   # Salva no banco
+        'youtube': youtube,     # Salva no banco
         'dono_email': email,
         'timestamp': firestore.SERVER_TIMESTAMP
     }
 
-    # 🚨 Só adiciona "foto" se ela existir
     if final_path:
         dados['foto'] = final_path
 
     if artista_doc:
         db.collection('artistas').document(artista_doc.id).update(dados)
     else:
+        dados['cliques'] = 0 # <--- Inicializa com 0 apenas se for um documento novo
         db.collection('artistas').add(dados)
 
     return redirect(url_for('dashboard'))
-
 
 # ======================================================
 # 🎵 CONTRATAR BANDA
