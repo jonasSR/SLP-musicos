@@ -98,26 +98,44 @@ def perfil_musico(musico_id):
     """Página detalhada de cada artista"""
     doc_ref = db.collection('artistas').document(musico_id)
     
-    # --- NOVO: CONTADOR DE CLIQUES ---
-    # Isso dispara a contagem no banco de dados toda vez que a rota é acessada
-    doc_ref.update({
-        'cliques': firestore.Increment(1)
-    })
-    # ---------------------------------
+    # Incrementa cliques
+    doc_ref.update({'cliques': firestore.Increment(1)})
 
     musico = doc_ref.get()
-
     if not musico.exists:
         return "Músico não encontrado", 404
 
     dados = musico.to_dict()
+    
+    # Buscar Agenda
     agenda_ref = doc_ref.collection('agenda').stream()
     agenda = [show.to_dict() for show in agenda_ref]
+
+    # --- NOVO: BUSCAR FEEDBACKS APROVADOS ---
+    feedbacks_ref = db.collection('feedbacks')\
+        .where('artista_id', '==', musico_id)\
+        .where('status', '==', 'aprovado')\
+        .stream()
+    
+    feedbacks_aprovados = []
+    total_estrelas = 0
+    
+    for f in feedbacks_ref:
+        f_dados = f.to_dict()
+        feedbacks_aprovados.append(f_dados)
+        total_estrelas += f_dados.get('estrelas', 5)
+
+    # Cálculo de estatísticas para o perfil
+    qtd_fas = len(feedbacks_aprovados)
+    media_estrelas = round(total_estrelas / qtd_fas, 1) if qtd_fas > 0 else 0
 
     return render_template(
         'perfil.html',
         musico=dados,
         agenda=agenda,
+        feedbacks=feedbacks_aprovados, # Lista para o Mural
+        qtd_fas=qtd_fas,               # Contador de fãs
+        media_estrelas=media_estrelas, # Média de estrelas
         id=musico_id
     )
 
@@ -176,9 +194,11 @@ def dashboard():
     artista_query = db.collection('artistas').where('dono_email', '==', email_logado).limit(1).stream()
     
     pedidos = []
-    agenda = [] # <--- Adicione esta lista
+    agenda = [] 
+    feedbacks = [] 
     artista_dados = None 
-    total_cliques = 0 # <--- Inicializa a variável para o contador
+    total_cliques = 0 
+    notificacoes_fas = 0  # <--- INICIALIZA O CONTADOR DE PENDENTES
 
     for doc in artista_query:
         artista_id = doc.id
@@ -186,7 +206,7 @@ def dashboard():
         artista_dados['id'] = artista_id
         
         # --- BUSCAR CLICKS ---
-        total_cliques = artista_dados.get('cliques', 0) # <--- Pega os cliques do banco
+        total_cliques = artista_dados.get('cliques', 0) 
         
         # BUSCAR PEDIDOS
         pedidos_ref = db.collection('pedidos_reserva').where('musico_id', '==', artista_id).stream()
@@ -195,12 +215,24 @@ def dashboard():
             p_dados['id'] = p.id
             pedidos.append(p_dados)
 
-        # BUSCAR AGENDA (IMPORTANTE PARA NÃO DAR ERRO NO HTML)
+        # BUSCAR AGENDA
         agenda_ref = db.collection('artistas').document(artista_id).collection('agenda').order_by('data_completa').stream()
         for s in agenda_ref:
             s_dados = s.to_dict()
             s_dados['id'] = s.id
             agenda.append(s_dados)
+
+        # --- BUSCAR FEEDBACKS (MURAL DE FÃS) ---
+        feedbacks_ref = db.collection('feedbacks').where('artista_email', '==', email_logado).stream()
+        for f in feedbacks_ref:
+            f_dados = f.to_dict()
+            f_dados['id'] = f.id 
+            feedbacks.append(f_dados)
+            
+            # --- LÓGICA DO CONTADOR ---
+            # Se o status for pendente, aumenta o número da notificação
+            if f_dados.get('status') == 'pendente':
+                notificacoes_fas += 1
 
     pedidos.sort(key=lambda x: x.get('criado_em') if x.get('criado_em') else 0, reverse=True)
 
@@ -209,7 +241,9 @@ def dashboard():
         pedidos=pedidos, 
         musico=artista_dados,
         agenda=agenda,
-        total_cliques=total_cliques # <--- Envia para o HTML
+        feedbacks=feedbacks, 
+        notificacoes_fas=notificacoes_fas, # <--- ENVIA O NÚMERO PARA O ÍCONE
+        total_cliques=total_cliques 
     )
 
 # NOVA ROTA: Para marcar como lida via JavaScript quando você clicar
@@ -220,6 +254,55 @@ def marcar_lido(pedido_id):
     return jsonify({"status": "success"})
 
 
+# ======================================================
+# APROVAR/DESAPROVAR FEEDBACK-DASHBOARD (CORRIGIDO PARA FIRESTORE)
+# ======================================================
+@app.route('/aprovar_feedback/<string:id>', methods=['POST'])
+def aprovar_feedback(id):
+    try:
+        # No Firestore, acessamos a coleção e o documento pelo ID (string)
+        feedback_ref = db.collection('feedbacks').document(id)
+        
+        # Altera o campo status para 'aprovado'
+        feedback_ref.update({
+            'status': 'aprovado'
+        })
+        
+        return redirect('/dashboard')
+    except Exception as e:
+        print(f"Erro ao aprovar: {e}")
+        return redirect('/dashboard')
+
+@app.route('/remover_feedback/<string:id>', methods=['POST'])
+def remover_feedback(id):
+    try:
+        # No Firestore, deletamos o documento diretamente
+        db.collection('feedbacks').document(id).delete()
+        
+        return redirect('/dashboard')
+    except Exception as e:
+        print(f"Erro ao remover: {e}")
+        return redirect('/dashboard')
+
+# ======================================================
+# ENVIAR FEEDBACK-PERFIL USUARIO
+# ======================================================
+@app.route('/api/enviar_feedback', methods=['POST'])
+def api_enviar_feedback():
+    dados = {
+        'artista_id': request.form.get('artista_id'),
+        'artista_email': request.form.get('artista_email'),
+        'nome_fa': request.form.get('nome_fa'),
+        'comentario': request.form.get('comentario'),
+        'estrelas': int(request.form.get('estrelas', 5)),
+        'status': 'pendente', # Importante: entra como pendente
+        'timestamp': firestore.SERVER_TIMESTAMP
+    }
+    db.collection('feedbacks').add(dados)
+    return jsonify({'status': 'success'})
+# ======================================================
+# CADASTRAR MÚSICO-DASHBOARD
+# ======================================================
 @app.route('/api_cadastrar_musico', methods=['POST'])
 @login_required
 def cadastrar_musico():

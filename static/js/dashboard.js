@@ -1,19 +1,18 @@
-    function showMobileTab(evt, tabName) {
-        if (window.innerWidth > 768) return; // Não faz nada no PC
+function showMobileTab(evt, tabName) {
+    if (window.innerWidth > 768) return;
 
-        // 1. Remove classes antigas do body
-        document.body.classList.remove('tab-perfil', 'tab-agenda', 'tab-mensagens');
-        
-        // 2. Adiciona a classe da aba atual
-        document.body.classList.add('tab-' + tabName);
+    // 1. Atualizado para remover também a tab-fas
+    document.body.classList.remove('tab-perfil', 'tab-agenda', 'tab-mensagens', 'tab-fas');
+    
+    // 2. Adiciona a nova (funciona automaticamente para 'fas')
+    document.body.classList.add('tab-' + tabName);
 
-        // 3. Gerencia o visual dos botões
-        document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-        evt.currentTarget.classList.add('active');
+    // 3. Gerencia botões
+    document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+    evt.currentTarget.classList.add('active');
 
-        // 4. Volta ao topo
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
 
     // Inicializa a aba perfil no mobile
     document.addEventListener("DOMContentLoaded", function() {
@@ -21,6 +20,7 @@
             document.body.classList.add('tab-perfil');
         }
     });
+
     // --- ELEMENTOS DE PREVIEW ---
     const inputName = document.getElementById('input-name');
     const inputFile = document.getElementById('input-file');

@@ -1,0 +1,929 @@
+/* 1. CONFIGURAÇÕES GLOBAIS E VARIÁVEIS */
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Plus+Jakarta+Sans:wght@200;400;700&display=swap');
+
+:root {
+    --accent: #00f2ff;
+    --accent-2: #ff0054;
+    --primary-glow: #6200ff;
+    --secondary-glow: #9d00ff;
+    --bg-dark: #030303;
+    --glass: rgba(255, 255, 255, 0.03);
+    --border: rgba(255, 255, 255, 0.08);
+    --text-muted: rgba(255, 255, 255, 0.6);
+    --glass-bg: rgba(255, 255, 255, 0.05);
+    --glass-border: rgba(255, 255, 255, 0.12);
+}
+
+* { 
+    margin: 0; 
+    padding: 0; 
+    box-sizing: border-box; 
+    scroll-behavior: smooth; 
+}
+
+body {
+    background-color: var(--bg-dark);
+    color: white;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    overflow-x: hidden;
+    line-height: 1.6;
+}
+
+/* 2. BACKGROUND ANIMADO E CURSOR */
+.bg-scene {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    overflow: hidden;
+    filter: blur(100px);
+}
+
+.orb {
+    position: absolute;
+    border-radius: 50%;
+    opacity: 0.3;
+    animation: move 25s infinite alternate;
+}
+
+.orb-1 { width: 600px; height: 600px; background: var(--accent); top: -10%; left: -10%; }
+.orb-2 { width: 500px; height: 500px; background: var(--accent-2); bottom: -10%; right: -5%; animation-delay: -5s; }
+.orb-3 { width: 400px; height: 400px; background: #7000ff; top: 30%; left: 20%; animation-delay: -10s; }
+
+@keyframes move {
+    from { transform: translate(0, 0) scale(1); }
+    to { transform: translate(150px, 100px) scale(1.3); }
+}
+
+#cursor-aura {
+    position: fixed;
+    width: 300px;
+    height: 300px;
+    background: radial-gradient(circle, rgba(0, 242, 255, 0.1) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 9999;
+    transition: transform 0.1s ease-out;
+}
+
+/* 3. LAYOUT PERFIL DIVIDIDO */
+.profile-split {
+    display: flex;
+    height: 100vh;
+    width: 100vw;
+}
+
+.artist-stage {
+    flex: 1.1;
+    position: relative;
+    overflow: hidden;
+}
+
+.artist-image-fixed {
+    width: 100%;
+    height: 100%;
+    background-size: cover;
+    background-position: center;
+}
+
+.image-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to right, transparent 50%, #050505 100%),
+                linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 40%);
+}
+
+.artist-titles {
+    position: absolute;
+    bottom: 60px;
+    left: 60px;
+    z-index: 2;
+}
+
+.artist-main-name {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(3rem, 8vw, 6rem);
+    text-transform: uppercase;
+    line-height: 0.9;
+    letter-spacing: -3px;
+}
+
+.artist-details {
+    flex: 0.9;
+    background: #050505;
+    overflow-y: auto;
+    padding: 40px 5% 80px 5%;
+    scrollbar-width: none;
+}
+.artist-details::-webkit-scrollbar { display: none; }
+
+/* 4. COMPONENTES DE UI */
+.btn-back-minimal {
+    display: inline-block;
+    color: var(--accent);
+    text-decoration: none;
+    font-size: 0.75rem;
+    font-weight: 800;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 40px;
+    transition: 0.3s ease;
+}
+
+.btn-back-minimal:hover {
+    color: white;
+    transform: translateX(-5px);
+}
+
+.section-label {
+    font-size: 0.6rem;
+    font-weight: 900;
+    color: var(--accent);
+    letter-spacing: 4px;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+}
+
+.info-group { margin-bottom: 40px; }
+.genre-badge { font-size: 1.2rem; color: white; font-weight: 400; }
+.bio-text { font-size: 1.1rem; line-height: 1.8; color: var(--text-muted); margin-bottom: 60px; }
+
+/* Player e Cards */
+.glass-player {
+    background: var(--glass);
+    border: 1px solid var(--border);
+    padding: 30px;
+    border-radius: 24px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 60px;
+}
+
+/* --- CARD DE ORÇAMENTO ULTRA-COMPACTO --- */
+
+.booking-glass-card {
+    background: linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.01) 100%);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px; /* Redução máxima de respiro interno */
+    backdrop-filter: blur(20px);
+    margin-bottom: 30px;
+    max-width: 580px;
+}
+
+/* Grid apertado para eliminar desperdício de espaço */
+.booking-glass-card form {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px 15px; /* Espaçamento mínimo entre os campos */
+}
+
+.input-modern {
+    margin-bottom: 0; /* O gap do grid já controla o espaço */
+}
+
+/* Labels menores e mais próximas do input */
+.label-fixed {
+    display: block;
+    font-size: 0.55rem; /* Fonte ultra pequena para labels */
+    font-weight: 800;
+    color: var(--accent);
+    letter-spacing: 1px;
+    margin-bottom: 4px;
+    text-transform: uppercase;
+}
+
+/* Inputs com altura reduzida (Slim) */
+.input-modern input, 
+.input-modern textarea,
+.input-modern select, 
+.select-trigger {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 6px;
+    padding: 8px 12px; /* Reduzido de 18px para 8px */
+    color: #ffffff;
+    font-size: 0.8rem; /* Fonte menor para o texto digitado */
+    outline: none;
+    transition: all 0.2s ease;
+}
+
+/* Ajuste específico para o seletor de tipo de evento */
+.input-modern select {
+    height: 34px; /* Altura fixa baixa */
+    padding-top: 0;
+    padding-bottom: 0;
+}
+
+/* Botão mais fino e elegante */
+.btn-plasma {
+    grid-column: span 2;
+    margin-top: 10px;
+    padding: 12px;
+    font-size: 0.7rem;
+    font-weight: 800;
+    border-radius: 6px;
+    background: #fff;
+    color: #000;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    cursor: pointer;
+    transition: 0.3s ease;
+}
+
+.btn-plasma:hover {
+    background: var(--accent);
+    transform: translateY(-1px);
+    box-shadow: 0 5px 15px rgba(0, 242, 255, 0.2);
+}
+
+/* Se houver uma área de texto (Mensagem), limitamos a altura */
+.input-modern textarea {
+    min-height: 60px;
+    grid-column: span 2;
+}
+
+/* Custom Select (Trigger e Options) */
+.select-trigger {
+    background: rgba(255, 255, 255, 0.03);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 15px 20px;
+    color: #fff;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.select-options {
+    position: absolute;
+    top: 110%;
+    left: 0;
+    width: 100%;
+    background: rgba(15, 15, 15, 0.98);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(0, 210, 255, 0.3);
+    border-radius: 12px;
+    max-height: 250px;
+    overflow-y: auto;
+    z-index: 999;
+    display: none;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+}
+
+.select-options.active { display: block; animation: fadeInSlide 0.3s ease; }
+
+.option-group { padding: 12px 15px 5px; font-size: 0.7rem; color: #00d2ff; letter-spacing: 2px; font-weight: 800; }
+.option-item { padding: 12px 20px; color: rgba(255,255,255,0.8); cursor: pointer; transition: 0.2s; }
+.option-item:hover { background: rgba(0, 210, 255, 0.15); color: #fff; padding-left: 25px; }
+
+/* 6. MURAL DE FEEDBACK */
+.rating-selection {
+    display: flex;
+    flex-direction: row-reverse;
+    justify-content: center;
+    gap: 10px;
+    font-size: 2rem;
+    margin-bottom: 5px;
+}
+.rating-selection input { display: none; }
+.rating-selection label { cursor: pointer; color: #333; transition: 0.3s; }
+.rating-selection input:checked ~ label,
+.rating-selection label:hover,
+.rating-selection label:hover ~ label { color: #ffd700; text-shadow: 0 0 10px rgba(255,215,0,0.5); }
+
+.feedback-form-card {
+    padding: 15px;
+    border: 1px solid rgba(0, 210, 255, 0.3);
+    background: rgba(255,255,255,0.03);
+    border-radius: 10px;
+    height: 380px;
+}
+
+.feedback-bubble {
+    background: rgba(255,255,255,0.05);
+    padding: 15px;
+    border-radius: 15px;
+    margin-bottom: 15px;
+    border-left: 3px solid var(--accent);
+}
+.stars-gold { color: #ffd700; font-size: 0.8rem; margin-left: 10px; }
+
+/* 7. BOTÕES E NAVEGAÇÃO */
+.nav-actions { display: flex; gap: 15px; align-items: center; }
+
+.btn-user-status, .btn-logout, .btn-plasma-small, .btn-plasma {
+    text-decoration: none;
+    font-family: 'Syne', sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    font-weight: 800;
+    transition: 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+    cursor: pointer;
+}
+
+.btn-user-status {
+    font-size: 0.7rem; padding: 10px 22px; border-radius: 50px;
+    background: rgba(255, 255, 255, 0.05); color: white; border: 1px solid rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(5px);
+}
+
+.btn-plasma {
+    margin-top: auto; padding: 15px 50px; background: #fff; color: #000;
+    border-radius: 10px; display: inline-block;
+}
+
+.btn-plasma:hover, .btn-user-status:hover {
+    background: var(--accent); color: black; transform: translateY(-3px);
+    box-shadow: 0 10px 25px rgba(0, 242, 255, 0.4);
+}
+
+.empty-state {
+    text-align: center; padding: 40px; border: 1px dashed rgba(255, 255, 255, 0.1);
+    border-radius: 20px; opacity: 0.5;
+}
+
+
+/* ==========================================================================
+   5. INPUTS E FORMULÁRIOS (ULTRA MODERNIZADO)
+   ========================================================================== */
+
+.input-modern {
+    position: relative;
+    margin-bottom: 30px;
+    width: 100%;
+    max-width: 600px;
+}
+
+/* Label Refinada */
+.label-fixed {
+    display: block;
+    font-size: 0.6rem;
+    font-weight: 800;
+    color: var(--accent);
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    opacity: 0.8;
+    transition: 0.3s ease;
+}
+
+/* Base do Input (Efeito Vidro Profundo) */
+.input-modern input, 
+.input-modern textarea,
+.input-modern select, 
+.select-trigger {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 10px;
+    padding: 10px 10px;
+    color: #ffffff;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 0.95rem;
+    outline: none;
+    transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3); /* Profundidade */
+}
+
+/* Placeholder sutil */
+.input-modern input::placeholder,
+.input-modern textarea::placeholder {
+    color: rgba(255, 255, 255, 0.2);
+    font-weight: 200;
+}
+
+/* Efeito de Foco "Glow" Dinâmico */
+.input-modern input:focus, 
+.input-modern textarea:focus,
+.input-modern select:focus {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: var(--accent);
+    box-shadow: 
+        inset 0 2px 4px rgba(0, 0, 0, 0.2),
+        0 0 15px rgba(0, 242, 255, 0.15); /* Brilho externo suave */
+    transform: translateY(-2px); /* Elevação leve */
+}
+
+/* Estilização para o Textarea (Mural) */
+.input-modern textarea {
+    min-height: 60px;
+    resize: none;
+}
+
+/* Customização do Select */
+.input-modern select {
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%2300f2ff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 20px center;
+    background-size: 15px;
+}
+
+/* Efeito na Label quando o input ganha foco */
+.input-modern:focus-within .label-fixed {
+    color: #fff;
+    opacity: 1;
+    letter-spacing: 3.5px;
+    text-shadow: 0 0 8px var(--accent);
+}
+
+/* Grid para campos lado a lado no Desktop */
+@media (min-width: 993px) {
+    .form-row {
+        display: flex;
+        gap: 20px;
+        max-width: 600px;
+    }
+    .form-row .input-modern {
+        flex: 1;
+    }
+}
+
+
+
+
+.section-divider {
+    height: 1px;
+    width: 100%;
+    max-width: 650px; /* Alinhado com seus outros elementos */
+    background: linear-gradient(to right, 
+        rgba(0, 242, 255, 0) 0%, 
+        rgba(0, 242, 255, 0.3) 50%, 
+        rgba(0, 242, 255, 0) 100%);
+    margin: 60px 0;
+    border: none;
+}
+
+
+/* ==========================================================================
+   8. OTIMIZAÇÃO PARA DISPOSITIVOS MÓVEIS (CORREÇÃO DE SCROLL E ABAS)
+   ========================================================================== */
+
+/* Esconde o menu de abas no PC */
+.mobile-tabs {
+    display: none !important;
+}
+
+/* Garante que todo o conteúdo apareça um abaixo do outro no PC */
+.tab-section {
+    display: block !important;
+    opacity: 1 !important;
+    transform: none !important;
+    visibility: visible !important;
+    margin-bottom: 60px; /* Espaçamento entre blocos no Desktop */
+}
+
+/* --- COMPORTAMENTO MOBILE (Até 992px) --- */
+@media (max-width: 992px) {
+    /* Mostra a barra de abas inferior */
+    .mobile-tabs {
+        display: flex !important;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 70px;
+        background: rgba(5, 5, 5, 0.98);
+        backdrop-filter: blur(15px);
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        justify-content: space-around;
+        align-items: center;
+        z-index: 10000;
+        padding-bottom: env(safe-area-inset-bottom);
+    }
+
+    /* Esconde todas as seções por padrão no mobile */
+    .tab-section {
+        display: none !important;
+        margin-bottom: 0;
+    }
+
+    /* Mostra apenas a seção que tiver a classe .active */
+    .tab-section.active {
+        display: block !important;
+        animation: tabFadeIn 0.3s ease-in-out forwards;
+    }
+
+    /* Estilo dos botões das abas */
+    .tab-btn {
+        background: transparent;
+        border: none;
+        color: #666;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 4px;
+        flex: 1;
+        cursor: pointer;
+    }
+
+    .tab-btn i { font-size: 1.2rem; }
+    .tab-btn span { font-size: 0.6rem; text-transform: uppercase; font-weight: 700; }
+
+    /* Cor do botão ativo (Troque pelo seu accent se necessário) */
+    .tab-btn.active {
+        color: #fff;
+    }
+}
+
+@keyframes tabFadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* --------------------------------------------------------------------------
+   MEDIA QUERY: TABLETS E CELULARES (Até 992px)
+   -------------------------------------------------------------------------- */
+@media (max-width: 992px) {
+    /* Libera o scroll global */
+    body, html, .profile-body {
+        overflow-y: auto !important;
+        height: auto !important;
+    }
+
+    .profile-split {
+        flex-direction: column;
+        height: auto;
+        overflow: visible;
+    }
+
+    /* Topo do perfil (Imagem) */
+    .artist-stage {
+        height: 50vh;
+        flex: none;
+        position: relative;
+    }
+
+    /* Detalhes do Artista (Conteúdo) */
+    .artist-details {
+        flex: none;
+        width: 100%;
+        height: auto !important;
+        padding: 40px 20px 120px 20px !important; 
+        overflow: visible !important;
+        background: #050505;
+    }
+
+    .image-overlay {
+        background: linear-gradient(to bottom, transparent 40%, #050505 100%);
+    }
+
+    /* MENU INFERIOR (THUMB ZONE - MOBILE NAV) */
+    .mobile-only-nav,
+    .mobile-tabs {
+        display: flex !important;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 75px;
+        background: rgba(5, 5, 5, 0.95);
+        backdrop-filter: blur(20px);
+        border-top: 1px solid var(--border);
+        justify-content: space-around;
+        align-items: center;
+        z-index: 9999;
+        padding-bottom: env(safe-area-inset-bottom);
+    }
+
+    .tab-btn, 
+    .mobile-only-nav .tab-link {
+        background: transparent;
+        border: none !important;
+        color: #888;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 5px;
+        flex: 1;
+        cursor: pointer;
+        transition: 0.3s;
+        font-family: inherit;
+    }
+
+    .tab-btn i, 
+    .mobile-only-nav .tab-link i {
+        font-size: 1.3rem;
+    }
+
+    .tab-btn span, 
+    .mobile-only-nav .tab-link span {
+        font-size: 0.65rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    /* Estado Ativo Mobile */
+    .tab-btn.active, 
+    .mobile-only-nav .tab-link.active {
+        color: var(--accent, #ff0055);
+        background: none;
+    }
+
+    .tab-btn.active i {
+        transform: scale(1.1);
+    }
+
+    /* Esconde as abas de topo no mobile */
+    .artist-details > .profile-tabs-nav {
+        display: none !important;
+    }
+}
+
+/* --------------------------------------------------------------------------
+   MEDIA QUERY: CELULARES PEQUENOS (Até 480px)
+   -------------------------------------------------------------------------- */
+@media (max-width: 480px) {
+    .artist-main-name { 
+        font-size: 2.8rem; 
+        letter-spacing: -1px;
+    }
+    
+    .btn-plasma { 
+        width: 100%; 
+        text-align: center; 
+        padding: 15px 20px; 
+    }
+
+    .rating-selection { 
+        font-size: 1.5rem; 
+    }
+
+    .orb { 
+        display: none; 
+    }
+    
+    .section-label {
+        font-size: 0.55rem;
+    }
+}
+
+
+
+/* GARANTE QUE NO MOBILE APENAS A ABA ATIVA APAREÇA */
+@media (max-width: 992px) {
+    .tab-content {
+        display: none;
+    }
+    .tab-content.active {
+        display: block;
+    }
+}
+/* NO DESKTOP TUDO APARECE NORMALMENTE */
+@media (min-width: 993px) {
+    .tab-content {
+        display: block !important;
+    }
+}
+
+
+/* Card Mestre (O container principal) */
+.mural-container {
+    background: #0a0a0a; /* Fundo levemente mais claro que o fundo da página */
+    border: 1px solid #1a1a1a;
+    border-radius: 24px;
+    padding: 30px;
+    max-width: 1000px;
+    margin: 20px auto;
+}
+
+/* Título Destacado */
+.mural-title {
+    font-size: 24px;
+    font-weight: 900;
+    color: #fff;
+    text-transform: uppercase;
+    letter-spacing: -1px;
+    margin-bottom: 25px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.mural-title::before {
+    content: "";
+    width: 4px;
+    height: 24px;
+    background: #ffaa00; /* Detalhe lateral para destaque */
+    border-radius: 4px;
+}
+
+/* Área de Scroll Horizontal */
+.mural-scroll {
+    display: flex;
+    gap: 15px;
+    overflow-x: auto;
+    padding-bottom: 10px;
+    scrollbar-width: none; /* Firefox */
+}
+
+.mural-scroll::-webkit-scrollbar {
+    display: none; /* Chrome/Safari */
+}
+
+/* Micro Cards Internos */
+.vibe-card {
+    flex: 0 0 240px; /* Tamanho fixo para o scroll funcionar */
+    background: #111111;
+    border: 1px solid #222;
+    border-radius: 16px;
+    padding: 16px;
+    transition: all 0.3s ease;
+}
+
+.vibe-card:hover {
+    border-color: #333;
+    transform: translateY(-3px);
+}
+
+.vibe-text {
+    font-size: 13px;
+    color: #888;
+    line-height: 1.4;
+    min-height: 40px;
+    margin-bottom: 15px;
+}
+
+.vibe-divider {
+    border: 0;
+    border-top: 1px solid #222;
+    margin-bottom: 12px;
+}
+
+.vibe-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.vibe-user {
+    font-size: 14px;
+    font-weight: 800;
+    color: #fff;
+    text-transform: uppercase;
+}
+
+.vibe-rating {
+    font-size: 12px;
+    color: #ffaa00;
+    font-weight: bold;
+}
+
+
+
+.comments-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.comment-pill {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 20px;
+    padding: 18px;
+    transition: transform 0.3s ease;
+    backdrop-filter: blur(5px);
+}
+
+.comment-pill:hover {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: var(--primary); /* ou sua cor de destaque */
+}
+
+.pill-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.fan-name {
+    font-weight: 700;
+    font-size: 0.85rem;
+    color: #fff;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.fan-stars {
+    color: #ffd700; /* Dourado para as estrelas */
+    font-size: 0.7rem;
+    letter-spacing: 2px;
+}
+
+.fan-text {
+    font-size: 0.9rem;
+    color: #bbb;
+    line-height: 1.4;
+    font-style: italic;
+    margin: 5px 0;
+}
+
+.fan-date {
+    display: block;
+    font-size: 0.6rem;
+    color: #555;
+    text-align: right;
+    margin-top: 5px;
+}
+
+/* Ajuste específico para Mobile */
+@media (max-width: 992px) {
+    .comment-pill {
+        border-radius: 15px;
+        padding: 15px;
+    }
+}
+
+/* Container da Barra de Status */
+.stats-bar-modern {
+    display: flex;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    border-radius: 16px;
+    padding: 15px;
+    margin: 20px 0 30px 0;
+    gap: 20px;
+}
+
+.stat-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.stat-item:hover {
+    transform: translateY(-2px);
+}
+
+.stat-icon {
+    width: 35px;
+    height: 35px;
+    background: rgba(0, 243, 255, 0.1); /* Cor Ciano Neon */
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #00f3ff;
+    font-size: 0.9rem;
+    box-shadow: 0 0 15px rgba(0, 243, 255, 0.1);
+}
+
+/* Segundo ícone em cor diferente para dinamismo */
+.stat-item:nth-child(3) .stat-icon {
+    background: rgba(255, 0, 85, 0.1);
+    color: #ff0055;
+}
+
+.stat-content {
+    display: flex;
+    flex-direction: column;
+}
+
+.stat-value {
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: #fff;
+    line-height: 1;
+}
+
+.stat-label {
+    font-size: 0.6rem;
+    color: #666;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: 700;
+    margin-top: 4px;
+}
+
+.stat-divider {
+    width: 1px;
+    height: 30px;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+/* Ajuste Mobile */
+@media (max-width: 992px) {
+    .stats-bar-modern {
+        margin: 15px 0 25px 0;
+        padding: 12px;
+    }
+}
+
+
+/* Esconde a linha em dispositivos móveis */
+@media (max-width: 768px) {
+    .section-divider {
+        display: none !important;
+    }
+}
+

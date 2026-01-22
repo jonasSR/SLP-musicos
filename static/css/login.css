@@ -1,0 +1,512 @@
+/* 1. CONFIGURAÇÕES GLOBAIS E VARIÁVEIS */
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Plus+Jakarta+Sans:wght@200;400;700&display=swap');
+/*#################################### CORES GLOBAIS #################################### */
+:root {
+    --accent: #00f2ff;
+    --accent-2: #ff0054;
+    --bg-dark: #030303;
+    --glass: rgba(255, 255, 255, 0.03);
+    --border: rgba(255, 255, 255, 0.08);
+}
+
+/*#################################### GERAIS #################################### */
+* { 
+    margin: 0; 
+    padding: 0; 
+    box-sizing: border-box; 
+    scroll-behavior: smooth; 
+}
+
+body {
+    background-color: var(--bg-dark);
+    color: white;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    overflow-x: hidden;
+}
+
+.bg-scene {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    overflow: hidden;
+    filter: blur(100px);
+}
+
+.orb {
+    position: absolute;
+    border-radius: 50%;
+    opacity: 0.3;
+    animation: move 25s infinite alternate;
+}
+
+.orb-1 { width: 600px; height: 600px; background: var(--accent); top: -10%; left: -10%; }
+.orb-2 { width: 500px; height: 500px; background: var(--accent-2); bottom: -10%; right: -5%; animation-delay: -5s; }
+.orb-3 { width: 400px; height: 400px; background: #7000ff; top: 30%; left: 20%; animation-delay: -10s; }
+
+@keyframes move {
+    from { transform: translate(0, 0) scale(1); }
+    to { transform: translate(150px, 100px) scale(1.3); }
+}
+
+#cursor-aura {
+    position: fixed;
+    width: 300px;
+    height: 300px;
+    background: radial-gradient(circle, rgba(0, 242, 255, 0.1) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 9999;
+    transition: transform 0.1s ease-out;
+}
+
+
+/* ================================================= */
+/* 7. PÁGINA DE AUTENTICAÇÃO (LOGIN/REGISTER)       */
+/* ================================================= */
+.auth-page {
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg-dark);
+}
+
+.auth-container {
+    width: 100%;
+    max-width: 450px;
+    padding: 20px;
+    z-index: 10;
+}
+
+.auth-card {
+    background: rgba(255, 255, 255, 0.02);
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--border);
+    padding: 50px 40px;
+    border-radius: 40px;
+    text-align: center;
+}
+
+/* Logo e Títulos */
+.auth-logo {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    letter-spacing: 5px;
+    margin-bottom: 30px;
+    font-size: 0.9rem;
+}
+.auth-logo span { color: var(--accent); }
+
+.glitch-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.8rem;
+    margin-bottom: 10px;
+    letter-spacing: -1px;
+}
+.glitch-title span { color: var(--accent); }
+
+.auth-subtitle {
+    font-size: 0.85rem;
+    opacity: 0.5;
+    margin-bottom: 40px;
+}
+
+/* Inputs Futuristas */
+.input-wrapper {
+    position: relative;
+    margin-bottom: 25px;
+    text-align: left;
+}
+
+.input-wrapper input {
+    width: 100%;
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid var(--border);
+    padding: 12px 0;
+    color: white;
+    font-family: inherit;
+    font-size: 1rem;
+    outline: none;
+    transition: 0.3s;
+}
+
+.input-wrapper label {
+    position: absolute;
+    left: 0;
+    top: 12px;
+    font-size: 0.65rem;
+    font-weight: 800;
+    letter-spacing: 2px;
+    color: rgba(255,255,255,0.3);
+    pointer-events: none;
+    transition: 0.3s;
+    text-transform: uppercase;
+}
+
+/* Efeito de flutuar o label */
+.input-wrapper input:focus ~ label,
+.input-wrapper input:not(:placeholder-shown) ~ label {
+    top: -15px;
+    color: var(--accent);
+}
+
+.input-wrapper input:focus {
+    border-bottom-color: var(--accent);
+}
+
+/* Botões */
+.auth-actions {
+    margin-top: 40px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.btn-primary {
+    background: white;
+    color: black;
+    border: none;
+    padding: 18px;
+    border-radius: 100px;
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    cursor: pointer;
+    transition: 0.4s;
+}
+
+.btn-primary:hover {
+    background: var(--accent);
+    box-shadow: 0 0 30px rgba(0, 242, 255, 0.4);
+}
+
+.btn-secondary {
+    background: transparent;
+    color: white;
+    border: 1px solid var(--border);
+    padding: 15px;
+    border-radius: 100px;
+    font-size: 0.7rem;
+    font-weight: 800;
+    letter-spacing: 2px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.btn-secondary:hover {
+    border-color: white;
+    background: rgba(255,255,255,0.05);
+}
+
+.auth-divider {
+    font-size: 0.6rem;
+    opacity: 0.3;
+    margin: 10px 0;
+}
+
+/* Olho da Senha */
+.eye-toggle {
+    position: absolute;
+    right: 0;
+    top: 10px;
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+
+.eye-icon {
+    width: 20px;
+    fill: none;
+    stroke: rgba(255,255,255,0.3);
+    stroke-width: 2;
+}
+
+
+
+/*#################################### CARD LOGIN #################################### */
+.log-card-container {
+    margin: 20px auto !important; 
+    background: rgba(255, 255, 255, 0.03);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 25px 30px; /* Reduzido para não inflar o card */
+    border-radius: 16px;
+    text-align: center;
+    width: 90%;
+    max-width: 350px; /* Reduzido de 420px para um visual mais clean */
+    box-shadow: 0 15px 35px rgba(0,0,0,0.4);
+    z-index: 100;
+}
+
+.log-glitch-title {
+    color: white;
+    font-size: 1.4rem; /* Reduzido de 1.8rem */
+    font-weight: 700;
+    margin-bottom: 4px;
+    letter-spacing: -0.5px;
+}
+.log-glitch-title span { color: #00f2ff; }
+
+.log-subtitle {
+    font-size: 0.75rem; /* Reduzido de 0.85rem */
+    color: rgba(255,255,255,0.4);
+    margin-bottom: 25px; /* Reduzido de 40px */
+}
+
+/* Grupos de Input */
+.log-field-group {
+    position: relative;
+    margin-bottom: 22px; /* Reduzido de 30px */
+    text-align: left;
+}
+
+.log-input-field {
+    width: 100%;
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid rgba(255,255,255,0.15);
+    padding: 8px 0; /* Reduzido de 12px */
+    color: white;
+    font-size: 0.9rem; /* Reduzido de 1rem */
+    outline: none;
+    transition: 0.3s;
+}
+
+.log-field-label {
+    position: absolute;
+    left: 0;
+    top: 8px;
+    font-size: 0.6rem; /* Reduzido de 0.65rem */
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    color: rgba(255,255,255,0.3);
+    pointer-events: none;
+    transition: 0.3s;
+    text-transform: uppercase;
+}
+
+/* Efeito flutuante ajustado para o novo tamanho */
+.log-input-field:focus ~ .log-field-label,
+.log-input-field:not(:placeholder-shown) ~ .log-field-label {
+    top: -14px;
+    color: #00f2ff;
+    font-size: 0.55rem;
+}
+
+.log-input-field:focus {
+    border-bottom-color: #00f2ff;
+}
+
+/* Botões */
+.log-btn-main {
+    width: 100%; /* Melhor preenchimento interno */
+    max-width: 220px; 
+    background: white;
+    color: black;
+    border: none;
+    padding: 12px; /* Reduzido de 18px */
+    border-radius: 8px;
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    cursor: pointer;
+    transition: 0.4s;
+    margin-bottom: 12px;
+    font-size: 0.85rem;
+}
+
+.log-btn-main:hover {
+    background: #00f2ff;
+    transform: translateY(-1px);
+    box-shadow: 0 8px 15px rgba(0, 242, 255, 0.2);
+}
+
+.log-btn-outline {
+    background: transparent;
+    color: white;
+    border: 1px solid rgba(255,255,255,0.1);
+    font-size: 0.7rem;
+    padding: 8px 16px;
+}
+
+/* Olho da senha */
+.log-pass-group { position: relative; }
+
+.log-toggle-eye {
+    position: absolute;
+    right: 0;
+    top: 6px;
+    background: none;
+    border: none;
+    color: rgba(255,255,255,0.3);
+    cursor: pointer;
+    font-size: 1rem;
+}
+
+.file-input-custom {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px dashed rgba(255, 255, 255, 0.15);
+    padding: 8px;
+    font-size: 0.7rem;
+    width: 100%;
+    color: rgba(255,255,255,0.6);
+    cursor: pointer;
+    border-radius: 6px;
+}
+
+/* Botão Google Moderno */
+.google-btn-modern {
+    width: 100%;
+    max-width: 220px;          
+    margin: 10px auto;      
+    height: 40px; /* Reduzido de 45px */          
+    background-color: #fff;
+    border-radius: 8px;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    padding: 2px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    font-size: 0.8rem;
+}
+
+
+.login-page-root {
+    /* Força o preenchimento total da tela */
+    width: 100vw !important;
+    height: 100vh !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    
+    /* Flexbox de alta prioridade */
+    display: flex !important;
+    align-items: center !important;   /* Centro Vertical */
+    justify-content: center !important; /* Centro Horizontal */
+    
+    background: #050505;
+    position: fixed; /* Garante que ele se baseie na janela do navegador, não em outros elementos */
+    top: 0;
+    left: 0;
+    overflow: hidden;
+}
+
+.log-bg-mesh {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    background: radial-gradient(circle at 50% 50%, rgba(0, 242, 255, 0.1), transparent 70%);
+}
+
+/* Ajuste específico para Celulares (Dispositivos Móveis) */
+@media (max-width: 480px) {
+    .google-btn-modern {
+        width: 220px;       /* Botão mais estreito no celular */
+        height: 40px;       /* Um pouco mais baixo */
+        border-radius: 10px;
+    }
+
+    .btn-text {
+        font-size: 13px;    /* Letra levemente menor para caber */
+        padding-right: 36px; /* Ajuste do alinhamento central */
+    }
+
+    .google-icon-wrapper {
+        width: 36px;
+        height: 36px;
+    }
+}
+
+.google-btn-modern:hover {
+    box-shadow: 0 0 20px rgba(0, 210, 255, 0.4);
+    transform: translateY(-2px);
+}
+
+.google-icon-wrapper {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.google-icon { 
+    width: 10px; 
+}
+
+.btn-text {
+    flex-grow: 1;
+    color: #444;
+    font-size: 14px;
+    font-weight: 600;
+    margin: 0;
+    text-align: center;
+    padding-right: 10px;
+    font-family: 'Syne', sans-serif;
+    white-space: nowrap; /* Impede que o texto quebre em duas linhas */
+}
+
+/* Estilo Base (Desktop) */
+.btn-back-home {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: rgba(255, 255, 255, 0.5);
+    text-decoration: none;
+    font-family: 'Syne', sans-serif;
+    font-size: 0.75rem;
+    letter-spacing: 1px;
+    margin-bottom: 20px;
+    padding: 8px 12px;
+    border-radius: 6px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: 0.3s;
+}
+
+.btn-back-home:hover {
+    color: #fff;
+    background: rgba(255, 255, 255, 0.05);
+}
+
+/* MODAL AJUSTADO PARA CELULAR */
+.modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.95);
+    backdrop-filter: blur(10px);
+    z-index: 10000;
+    align-items: center;
+    justify-content: center;
+    padding: 20px; /* Margem de segurança */
+}
+
+.modal-content {
+    background: #111;
+    border: 1px solid #ff4444;
+    padding: 30px 20px;
+    border-radius: 15px;
+    width: 100%;
+    max-width: 320px; /* Largura ideal para iPhone SE/Androids pequenos */
+    text-align: center;
+}
+
+/* RESPONSIVIDADE ESPECÍFICA */
+@media (max-width: 480px) {
+    .log-card-container {
+        padding: 20px;
+        margin: 10px;
+        width: 95%;
+    }
+
+    .log-glitch-title {
+        font-size: 1.8rem; /* Diminui um pouco o título no celular */
+    }
+
+    .btn-back-home {
+        width: fit-content;
+        align-self: flex-start; /* Alinha à esquerda no mobile */
+    }
+}

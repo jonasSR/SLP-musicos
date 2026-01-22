@@ -4,13 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ musico.nome }} | Pulsa Music Conect</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/dark.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/perfil.css') }}">
 </head>
+
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 <body class="profile-body">
     <div id="cursor-aura"></div>
 
@@ -18,291 +20,288 @@
         <section class="artist-stage">
             <div class="artist-image-fixed" style="background-image: url('{{ musico.foto }}');">
                 <div class="image-overlay"></div>
-                
                 <div class="artist-titles">
                     <h1 class="artist-main-name">{{ musico.nome }}</h1>
                 </div>
             </div>
         </section>
 
+        
+
         <section class="artist-details">
             <a href="/" class="btn-back-minimal">← VOLTAR</a>
 
+        
+            <hr class="section-divider">
+
+            <div class="mobile-tabs">
+                <button class="tab-btn active" onclick="showMobileTab(event, 'perfil')">
+                    <i class="fas fa-user"></i> <span>Perfil</span>
+                </button>
+                <button class="tab-btn" onclick="showMobileTab(event, 'reserve')">
+                    <i class="fas fa-calendar-alt"></i> <span>Reserve</span>
+                </button>
+                <button class="tab-btn" onclick="showMobileTab(event, 'agenda')">
+                    <i class="fas fa-clock"></i> <span>Agenda</span>
+                </button>
+                <button class="tab-btn" onclick="showMobileTab(event, 'mensagens')">
+                    <i class="fas fa-star"></i> <span>Seja fã</span>
+                </button>
+            </div>
+
             <div class="content-scroll-box">
-                <div class="info-group">
-                    <h2 class="section-label">ESTILO</h2>
-                    <span class="genre-badge">{{ musico.estilo }}</span>
-                </div>
-
-                <div class="bio-container">
-                    <h2 class="section-label">DESCRIÇÃO</h2>
-                    <div class="bio-text">
-                        {{ musico.bio }}
+                
+                <div id="perfil" class="tab-content active">
+                     <div class="stats-bar-modern">
+                <div class="stat-item" onclick="showMobileTab(event, 'mensagens')">
+                    <div class="stat-icon"><i class="fas fa-users"></i></div>
+                    <div class="stat-content">
+                        <span class="stat-value">{{ feedbacks|length }}</span>
+                        <span class="stat-label">FÃS</span>
                     </div>
                 </div>
-
-                <div class="social-container" style="margin-bottom: 30px;">
-                    <h2 class="section-label">REDES SOCIAIS</h2>
-                    <div class="artist-social-links" style="display: flex; gap: 25px; margin-top: 15px;">
-                        
-                        {% if musico.instagram %}
-                            <a href="https://instagram.com/{{ musico.instagram|replace('@', '') }}" target="_blank" class="social-icon-link" title="Instagram">
-                                <i class="fab fa-instagram"></i>
-                            </a>
-                        {% endif %}
-
-                        {% if musico.facebook %}
-                            <a href="{{ musico.facebook }}" target="_blank" class="social-icon-link" title="Facebook">
-                                <i class="fab fa-facebook-f"></i>
-                            </a>
-                        {% endif %}
-
-                        {% if musico.youtube %}
-                            <a href="{{ musico.youtube }}" target="_blank" class="social-icon-link" title="YouTube">
-                                <i class="fab fa-youtube"></i>
-                            </a>
-                        {% endif %}
-
-                        {% if not musico.instagram and not musico.facebook and not musico.youtube %}
-                            <p style="color: #666; font-size: 0.8rem; font-style: italic;">Redes sociais não informadas.</p>
-                        {% endif %}
-                    </div>
-                </div>
-
-                <div class="player-wrapper">
-                    <h2 class="section-label">VIBRAÇÃO</h2>
-                    <div class="glass-player">
-                        <div class="play-icon">▶</div>
-                        <div class="wave-animation">
-                            <span></span><span></span><span></span><span></span><span></span>
-                        </div>
-                        <p>PREVIEW SONORO DISPONÍVEL</p>
-                    </div>
-                </div>
-
-                <div class="booking-glass-card">
-                    <div class="card-header">
-                        <h3>RESERVE A DATA</h3>
-                        <p>Conecte este artista ao seu evento.</p>
-                    </div>
-
-                    {% with messages = get_flashed_messages(with_categories=true) %}
-                        {% if messages %}
-                        <div id="flash-container">
-                            {% for category, message in messages %}
-                            <div class="alert-glass {{ category }}">
-                                <span class="icon">{% if category == 'success' %}✨{% else %}⚠️{% endif %}</span>
-                                {{ message }}
-                            </div>
-                            {% endfor %}
-                        </div>
-                        {% endif %}
-                    {% endwith %}
-
-                    <form action="/reservar" method="POST" class="profile-form">
-                        <input type="hidden" name="musico_id" value="{{ id }}">
-                        
-                        <div class="input-modern">
-                            <label class="label-fixed">SEU NOME</label>
-                            <input type="text" name="nome_solicitante" placeholder="Ex: João Silva" required>
-                        </div>
-
-                        <div class="input-modern">
-                            <label class="label-fixed">E-MAIL DE CONTATO</label>
-                            <input type="email" name="email_solicitante" placeholder="seu@email.com" required>
-                        </div>
-
-                        <div class="input-modern">
-                            <label class="label-fixed">WHATSAPP / TELEFONE</label>
-                            <input type="tel" name="telefone_solicitante" placeholder="(12) 99999-9999" required>
-                        </div>
-
-                        <div class="input-modern">
-                            <label class="label-fixed">DATA DO EVENTO</label>
-                            <input type="text" name="data_evento" id="data-criativa" placeholder="Selecione o dia..." required>
-                        </div>
-
-                        <div class="input-modern">
-                            <label class="label-fixed">LOCAL DO EVENTO</label>
-                            <input type="text" name="local_evento" placeholder="Ex: Pousada do Sol ou Endereço" required>
-                        </div>
-
-                        <div class="custom-select-container" id="tipoEventoContainer">
-                            <label class="label-fixed">TIPO DE EVENTO</label>
-                            
-                            <div class="select-trigger" onclick="toggleDropdown()">
-                                <span id="selected-text">Selecione o tipo...</span>
-                                <i class="arrow-icon">▼</i>
-                            </div>
-
-                            <div class="select-options" id="optionsList">
-                                <div class="option-group">SOCIAIS</div>
-                                <div class="option-item" onclick="selectOption('Casamento', 'casamento')">Casamento</div>
-                                <div class="option-item" onclick="selectOption('Aniversário', 'aniversario')">Aniversário / Particular</div>
-                                
-                                <div class="option-group">PÚBLICOS E CULTURAIS</div>
-                                <div class="option-item" onclick="selectOption('Festival', 'festival')">Festival / Evento Público</div>
-                                <div class="option-item" onclick="selectOption('Carnaval', 'carnaval')">Carnaval / Bloco</div>
-
-                                <div class="option-group">COMERCIAIS</div>
-                                <div class="option-item" onclick="selectOption('Bar / Restaurante', 'bar')">Bar / Restaurante</div>
-
-                                <div class="option-group">DIVERSOS</div>
-                                <div class="option-item" onclick="selectOption('Outros', 'outro')">Outros</div>
-                            </div>
-
-                            <input type="hidden" name="tipo" id="tipo_hidden_input">
-                        </div>
-
-                        <button type="submit" class="btn-plasma" style="width: 100%; margin-top: 20px;">SOLICITAR ORÇAMENTO</button>
-                    </form>
-                    </form>
-                </div>
-
-                <div class="agenda-container">
-                    <h2 class="section-label">LINHA DO TEMPO</h2>
-                    <div class="agenda-list">
-                        {% for show in agenda %}
-                        <div class="agenda-item">
-                            <div class="agenda-date-box">
-                                <span class="day">{{ show.data_dia }}</span>
-                                <span class="month">{{ show.data_mes }}</span>
-                            </div>
-                            <div class="agenda-info">
-                                {% if show.nome_festa %}
-                                    <strong style="color: var(--primary); display: block; font-size: 0.8rem;">{{ show.nome_festa | upper }}</strong>
-                                {% endif %}
-                                
-                                <span class="venue-name">{{ show.local }}</span>
-                                
-                                <div style="display: flex; gap: 10px; align-items: center;">
-                                    <span class="city-tag">{{ show.cidade }}</span>
-                                    <span style="font-size: 0.75rem; color: #888;">🕒 {{ show.horario }}</span>
-                                </div>
-                            </div>
-                            <div class="agenda-status">
-                                <div class="pulse-dot"></div>
-                                CONFIRMADO
-                            </div>
-                        </div>
-                        {% else %}
-                        <div class="empty-state">
-                            <p>A agenda de shows está sendo atualizada.</p>
-                        </div>
-                        {% endfor %}
+                
+                <div class="stat-divider"></div>
+                
+                <div class="stat-item">
+                    <div class="stat-icon"><i class="fas fa-star"></i></div>
+                    <div class="stat-content">
+                        <span class="stat-value">5.0</span>
+                        <span class="stat-label">AVALIAÇÃO</span>
                     </div>
                 </div>
             </div>
-        </section>
+
+            <div class="social-container" style="margin-bottom: 30px;">
+                <h2 class="section-label">REDES SOCIAIS</h2>
+                <div class="artist-social-links" style="display: flex; gap: 25px; margin-top: 15px;">
+                    {% if musico.instagram %}
+                        <a href="https://instagram.com/{{ musico.instagram|replace('@', '') }}" target="_blank" class="social-icon-link" title="Instagram">
+                            <i class="fab fa-instagram"></i>
+                        </a>
+                    {% endif %}
+                    {% if musico.facebook %}
+                        <a href="{{ musico.facebook }}" target="_blank" class="social-icon-link" title="Facebook">
+                            <i class="fab fa-facebook-f"></i>
+                        </a>
+                    {% endif %}
+                    {% if musico.youtube %}
+                        <a href="{{ musico.youtube }}" target="_blank" class="social-icon-link" title="YouTube">
+                            <i class="fab fa-youtube"></i>
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+                    <div class="info-group">
+                        <h2 class="section-label">ESTILO</h2>
+                        <span class="genre-badge">{{ musico.estilo }}</span>
+                    </div>
+
+                    <div class="bio-container">
+                        <h2 class="section-label">DESCRIÇÃO</h2>
+                        <div class="bio-text">
+                            {{ musico.bio }}
+                        </div>
+                    </div>
+
+                    <hr class="section-divider">
+
+                    <div class="player-wrapper">
+                        <h2 class="section-label">VIBRAÇÃO</h2>
+                        <div class="glass-player">
+                            <div class="play-icon">▶</div>
+                            <div class="wave-animation">
+                                <span></span><span></span><span></span><span></span><span></span>
+                            </div>
+                            <p>PREVIEW SONORO DISPONÍVEL</p>
+                        </div>
+                    </div>
+                </div>
+
+                <hr class="section-divider">
+
+                <div id="reserve" class="tab-content">
+                    <div class="booking-glass-card">
+                        <div class="card-header">
+                            <h3>RESERVE A DATA</h3>
+                            <p>Conecte este artista ao seu evento.</p>
+                        </div>
+
+                        {% with messages = get_flashed_messages(with_categories=true) %}
+                            {% if messages %}
+                            <div id="flash-container">
+                                {% for category, message in messages %}
+                                <div class="alert-glass {{ category }}">
+                                    <span class="icon">{% if category == 'success' %}✨{% else %}⚠️{% endif %}</span>
+                                    {{ message }}
+                                </div>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        {% endwith %}
+
+                        <form action="/reservar" method="POST" class="profile-form">
+                            <input type="hidden" name="musico_id" value="{{ id }}">
+                            <div class="input-modern">
+                                <label class="label-fixed">SEU NOME</label>
+                                <input type="text" name="nome_solicitante" placeholder="Ex: João Silva" required>
+                            </div>
+                            <div class="input-modern">
+                                <label class="label-fixed">E-MAIL DE CONTATO</label>
+                                <input type="email" name="email_solicitante" placeholder="seu@email.com" required>
+                            </div>
+                            <div class="input-modern">
+                                <label class="label-fixed">WHATSAPP / TELEFONE</label>
+                                <input type="tel" name="telefone_solicitante" placeholder="(12) 99999-9999" required>
+                            </div>
+                            <div class="input-modern">
+                                <label class="label-fixed">DATA DO EVENTO</label>
+                                <input type="text" name="data_evento" id="data-criativa" placeholder="Selecione o dia..." required>
+                            </div>
+                            <div class="input-modern">
+                                <label class="label-fixed">LOCAL DO EVENTO</label>
+                                <input type="text" name="local_evento" placeholder="Ex: Pousada do Sol ou Endereço" required>
+                            </div>
+
+                            <div class="custom-select-container" id="tipoEventoContainer">
+                                <label class="label-fixed">TIPO DE EVENTO</label>
+                                <div class="select-trigger" onclick="toggleDropdown()">
+                                    <span id="selected-text">Selecione o tipo...</span>
+                                    <i class="arrow-icon">▼</i>
+                                </div>
+                                <div class="select-options" id="optionsList">
+                                    <div class="option-group">SOCIAIS</div>
+                                    <div class="option-item" onclick="selectOption('Casamento', 'casamento')">Casamento</div>
+                                    <div class="option-item" onclick="selectOption('Aniversário', 'aniversario')">Aniversário / Particular</div>
+                                    <div class="option-group">PÚBLICOS E CULTURAIS</div>
+                                    <div class="option-item" onclick="selectOption('Festival', 'festival')">Festival / Evento Público</div>
+                                    <div class="option-item" onclick="selectOption('Carnaval', 'carnaval')">Carnaval / Bloco</div>
+                                    <div class="option-group">COMERCIAIS</div>
+                                    <div class="option-item" onclick="selectOption('Bar / Restaurante', 'bar')">Bar / Restaurante</div>
+                                    <div class="option-group">DIVERSOS</div>
+                                    <div class="option-item" onclick="selectOption('Outros', 'outro')">Outros</div>
+                                </div>
+                                <input type="hidden" name="tipo" id="tipo_hidden_input">
+                            </div>
+
+                            <button type="submit" class="btn-plasma" style="width: 100%; margin-top: 20px;">SOLICITAR ORÇAMENTO</button>
+                        </form>
+                    </div>
+                </div>
+
+                <hr class="section-divider">
+
+                <div id="agenda" class="tab-content">
+                    <div class="agenda-container">
+                        <h2 class="section-label">AGENDA</h2>
+                        <div class="agenda-list">
+                            {% for show in agenda %}
+                            <div class="agenda-item">
+                                <div class="agenda-date-box">
+                                    <span class="day">{{ show.data_dia }}</span>
+                                    <span class="month">{{ show.data_mes }}</span>
+                                </div>
+                                <div class="agenda-info">
+                                    {% if show.nome_festa %}
+                                        <strong style="color: var(--primary); display: block; font-size: 0.8rem;">{{ show.nome_festa | upper }}</strong>
+                                    {% endif %}
+                                    <span class="venue-name">{{ show.local }}</span>
+                                    <div style="display: flex; gap: 10px; align-items: center;">
+                                        <span class="city-tag">{{ show.cidade }}</span>
+                                        <span style="font-size: 0.75rem; color: #888;">🕒 {{ show.horario }}</span>
+                                    </div>
+                                </div>
+                                <div class="agenda-status">
+                                    <div class="pulse-dot"></div> CONFIRMADO
+                                </div>
+                            </div>
+                            {% else %}
+                            <div class="empty-state">
+                                <p>A agenda de shows está sendo atualizada.</p>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                <br>
+                <div id="mensagens" class="tab-content">
+                    
+                    <div class="fan-wall-container">
+                        <div class="stats-bar-modern">
+                            <div class="stat-item" onclick="showMobileTab(event, 'mensagens')">
+                                <div class="stat-icon"><i class="fas fa-users"></i></div>
+                                <div class="stat-content">
+                                    <span class="stat-value">{{ feedbacks|length }}</span>
+                                    <span class="stat-label">FÃS</span>
+                                </div>
+                            </div>
+                            
+                            <div class="stat-divider"></div>
+                            
+                            <div class="stat-item">
+                                <div class="stat-icon"><i class="fas fa-star"></i></div>
+                                <div class="stat-content">
+                                    <span class="stat-value">5.0</span>
+                                    <span class="stat-label">AVALIAÇÃO</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="glass-card feedback-form-card" style="max-width: 500px; margin: 0 auto 40px auto;">
+                            <h3>DEIXE SUA ESTRELA ✨</h3>
+                            <p>Conte para o artista o que achou da vibe!</p>
+                            
+                            <form id="form-feedback" class="feedback-grid">
+                                <input type="hidden" name="artista_id" value="{{ id }}">
+                                <input type="hidden" name="artista_email" value="{{ musico.dono_email }}">
+                                
+                                <div class="rating-selection">
+                                    <input type="radio" name="estrelas" value="5" id="star5" checked><label for="star5">★</label>
+                                    <input type="radio" name="estrelas" value="4" id="star4"><label for="star4">★</label>
+                                    <input type="radio" name="estrelas" value="3" id="star3"><label for="star3">★</label>
+                                    <input type="radio" name="estrelas" value="2" id="star2"><label for="star2">★</label>
+                                    <input type="radio" name="estrelas" value="1" id="star1"><label for="star1">★</label>
+                                </div>
+
+                                <div class="input-modern">
+                                    <input type="text" name="nome_fa" placeholder="Seu nome ou apelido" required>
+                                </div>
+
+                                <div class="input-modern">
+                                    <textarea name="comentario" placeholder="Escreva um depoimento..." rows="3" required></textarea>
+                                </div>
+
+                                <button type="submit" class="btn-plasma" id="btn-enviar-feedback" style="width: 100%;">ENVIAR NO MURAL</button>
+                            </form>
+                        </div>
+
+                        <div class="mural-container">
+                            <h2 class="mural-title">Comunidade</h2>
+
+                            <div class="mural-scroll">
+                                {% for feedback in feedbacks %}
+                                <div class="vibe-card">
+                                    <p class="vibe-text">{{ feedback.comentario }}</p>
+                                    
+                                    <hr class="vibe-divider">
+                                    
+                                    <div class="vibe-footer">
+                                        <span class="vibe-user">@{{ feedback.nome_fa|replace(' ', '')|upper }}</span>
+                                        <span class="vibe-rating">{{ feedback.estrelas }}★</span>
+                                    </div>
+                                </div>
+                                {% else %}
+                                <div style="color: #444; font-size: 13px; padding: 20px;">
+                                    Aguardando novas vibrações...
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+            </div> </section>
     </main>
 
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-        <script src="https://npmcdn.com/flatpickr/dist/l10n/pt.js"></script>
-
-        <script>
-            flatpickr("#data-criativa", {
-                "locale": "pt", 
-                dateFormat: "d/m/Y",
-                disableMobile: "true", 
-                minDate: "today", 
-                onReady: function(selectedDates, dateStr, instance) {
-                    instance.calendarContainer.classList.add("custom-flatpickr");
-                }, // <--- Faltava essa vírgula e o fechamento da chave
-                onOpen: function(selectedDates, dateStr, instance) {
-                    instance.calendarContainer.classList.add("open");
-                }
-            });
-        </script>
-
-        <script>
-            document.addEventListener('DOMContentLoaded', function() {
-                const flashContainer = document.getElementById('flash-container');
-                if (flashContainer) {
-                    setTimeout(() => {
-                        flashContainer.style.transition = "opacity 0.8s ease";
-                        flashContainer.style.opacity = "0";
-                        setTimeout(() => flashContainer.remove(), 800);
-                    }, 5000); // 5 segundos
-                }
-            });
-        </script>
-
-        <script>
-            document.querySelector('.profile-form').addEventListener('submit', async (e) => {
-                e.preventDefault(); // Impede o navegador de abrir a página de JSON puro
-
-                const formData = new FormData(e.target);
-                const submitBtn = e.target.querySelector('button');
-                
-                // Desativa o botão para evitar cliques duplos
-                submitBtn.disabled = true;
-                submitBtn.innerText = "ENVIANDO...";
-
-                try {
-                    const response = await fetch('/reservar', {
-                        method: 'POST',
-                        body: formData
-                    });
-
-                    const result = await response.json();
-
-                    if (result.status === 'success') {
-                        Swal.fire({
-                            title: 'Sucesso!',
-                            text: result.message,
-                            icon: 'success',
-                            background: '#1a1a1a', // Cor escura para combinar com seu tema
-                            color: '#fff',
-                            confirmButtonColor: '#6200ea',
-                            confirmButtonText: 'OK'
-                        }).then(() => {
-                            // Redireciona de volta para o perfil do músico
-                            window.location.href = result.redirect;
-                        });
-                    } else {
-                        Swal.fire({
-                            title: 'Erro',
-                            text: result.message,
-                            icon: 'error',
-                            background: '#1a1a1a',
-                            color: '#fff'
-                        });
-                        submitBtn.disabled = false;
-                        submitBtn.innerText = "SOLICITAR ORÇAMENTO";
-                    }
-                } catch (error) {
-                    console.error('Erro:', error);
-                    Swal.fire('Erro', 'Ocorreu uma falha na conexão.', 'error');
-                    submitBtn.disabled = false;
-                    submitBtn.innerText = "SOLICITAR ORÇAMENTO";
-                }
-            });
-
-            function toggleDropdown() {
-                document.getElementById('optionsList').classList.toggle('active');
-            }
-
-            function selectOption(texto, valor) {
-                // Atualiza o texto que o usuário vê
-                document.getElementById('selected-text').innerText = texto;
-                document.getElementById('selected-text').style.color = "#00d2ff";
-                
-                // Salva o valor no input escondido para o Flask receber
-                document.getElementById('tipo_hidden_input').value = valor;
-                
-                // Fecha o menu
-                toggleDropdown();
-            }
-
-            // Fecha o menu se clicar fora dele
-            window.onclick = function(event) {
-                if (!event.target.matches('.select-trigger') && !event.target.matches('#selected-text')) {
-                    const dropdown = document.getElementById('optionsList');
-                    if (dropdown.classList.contains('active')) {
-                        dropdown.classList.remove('active');
-                    }
-                }
-            }
-        </script>
-    </body>
+    <script src="https://npmcdn.com/flatpickr/dist/l10n/pt.js"></script>
+    <script src="{{ url_for('static', filename='js/perfil.js') }}"></script>
+</body>
 </html>

@@ -86,6 +86,15 @@
             <i class="icon-mail"></i>
             <span>Inbox</span>
         </button>
+        <button class="tab-btn" onclick="showMobileTab(event, 'fas')">
+            <div style="position: relative; display: inline-block;">
+                <i class="icon-star"></i>
+                {% if notificacoes_fas > 0 %}
+                    <span class="notification-badge">{{ notificacoes_fas }}</span>
+                {% endif %}
+            </div>
+            <span>Fãs</span>
+        </button>
     </div>
 
     <section class="config-grid" style="display: grid; grid-template-columns: 350px 1fr; gap: 30px; align-items: start;">
@@ -120,7 +129,50 @@
                     </svg>
                 </div>
             </div>
-        </div>    
+        </div>
+        
+            <section id="aba-fas" class="glass-card fan-section-container" style="display: none;">
+                <div class="section-header" style="margin-bottom: 20px;">
+                    <h2 class="section-label">⭐ MURAL DE DEPOIMENTOS</h2>
+                    <p style="font-size: 0.7rem; opacity: 0.6;">Gerencie o que os fãs dizem sobre você.</p>
+                </div>
+
+                <div class="fan-list">
+                    {% for feedback in feedbacks %}
+                    <div class="fan-row {% if feedback.status == 'pendente' %}status-pendente{% endif %}">
+                        <div class="fan-main-info">
+                            <div class="fan-meta">
+                                <span class="fan-name">{{ feedback.nome_fa }}</span>
+                                <span class="fan-stars">
+                                    {% for i in range(feedback.estrelas|int) %}★{% endfor %}
+                                </span>
+                                <span class="status-badge">{{ feedback.status }}</span>
+                            </div>
+                            <p class="fan-text">"{{ feedback.comentario }}"</p>
+                            <span class="fan-date">{{ feedback.data_postagem }}</span>
+                        </div>
+                        
+                        <div class="fan-actions" style="display: flex; gap: 10px; align-items: center;">
+                            {% if feedback.status == 'pendente' %}
+                            <form action="/aprovar_feedback/{{ feedback.id }}" method="POST">
+                                <button type="submit" class="btn-approve-minimal" title="Aprovar depoimento">
+                                    ✔
+                                </button>
+                            </form>
+                            {% endif %}
+
+                            <form action="/remover_feedback/{{ feedback.id }}" method="POST">
+                                <button type="submit" class="btn-delete-minimal" onclick="return confirm('Remover comentário permanentemente?')" title="Excluir">
+                                    ✕
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                    {% else %}
+                    <div class="empty-state">Nenhum depoimento encontrado.</div>
+                    {% endfor %}
+                </div>
+            </section>
             
             <section id="aba-inbox" class="inbox-section glass-card" style="padding: 20px; border-radius: 20px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05);">
                 <div class="section-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 20px;">

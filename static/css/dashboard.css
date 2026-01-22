@@ -1099,3 +1099,166 @@ input::-webkit-credentials-auto-fill-button {
         transform: translateY(0); 
     }
 }
+
+/* Lista de Mensagens */
+.inbox-section { margin-bottom: 40px; }
+.messages-list { background: rgba(255,255,255,0.03); border-radius: 15px; overflow: hidden; border: 1px solid rgba(255,255,255,0.05); }
+.message-item { 
+    display: flex; align-items: center; padding: 15px 20px; 
+    border-bottom: 1px solid rgba(255,255,255,0.05); cursor: pointer; transition: 0.2s;
+}
+.message-item:hover { background: rgba(255,255,255,0.07); }
+.message-item.unread { background: rgba(0, 242, 255, 0.05); font-weight: bold; }
+.unread .msg-status { width: 10px; height: 10px; background: #00f2ff; border-radius: 50%; margin-right: 15px; box-shadow: 0 0 10px #00f2ff; }
+
+/* Modal */
+.modal-overlay { 
+    position: fixed; top:0; left:0; width:100%; height:100%; 
+    background: rgba(0,0,0,0.8); display: none; align-items: center; justify-content: center; z-index: 1000; 
+}
+.modal-overlay.active { display: flex; }
+.modal-content { width: 90%; max-width: 300px; padding: 30px; position: relative; border: 1px solid #00f2ff; }
+.close-modal { position: absolute; top: 10px; right: 15px; background: none; border: none; color: #fff; font-size: 2rem; cursor: pointer; }
+
+
+/* --- Lógica de Exibição das Abas (Mobile) --- */
+@media (max-width: 768px) {
+    /* Esconde todas as seções por padrão no mobile */
+    #aba-perfil, #aba-agenda, #aba-inbox, #aba-fas, #aba-stats, #preview-col {
+        display: none !important;
+    }
+
+    /* Exibição condicional baseada na classe do body (JS) */
+    body.tab-perfil #aba-perfil, 
+    body.tab-perfil #aba-stats, 
+    body.tab-perfil #preview-col { display: block !important; }
+    
+    body.tab-agenda #aba-agenda { display: block !important; }
+    body.tab-mensagens #aba-inbox { display: block !important; }
+    body.tab-fas #aba-fas { display: block !important; } 
+}
+
+/* --- Estilo da Área de Fãs (Mural de Depoimentos) --- */
+.fan-section-container {
+    padding: 20px;
+    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.fan-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px;
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: 12px;
+    margin-bottom: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    transition: all 0.3s ease;
+}
+
+/* Identificação visual de comentário pendente */
+.fan-row.status-pendente {
+    border-left: 4px solid #ffd700;
+    background: rgba(255, 215, 0, 0.05);
+}
+
+.fan-meta {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 5px;
+}
+
+.fan-name {
+    font-size: 0.9rem;
+    font-weight: bold;
+    color: #fff;
+}
+
+.status-badge {
+    font-size: 0.6rem;
+    text-transform: uppercase;
+    background: rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.5);
+    padding: 2px 6px;
+    border-radius: 4px;
+}
+
+.fan-stars {
+    color: #ffd700;
+    font-size: 0.75rem;
+}
+
+.fan-text {
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.7);
+    margin: 5px 0;
+    line-height: 1.4;
+}
+
+.fan-date {
+    display: block;
+    font-size: 0.7rem;
+    color: rgba(255, 255, 255, 0.3);
+    margin-top: 5px;
+}
+
+/* --- Botões de Ação --- */
+.fan-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.btn-approve-minimal, .btn-delete-minimal {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: 0.3s;
+    font-size: 0.9rem;
+}
+
+/* Botão Aprovar (Verde) */
+.btn-approve-minimal {
+    background: rgba(37, 211, 102, 0.1);
+    border: 1px solid rgba(37, 211, 102, 0.3);
+    color: #25d366;
+}
+
+.btn-approve-minimal:hover {
+    background: #25d366;
+    color: #fff;
+}
+
+/* Botão Excluir (Vermelho) */
+.btn-delete-minimal {
+    background: rgba(255, 68, 68, 0.1);
+    border: 1px solid rgba(255, 68, 68, 0.3);
+    color: #ff4444;
+}
+
+.btn-delete-minimal:hover {
+    background: #ff4444;
+    color: #fff;
+}
+
+.notification-badge {
+    position: absolute;
+    top: -5px;
+    right: -8px;
+    background-color: #ff4444; /* Vermelho vibrante */
+    color: white;
+    font-size: 0.65rem;
+    font-weight: bold;
+    padding: 2px 6px;
+    border-radius: 10px;
+    border: 2px solid #000; /* Borda para destacar do fundo escuro */
+    box-shadow: 0 0 10px rgba(255, 68, 68, 0.5);
+    min-width: 15px;
+    text-align: center;
+}
