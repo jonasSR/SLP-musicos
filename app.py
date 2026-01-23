@@ -154,25 +154,28 @@ def login_page():
 @app.route('/set_session', methods=['POST'])
 def set_session():
     data = request.get_json()
-
-    if not data or 'email' not in data:
-        return jsonify({"status": "error"}), 400
-
     email = data.get('email')
+    tipo_escolhido = data.get('tipo') # Pode ser None no login
 
-    # 🔐 CRIA SESSÃO (ESSENCIAL)
     session['user_email'] = email
-
     user_ref = db.collection('usuarios').document(email)
+    user_doc = user_ref.get()
 
-    if not user_ref.get().exists:
-        user_ref.set({
-            'email': email,
-            'tipo': 'musico',
-            'criado_em': firestore.SERVER_TIMESTAMP
-        })
+    if user_doc.exists:
+        user_data = user_doc.to_dict()
+        tipo_no_banco = user_data.get('tipo')
 
-    return jsonify({"status": "success"}), 200
+        # CASO 1: Usuário escolhendo tipo agora (Modal ou Botão de Troca)
+        if tipo_escolhido:
+            user_ref.set({'tipo': tipo_escolhido}, merge=True)
+            session['user_tipo'] = tipo_escolhido
+            return jsonify({"status": "success", "tipo": tipo_escolhido}), 200
+
+        # CASO 2: Apenas Login. Retorna o tipo que ele já tem.
+        return jsonify({"status": "success", "tipo": tipo_no_banco}), 200
+    
+    # CASO 3: Usuário novo (ainda não existe no Firestore)
+    return jsonify({"status": "success", "tipo": None}), 200
 
 
 

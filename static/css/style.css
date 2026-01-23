@@ -281,139 +281,6 @@ body {
 }
 
 
-/*#################################### RESPONSIVIDADE #################################### */
-@media (max-width: 768px) {
-    .glass-nav { padding: 15px 25px; }
-    .hero-main-title { font-size: 4rem; }
-    .sub-hero { letter-spacing: 8px; font-size: 1rem; }
-    .artist-grid { grid-template-columns: 1fr; }
-}
-
-/* 3. LAYOUT PERFIL DIVIDIDO (PÁGINA DO MÚSICO) */
-.profile-body {
-    background: #050505;
-    overflow: hidden;
-}
-
-.profile-split {
-    display: flex;
-    height: 100vh;
-    width: 100vw;
-}
-
-/* Coluna Esquerda: Imagem */
-.artist-stage {
-    flex: 1.1;
-    position: relative;
-    overflow: hidden;
-}
-
-.artist-image-fixed {
-    width: 100%;
-    height: 100%;
-    background-size: cover;
-    background-position: center;
-}
-
-.image-overlay {
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(to right, transparent 50%, #050505 100%),
-                linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 40%);
-}
-
-.artist-titles {
-    position: absolute;
-    bottom: 60px;
-    left: 60px;
-    z-index: 2;
-}
-
-.artist-main-name {
-    font-family: 'Syne', sans-serif;
-    font-size: clamp(3rem, 8vw, 6rem);
-    text-transform: uppercase;
-    line-height: 0.9;
-    letter-spacing: -3px;
-}
-
-
-
-
-
-.input-modern {
-    margin-bottom: 30px;
-    position: relative;
-}
-
-/* Remove o fundo branco do select e das opções */
-.input-modern select {
-    width: 100%;
-    background: transparent; /* Fundo do select transparente */
-    border: none;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    padding: 15px 0;
-    color: #fff;
-    font-family: inherit;
-    font-size: 1.1rem;
-    outline: none;
-    appearance: none; /* Remove a setinha padrão do navegador se desejar */
-    cursor: pointer;
-}
-
-/* Estiliza a lista que abre (as opções) */
-.input-modern select option {
-    background-color: #111; /* Fundo escuro para a lista suspensa */
-    color: white;
-    padding: 10px;
-}
-
-/* Ajuste para quando o select estiver em foco */
-.input-modern select:focus {
-    border-bottom-color: var(--accent);
-}
-
-/* Garante que o rótulo (label) não seja afetado */
-.label-fixed {
-    display: block;
-    font-size: 0.65rem;
-    font-weight: 800;
-    color: var(--accent);
-    letter-spacing: 1px;
-    margin-bottom: 5px;
-    text-transform: uppercase;
-}
-
-.btn-profile-action {
-    width: 100%;
-    padding: 20px;
-    background: #fff;
-    color: #000;
-    border: none;
-    border-radius: 100px;
-    font-weight: 800;
-    font-family: 'Syne', sans-serif;
-    cursor: pointer;
-    transition: 0.4s;
-}
-
-.btn-profile-action:hover {
-    background: var(--accent);
-    box-shadow: 0 10px 30px rgba(0, 242, 255, 0.3);
-}
-
-/* Agenda */
-.agenda-list { display: flex; flex-direction: column; gap: 15px; }
-
-.agenda-item {
-    display: flex;
-    justify-content: space-between;
-    padding: 20px;
-    background: rgba(255,255,255,0.02);
-    border-radius: 15px;
-}
-
-.show-date { color: var(--accent); font-weight: 800; }
 
 /* 5. RESPONSIVIDADE */
 @media (max-width: 1000px) {
@@ -542,84 +409,7 @@ body {
 
 
 
-/************************************************* Container das ações na nav *************************************************/
-.nav-actions {
-    display: flex;
-    gap: 15px;
-    align-items: center;
-}
 
-/* Estilo Base para os botões da Nav */
-.btn-user-status, .btn-logout, .btn-plasma-small {
-    text-decoration: none;
-    font-family: 'Syne', sans-serif;
-    font-size: 0.7rem;
-    font-weight: 800;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    padding: 10px 22px;
-    border-radius: 50px;
-    transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
-    position: relative;
-    overflow: hidden;
-}
-
-/* Botão DASHBOARD (Efeito de Vidro) */
-.btn-user-status {
-    background: rgba(255, 255, 255, 0.05);
-    color: white;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(5px);
-}
-
-.btn-user-status:hover {
-    background: rgba(255, 255, 255, 0.1);
-    border-color: var(--accent);
-    color: var(--accent);
-    box-shadow: 0 0 20px rgba(0, 242, 255, 0.2);
-}
-
-/* Botão SAIR (Discreto com linha) */
-.btn-logout {
-    color: rgba(255, 255, 255, 0.5);
-    border: 1px solid transparent;
-}
-
-.btn-logout:hover {
-    color: var(--accent-2);
-    border-color: rgba(255, 0, 84, 0.2);
-    background: rgba(255, 0, 84, 0.05);
-}
-
-/* Botão MEMBRO (Destaque Plasma) */
-.btn-plasma-small {
-    background: white;
-    color: black;
-    box-shadow: 0 4px 15px rgba(255, 255, 255, 0.1);
-}
-
-.btn-plasma-small:hover {
-    background: var(--accent);
-    color: black;
-    transform: scale(1.05);
-    box-shadow: 0 0 25px rgba(0, 242, 255, 0.5);
-}
-
-/* Efeito de brilho ao passar o mouse (opcional) */
-.btn-plasma-small::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
-    transition: 0.5s;
-}
-
-.btn-plasma-small:hover::before {
-    left: 100%;
-}
 
 
 /************************************************* Mensagem sucesso contratar banda *************************************************/
@@ -1004,14 +794,26 @@ body {
 /************************************************* Container das ações na nav *************************************************/
 .nav-actions {
     display: flex;
-    gap: 15px;
     align-items: center;
+    gap: 12px; /* Espaço entre os botões */
+    white-space: nowrap; /* Trava o texto em uma linha só */
+}
+
+/* Destaque opcional para o botão do Bar para diferenciar do Painel Músico */
+.btn-bar-highlight {
+    border: 1px solid #ff00ff !important; /* Roxo/Magenta para diferenciar do azul */
+    color: #ff00ff !important;
+}
+
+.btn-bar-highlight:hover {
+    background: rgba(255, 0, 255, 0.1);
+    box-shadow: 0 0 10px rgba(255, 0, 255, 0.3);
 }
 
 /* Estilo Base para os botões da Nav */
 .btn-user-status, .btn-logout, .btn-plasma-small {
     text-decoration: none;
-    font-family: 'Syne', sans-serif;
+    font-family: 'Outfit', sans-serif;
     font-size: 0.7rem;
     font-weight: 800;
     letter-spacing: 2px;
@@ -1750,12 +1552,6 @@ html {
     object-fit: contain;            /* Garante que a imagem não distorça */
 }
 
-/* O container dos botões */
-.nav-actions {
-    display: flex;
-    align-items: center;
-    gap: 15px;                      /* Espaço entre os botões */
-}
 
 
 
@@ -1766,34 +1562,3 @@ html {
 
 
 
-
-
-
-
-
-
-
-
-.social-icon-link {
-    color: #fff;
-    font-size: 1.8rem; /* Tamanho do ícone */
-    transition: all 0.3s ease;
-    opacity: 0.7;
-    text-decoration: none;
-}
-
-.social-icon-link:hover {
-    opacity: 1;
-    transform: translateY(-5px); /* Efeito de flutuar ao passar o mouse */
-    color: #00d2ff; /* Cor azul neon que você usa nos rótulos */
-    text-shadow: 0 0 15px rgba(0, 210, 255, 0.5);
-}
-
-/* Garante que o título "REDES SOCIAIS" siga o estilo dos outros */
-.section-label {
-    font-size: 0.75rem;
-    letter-spacing: 2px;
-    color: #00d2ff; /* Ajuste para a cor exata do seu tema */
-    margin-bottom: 10px;
-    display: block;
-}

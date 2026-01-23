@@ -1,57 +1,35 @@
-/* =========================================================
-   1. DESIGN TOKENS / CONFIGURAÇÕES GLOBAIS
-========================================================= */
-
+/* 1. CONFIGURAÇÕES GLOBAIS E VARIÁVEIS */
 @import url('https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Plus+Jakarta+Sans:wght@200;400;700&display=swap');
 
-
 :root {
-    /* Brand */
     --accent: #00f2ff;
     --accent-2: #ff0054;
-
-    /* Glow */
     --primary-glow: #6200ff;
     --secondary-glow: #9d00ff;
-
-    /* Background */
     --bg-dark: #030303;
-
-    /* Glass */
     --glass: rgba(255, 255, 255, 0.03);
+    --border: rgba(255, 255, 255, 0.08);
+    --text-muted: rgba(255, 255, 255, 0.6);
     --glass-bg: rgba(255, 255, 255, 0.05);
     --glass-border: rgba(255, 255, 255, 0.12);
-
-    /* Borders */
-    --border: rgba(255, 255, 255, 0.08);
-
-    /* Text */
-    --text-muted: rgba(255, 255, 255, 0.6);
 }
 
-/* =========================================================
-   2. RESET / BASE
-========================================================= */
-
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    scroll-behavior: smooth;
+* { 
+    margin: 0; 
+    padding: 0; 
+    box-sizing: border-box; 
+    scroll-behavior: smooth; 
 }
 
 body {
-    background: var(--bg-dark);
-    color: #fff;
+    background-color: var(--bg-dark);
+    color: white;
     font-family: 'Plus Jakarta Sans', sans-serif;
-    line-height: 1.6;
     overflow-x: hidden;
+    line-height: 1.6;
 }
 
-/* =========================================================
-   3. BACKGROUND ANIMADO / CURSOR
-========================================================= */
-
+/* 2. BACKGROUND ANIMADO E CURSOR */
 .bg-scene {
     position: fixed;
     inset: 0;
@@ -67,59 +45,32 @@ body {
     animation: move 25s infinite alternate;
 }
 
-.orb-1 {
-    width: 600px;
-    height: 600px;
-    background: var(--accent);
-    top: -10%;
-    left: -10%;
-}
-
-.orb-2 {
-    width: 500px;
-    height: 500px;
-    background: var(--accent-2);
-    bottom: -10%;
-    right: -5%;
-    animation-delay: -5s;
-}
-
-.orb-3 {
-    width: 400px;
-    height: 400px;
-    background: #7000ff;
-    top: 30%;
-    left: 20%;
-    animation-delay: -10s;
-}
+.orb-1 { width: 600px; height: 600px; background: var(--accent); top: -10%; left: -10%; }
+.orb-2 { width: 500px; height: 500px; background: var(--accent-2); bottom: -10%; right: -5%; animation-delay: -5s; }
+.orb-3 { width: 400px; height: 400px; background: #7000ff; top: 30%; left: 20%; animation-delay: -10s; }
 
 @keyframes move {
     from { transform: translate(0, 0) scale(1); }
-    to   { transform: translate(150px, 100px) scale(1.3); }
+    to { transform: translate(150px, 100px) scale(1.3); }
 }
 
 #cursor-aura {
     position: fixed;
     width: 300px;
     height: 300px;
+    background: radial-gradient(circle, rgba(0, 242, 255, 0.1) 0%, transparent 70%);
     pointer-events: none;
     z-index: 9999;
-    background: radial-gradient(circle, rgba(0,242,255,0.1) 0%, transparent 70%);
     transition: transform 0.1s ease-out;
 }
 
-/* =========================================================
-   4. LAYOUT PERFIL DIVIDIDO
-========================================================= */
-
+/* 3. LAYOUT PERFIL DIVIDIDO */
 .profile-split {
     display: flex;
-    min-height: 100vh;
+    min-height: 100vh; /* Permite que a página cresça se o zoom aumentar */
     width: 100%;
-    overflow-x: hidden;
+    overflow-x: hidden; /* Evita scroll lateral no zoom */
 }
-
-/* --- Stage --- */
 
 .artist-stage {
     flex: 1.1;
@@ -137,12 +88,9 @@ body {
 .image-overlay {
     position: absolute;
     inset: 0;
-    background:
-        linear-gradient(to right, transparent 50%, #050505 100%),
-        linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 40%);
+    background: linear-gradient(to right, transparent 50%, #050505 100%),
+                linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 40%);
 }
-
-/* --- Titles --- */
 
 .artist-titles {
     position: absolute;
@@ -153,159 +101,137 @@ body {
 
 .artist-main-name {
     font-family: 'Syne', sans-serif;
-    font-size: clamp(2rem, 8vw, 5rem); /* Tamanho dinâmico: mínimo 2rem, máximo 5rem */
-    line-height: 1;
+    font-size: 80px; 
     text-transform: uppercase;
-    white-space: normal; /* Permite quebrar linha se o zoom for muito alto */
-    word-wrap: break-word;
+    line-height: 1;
+    letter-spacing: -1px;
+    white-space: nowrap; 
+    position: relative;
+    margin-left:40px;
 }
 
-/* --- Details --- */
 
 .artist-details {
     flex: 0.9;
     background: #050505;
-    padding: 40px 5% 80px;
     overflow-y: auto;
+    padding: 40px 5% 80px 5%;
     scrollbar-width: none;
 }
+.artist-details::-webkit-scrollbar { display: none; }
 
-.artist-details::-webkit-scrollbar {
-    display: none;
-}
-
-/* =========================================================
-   5. COMPONENTES DE UI
-========================================================= */
-
+/* 4. COMPONENTES DE UI */
 .btn-back-minimal {
     display: inline-block;
-    margin-bottom: 40px;
+    color: var(--accent);
+    text-decoration: none;
     font-size: 0.75rem;
     font-weight: 800;
     letter-spacing: 2px;
     text-transform: uppercase;
-    color: var(--accent);
-    text-decoration: none;
+    margin-bottom: 40px;
     transition: 0.3s ease;
 }
 
 .btn-back-minimal:hover {
-    color: #fff;
+    color: white;
     transform: translateX(-5px);
 }
 
 .section-label {
     font-size: 0.6rem;
     font-weight: 900;
-    letter-spacing: 4px;
-    text-transform: uppercase;
     color: var(--accent);
+    letter-spacing: 4px;
     margin-bottom: 8px;
+    text-transform: uppercase;
 }
 
 .info-group { margin-bottom: 40px; }
-.genre-badge { font-size: 1.2rem; font-weight: 400; }
-.bio-text {
-    font-size: 1.1rem;
-    line-height: 1.8;
-    color: var(--text-muted);
-    margin-bottom: 60px;
-}
+.genre-badge { font-size: 1.2rem; color: white; font-weight: 400; }
+.bio-text { font-size: 1.1rem; line-height: 1.8; color: var(--text-muted); margin-bottom: 60px; }
 
-/* =========================================================
-   6. GLASS / PLAYER / CARDS
-========================================================= */
-
+/* Player e Cards */
 .glass-player {
+    background: var(--glass);
+    border: 1px solid var(--border);
+    padding: 30px;
+    border-radius: 24px;
     display: flex;
     align-items: center;
     gap: 20px;
-    padding: 30px;
     margin-bottom: 60px;
-    border-radius: 24px;
-    background: var(--glass);
-    border: 1px solid var(--border);
 }
 
-/* --- Booking Card --- */
+/* --- CARD DE ORÇAMENTO ULTRA-COMPACTO --- */
 
 .booking-glass-card {
-    max-width: 580px;
-    padding: 20px;
-    margin-bottom: 30px;
-    border-radius: 12px;
-    background: linear-gradient(
-        135deg,
-        rgba(255,255,255,0.05),
-        rgba(255,255,255,0.01)
-    );
+    background: linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.01) 100%);
     border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px; /* Redução máxima de respiro interno */
     backdrop-filter: blur(20px);
+    margin-bottom: 30px;
+    max-width: 580px;
 }
 
+/* Grid apertado para eliminar desperdício de espaço */
 .booking-glass-card form {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 10px 15px;
+    gap: 10px 15px; /* Espaçamento mínimo entre os campos */
 }
 
-/* =========================================================
-   7. FORMULÁRIOS
-========================================================= */
+.input-modern {
+    margin-bottom: 0; /* O gap do grid já controla o espaço */
+}
 
-.input-modern { margin-bottom: 0; }
-
+/* Labels menores e mais próximas do input */
 .label-fixed {
     display: block;
-    margin-bottom: 4px;
-    font-size: 0.55rem;
+    font-size: 0.55rem; /* Fonte ultra pequena para labels */
     font-weight: 800;
-    letter-spacing: 1px;
-    text-transform: uppercase;
     color: var(--accent);
+    letter-spacing: 1px;
+    margin-bottom: 4px;
+    text-transform: uppercase;
 }
 
-.input-modern input,
+/* Inputs com altura reduzida (Slim) */
+.input-modern input, 
 .input-modern textarea,
-.input-modern select,
+.input-modern select, 
 .select-trigger {
     width: 100%;
-    padding: 8px 12px;
-    font-size: 0.8rem;
-    color: #fff;
-    background: rgba(255,255,255,0.02);
-    border: 1px solid rgba(255,255,255,0.08);
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: 6px;
+    padding: 8px 12px; /* Reduzido de 18px para 8px */
+    color: #ffffff;
+    font-size: 0.8rem; /* Fonte menor para o texto digitado */
     outline: none;
-    transition: 0.2s ease;
+    transition: all 0.2s ease;
 }
 
+/* Ajuste específico para o seletor de tipo de evento */
 .input-modern select {
-    height: 34px;
-    padding: 0 12px;
+    height: 34px; /* Altura fixa baixa */
+    padding-top: 0;
+    padding-bottom: 0;
 }
 
-.input-modern textarea {
-    min-height: 60px;
-    grid-column: span 2;
-}
-
-/* =========================================================
-   8. BOTÕES
-========================================================= */
-
+/* Botão mais fino e elegante */
 .btn-plasma {
     grid-column: span 2;
     margin-top: 10px;
     padding: 12px;
     font-size: 0.7rem;
     font-weight: 800;
-    letter-spacing: 2px;
-    text-transform: uppercase;
+    border-radius: 6px;
     background: #fff;
     color: #000;
-    border-radius: 6px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
     cursor: pointer;
     transition: 0.3s ease;
 }
@@ -313,22 +239,27 @@ body {
 .btn-plasma:hover {
     background: var(--accent);
     transform: translateY(-1px);
-    box-shadow: 0 5px 15px rgba(0,242,255,0.2);
+    box-shadow: 0 5px 15px rgba(0, 242, 255, 0.2);
 }
 
-/* =========================================================
-   9. CUSTOM SELECT
-========================================================= */
+/* Se houver uma área de texto (Mensagem), limitamos a altura */
+.input-modern textarea {
+    min-height: 60px;
+    grid-column: span 2;
+}
 
+/* Custom Select (Trigger e Options) */
 .select-trigger {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    cursor: pointer;
+    background: rgba(255, 255, 255, 0.03);
     backdrop-filter: blur(12px);
-    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 12px;
     padding: 15px 20px;
+    color: #fff;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 
 .select-options {
@@ -336,47 +267,24 @@ body {
     top: 110%;
     left: 0;
     width: 100%;
+    background: rgba(15, 15, 15, 0.98);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(0, 210, 255, 0.3);
+    border-radius: 12px;
     max-height: 250px;
     overflow-y: auto;
-    display: none;
     z-index: 999;
-    background: rgba(15,15,15,0.98);
-    border: 1px solid rgba(0,210,255,0.3);
-    border-radius: 12px;
-    backdrop-filter: blur(20px);
+    display: none;
     box-shadow: 0 10px 30px rgba(0,0,0,0.8);
 }
 
-.select-options.active {
-    display: block;
-    animation: fadeInSlide 0.3s ease;
-}
+.select-options.active { display: block; animation: fadeInSlide 0.3s ease; }
 
-.option-group {
-    padding: 12px 15px 5px;
-    font-size: 0.7rem;
-    font-weight: 800;
-    letter-spacing: 2px;
-    color: #00d2ff;
-}
+.option-group { padding: 12px 15px 5px; font-size: 0.7rem; color: #00d2ff; letter-spacing: 2px; font-weight: 800; }
+.option-item { padding: 12px 20px; color: rgba(255,255,255,0.8); cursor: pointer; transition: 0.2s; }
+.option-item:hover { background: rgba(0, 210, 255, 0.15); color: #fff; padding-left: 25px; }
 
-.option-item {
-    padding: 12px 20px;
-    color: rgba(255,255,255,0.8);
-    cursor: pointer;
-    transition: 0.2s;
-}
-
-.option-item:hover {
-    padding-left: 25px;
-    background: rgba(0,210,255,0.15);
-    color: #fff;
-}
-
-/* =========================================================
-   10. FEEDBACK / RATING
-========================================================= */
-
+/* 6. MURAL DE FEEDBACK */
 .rating-selection {
     display: flex;
     flex-direction: row-reverse;
@@ -385,161 +293,141 @@ body {
     font-size: 2rem;
     margin-bottom: 5px;
 }
-
 .rating-selection input { display: none; }
-
-.rating-selection label {
-    cursor: pointer;
-    color: #333;
-    transition: 0.3s;
-}
-
+.rating-selection label { cursor: pointer; color: #333; transition: 0.3s; }
 .rating-selection input:checked ~ label,
 .rating-selection label:hover,
-.rating-selection label:hover ~ label {
-    color: #ffd700;
-    text-shadow: 0 0 10px rgba(255,215,0,0.5);
-}
+.rating-selection label:hover ~ label { color: #ffd700; text-shadow: 0 0 10px rgba(255,215,0,0.5); }
 
 .feedback-form-card {
-    height: 380px;
     padding: 15px;
-    border-radius: 10px;
+    border: 1px solid rgba(0, 210, 255, 0.3);
     background: rgba(255,255,255,0.03);
-    border: 1px solid rgba(0,210,255,0.3);
+    border-radius: 10px;
+    height: 380px;
 }
 
 .feedback-bubble {
-    margin-bottom: 15px;
+    background: rgba(255,255,255,0.05);
     padding: 15px;
     border-radius: 15px;
-    background: rgba(255,255,255,0.05);
+    margin-bottom: 15px;
     border-left: 3px solid var(--accent);
 }
+.stars-gold { color: #ffd700; font-size: 0.8rem; margin-left: 10px; }
 
-.stars-gold {
-    margin-left: 10px;
-    font-size: 0.8rem;
-    color: #ffd700;
-}
+/* 7. BOTÕES E NAVEGAÇÃO */
+.nav-actions { display: flex; gap: 15px; align-items: center; }
 
-/* =========================================================
-   11. NAVEGAÇÃO / ESTADOS
-========================================================= */
-
-.nav-actions {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-}
-
-.btn-user-status,
-.btn-logout,
-.btn-plasma-small,
-.btn-plasma {
-    font-family: 'Syne', sans-serif;
-    font-weight: 800;
-    letter-spacing: 2px;
-    text-transform: uppercase;
+.btn-user-status, .btn-logout, .btn-plasma-small, .btn-plasma {
     text-decoration: none;
-    cursor: pointer;
+    font-family: 'Syne', sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    font-weight: 800;
     transition: 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+    cursor: pointer;
 }
 
 .btn-user-status {
-    padding: 10px 22px;
-    font-size: 0.7rem;
-    border-radius: 50px;
-    background: rgba(255,255,255,0.05);
-    border: 1px solid rgba(255,255,255,0.1);
+    font-size: 0.7rem; padding: 10px 22px; border-radius: 50px;
+    background: rgba(255, 255, 255, 0.05); color: white; border: 1px solid rgba(255, 255, 255, 0.1);
     backdrop-filter: blur(5px);
-    color: #fff;
 }
 
-.btn-user-status:hover,
-.btn-plasma:hover {
-    background: var(--accent);
-    color: #000;
-    transform: translateY(-3px);
-    box-shadow: 0 10px 25px rgba(0,242,255,0.4);
+.btn-plasma {
+    margin-top: auto; padding: 15px 50px; background: #fff; color: #000;
+    border-radius: 10px; display: inline-block;
+}
+
+.btn-plasma:hover, .btn-user-status:hover {
+    background: var(--accent); color: black; transform: translateY(-3px);
+    box-shadow: 0 10px 25px rgba(0, 242, 255, 0.4);
 }
 
 .empty-state {
-    padding: 40px;
-    text-align: center;
-    opacity: 0.5;
-    border-radius: 20px;
-    border: 1px dashed rgba(255,255,255,0.1);
+    text-align: center; padding: 40px; border: 1px dashed rgba(255, 255, 255, 0.1);
+    border-radius: 20px; opacity: 0.5;
 }
 
-/* =========================================================
-   5. INPUTS E FORMULÁRIOS — ULTRA MODERN (REFINADO)
-========================================================= */
+
+/* ==========================================================================
+   5. INPUTS E FORMULÁRIOS (ULTRA MODERNIZADO)
+   ========================================================================== */
 
 .input-modern {
     position: relative;
+    margin-bottom: 30px;
     width: 100%;
     max-width: 600px;
-    margin-bottom: 30px;
 }
 
-/* Label */
+/* Label Refinada */
 .label-fixed {
     display: block;
-    margin-bottom: 4px;
     font-size: 0.6rem;
     font-weight: 800;
+    color: var(--accent);
     letter-spacing: 2.5px;
     text-transform: uppercase;
-    color: var(--accent);
     opacity: 0.8;
     transition: 0.3s ease;
 }
 
-/* Base Inputs */
-.input-modern input,
+/* Base do Input (Efeito Vidro Profundo) */
+.input-modern input, 
 .input-modern textarea,
-.input-modern select,
+.input-modern select, 
 .select-trigger {
     width: 100%;
-    padding: 10px;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 10px;
+    padding: 10px 10px;
+    color: #ffffff;
     font-family: 'Plus Jakarta Sans', sans-serif;
     font-size: 0.95rem;
-    color: #fff;
-
-    background: rgba(255,255,255,0.02);
-    border: 1px solid rgba(255,255,255,0.08);
-    border-radius: 10px;
-
     outline: none;
-    box-shadow: inset 0 2px 4px rgba(0,0,0,0.3);
-    transition: 
-        background 0.3s ease,
-        border-color 0.3s ease,
-        box-shadow 0.3s ease,
-        transform 0.3s ease;
+    transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3); /* Profundidade */
 }
 
-/* Placeholder */
+/* Placeholder sutil */
 .input-modern input::placeholder,
 .input-modern textarea::placeholder {
-    color: rgba(255,255,255,0.2);
+    color: rgba(255, 255, 255, 0.2);
     font-weight: 200;
 }
 
-/* Focus Glow */
-.input-modern input:focus,
+/* Efeito de Foco "Glow" Dinâmico */
+.input-modern input:focus, 
 .input-modern textarea:focus,
 .input-modern select:focus {
-    background: rgba(255,255,255,0.05);
+    background: rgba(255, 255, 255, 0.05);
     border-color: var(--accent);
-    box-shadow:
-        inset 0 2px 4px rgba(0,0,0,0.2),
-        0 0 15px rgba(0,242,255,0.15);
-    transform: translateY(-2px);
+    box-shadow: 
+        inset 0 2px 4px rgba(0, 0, 0, 0.2),
+        0 0 15px rgba(0, 242, 255, 0.15); /* Brilho externo suave */
+    transform: translateY(-2px); /* Elevação leve */
 }
 
-/* Label reação ao foco */
+/* Estilização para o Textarea (Mural) */
+.input-modern textarea {
+    min-height: 60px;
+    resize: none;
+}
+
+/* Customização do Select */
+.input-modern select {
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%2300f2ff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 20px center;
+    background-size: 15px;
+}
+
+/* Efeito na Label quando o input ganha foco */
 .input-modern:focus-within .label-fixed {
     color: #fff;
     opacity: 1;
@@ -547,75 +435,69 @@ body {
     text-shadow: 0 0 8px var(--accent);
 }
 
-/* Textarea */
-.input-modern textarea {
-    min-height: 60px;
-    resize: none;
-}
-
-/* Select Nativo */
-.input-modern select {
-    cursor: pointer;
-    appearance: none;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%2300f2ff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: right 18px center;
-    background-size: 14px;
-}
-
-/* =========================================================
-   GRID DE FORMULÁRIO
-========================================================= */
-
+/* Grid para campos lado a lado no Desktop */
 @media (min-width: 993px) {
     .form-row {
         display: flex;
         gap: 20px;
         max-width: 600px;
     }
-
     .form-row .input-modern {
         flex: 1;
     }
 }
 
-/* =========================================================
-   DIVISOR DE SEÇÃO
-========================================================= */
 
 .section-divider {
-    width: 100%;
-    max-width: 650px;
     height: 1px;
+    width: 100%;
+    max-width: 650px; /* Alinhado com seus outros elementos */
+    background: linear-gradient(to right, 
+        rgba(0, 242, 255, 0) 0%, 
+        rgba(0, 242, 255, 0.3) 50%, 
+        rgba(0, 242, 255, 0) 100%);
     margin: 20px 0;
-    background: linear-gradient(
-        to right,
-        rgba(0,242,255,0) 0%,
-        rgba(0,242,255,0.3) 50%,
-        rgba(0,242,255,0) 100%
-    );
     border: none;
 }
 
-/* =========================================================
-   REDES SOCIAIS
-========================================================= */
 
 .social-icon-link {
-    font-size: 1.8rem;
     color: #fff;
+    font-size: 1.8rem; /* Tamanho do ícone */
+    transition: all 0.3s ease;
     opacity: 0.7;
     text-decoration: none;
-    transition: 0.3s ease;
 }
 
 .social-icon-link:hover {
     opacity: 1;
-    color: #00d2ff;
-    transform: translateY(-5px);
-    text-shadow: 0 0 15px rgba(0,210,255,0.5);
+    transform: translateY(-5px); /* Efeito de flutuar ao passar o mouse */
+    color: #00d2ff; /* Cor azul neon que você usa nos rótulos */
+    text-shadow: 0 0 15px rgba(0, 210, 255, 0.5);
 }
 
+/* Garante que o título "REDES SOCIAIS" siga o estilo dos outros */
+.section-label {
+    font-size: 0.75rem;
+    letter-spacing: 2px;
+    color: #00d2ff; /* Ajuste para a cor exata do seu tema */
+    margin-bottom: 10px;
+    display: block;
+}
+
+.image-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to right, transparent 50%, #050505 100%),
+                linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 40%);
+}
+
+.artist-image-fixed {
+    width: 100%;
+    height: 100%;
+    background-size: cover;
+    background-position: center;
+}
 
 /*#################################### RESPONSIVIDADE #################################### */
 @media (max-width: 768px) {
@@ -754,7 +636,7 @@ body {
 }
 
 /* --- COMPORTAMENTO MOBILE (Até 992px) --- */
-@media (max-width: 768px) {
+@media (max-width: 992px) {
     /* Mostra a barra de abas inferior */
     .mobile-tabs {
         display: flex !important;
@@ -814,7 +696,7 @@ body {
 /* --------------------------------------------------------------------------
    MEDIA QUERY: TABLETS E CELULARES (Até 992px)
    -------------------------------------------------------------------------- */
-@media (max-width: 768px) {
+@media (max-width: 992px) {
     /* Libera o scroll global */
     body, html, .profile-body {
         overflow-y: auto !important;
@@ -945,7 +827,7 @@ body {
 
 
 /* GARANTE QUE NO MOBILE APENAS A ABA ATIVA APAREÇA */
-@media (max-width: 768px) {
+@media (max-width: 992px) {
     .tab-content {
         display: none;
     }
@@ -1048,7 +930,8 @@ body {
 }
 
 .vibe-rating {
-    color: #ffcc00; /* Cor dourada para a estrela no mural */
+    font-size: 12px;
+    color: #ffaa00;
     font-weight: bold;
 }
 
@@ -1112,7 +995,7 @@ body {
 }
 
 /* Ajuste específico para Mobile */
-@media (max-width: 768px) {
+@media (max-width: 992px) {
     .comment-pill {
         border-radius: 15px;
         padding: 15px;
@@ -1158,8 +1041,8 @@ body {
 
 /* Segundo ícone em cor diferente para dinamismo */
 .stat-item:nth-child(3) .stat-icon {
-    color: #ffcc00; /* Cor dourada para a estrela no mural */
-    font-weight: bold;
+    background: rgba(255, 0, 85, 0.1);
+    color: #ff0055;
 }
 
 .stat-content {
@@ -1190,7 +1073,7 @@ body {
 }
 
 /* Ajuste Mobile */
-@media (max-width: 768px) {
+@media (max-width: 992px) {
     .stats-bar-modern {
         margin: 15px 0 25px 0;
         padding: 12px;

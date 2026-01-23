@@ -7,7 +7,6 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/dark.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/perfil.css') }}">
 </head>
 
@@ -26,14 +25,11 @@
             </div>
         </section>
 
-        
-
+    
         <section class="artist-details">
             <a href="/" class="btn-back-minimal">← VOLTAR</a>
 
         
-            <hr class="section-divider">
-
             <div class="mobile-tabs">
                 <button class="tab-btn active" onclick="showMobileTab(event, 'perfil')">
                     <i class="fas fa-user"></i> <span>Perfil</span>
@@ -66,7 +62,7 @@
                 <div class="stat-item">
                     <div class="stat-icon"><i class="fas fa-star"></i></div>
                     <div class="stat-content">
-                        <span class="stat-value">5.0</span>
+                        <span class="stat-value">{{ media_estrelas }}</span>
                         <span class="stat-label">AVALIAÇÃO</span>
                     </div>
                 </div>
@@ -92,6 +88,8 @@
                     {% endif %}
                 </div>
             </div>
+
+            <hr class="section-divider">
                     <div class="info-group">
                         <h2 class="section-label">ESTILO</h2>
                         <span class="genre-badge">{{ musico.estilo }}</span>
@@ -225,27 +223,6 @@
                 </div>
                 <br>
                 <div id="mensagens" class="tab-content">
-                    
-                    <div class="fan-wall-container">
-                        <div class="stats-bar-modern">
-                            <div class="stat-item" onclick="showMobileTab(event, 'mensagens')">
-                                <div class="stat-icon"><i class="fas fa-users"></i></div>
-                                <div class="stat-content">
-                                    <span class="stat-value">{{ feedbacks|length }}</span>
-                                    <span class="stat-label">FÃS</span>
-                                </div>
-                            </div>
-                            
-                            <div class="stat-divider"></div>
-                            
-                            <div class="stat-item">
-                                <div class="stat-icon"><i class="fas fa-star"></i></div>
-                                <div class="stat-content">
-                                    <span class="stat-value">5.0</span>
-                                    <span class="stat-label">AVALIAÇÃO</span>
-                                </div>
-                            </div>
-                        </div>
                         <div class="glass-card feedback-form-card" style="max-width: 500px; margin: 0 auto 40px auto;">
                             <h3>DEIXE SUA ESTRELA ✨</h3>
                             <p>Conte para o artista o que achou da vibe!</p>

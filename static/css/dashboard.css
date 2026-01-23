@@ -67,7 +67,7 @@ body {
     left: 50%;
     transform: translateX(-50%);
     width: 90%;
-    max-width: 1300px;
+    max-width: auto;
     padding: 10px 5%;
     height: 80px;
     background: rgba(255, 255, 255, 0.1);
@@ -121,46 +121,8 @@ body {
     color: #4facfe;
 }
 
-.btn-user-status, .btn-logout, .btn-plasma-small {
-    text-decoration: none;
-    font-family: 'Syne', sans-serif;
-    font-size: 0.7rem;
-    font-weight: 800;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    padding: 10px 22px;
-    border-radius: 50px;
-    transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
-    position: relative;
-    overflow: hidden;
-}
 
-/* Dashboard */
-.btn-user-status {
-    background: rgba(255, 255, 255, 0.05);
-    color: white;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(5px);
-}
 
-.btn-user-status:hover {
-    background: rgba(255, 255, 255, 0.1);
-    border-color: var(--accent);
-    color: var(--accent);
-    box-shadow: 0 0 20px rgba(0, 242, 255, 0.2);
-}
-
-/* Logout */
-.btn-logout {
-    color: rgba(255, 255, 255, 0.5);
-    border: 1px solid transparent;
-}
-
-.btn-logout:hover {
-    color: var(--accent-2);
-    border-color: rgba(255, 0, 84, 0.2);
-    background: rgba(255, 0, 84, 0.05);
-}
 
 /* Plasma small */
 .btn-plasma-small {
@@ -695,7 +657,7 @@ input::-webkit-credentials-auto-fill-button {
         transition: 0.4s ease forwards;
     }
 
-    .btn-user-status, .btn-logout, .btn-plasma-small {
+    .btn-user-status, .btn-plasma-small {
         padding: 12px 25px;
         font-size: 0.8rem;
         width: 220px;
@@ -1262,3 +1224,5 @@ input::-webkit-credentials-auto-fill-button {
     min-width: 15px;
     text-align: center;
 }
+
+

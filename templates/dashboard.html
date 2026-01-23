@@ -36,10 +36,11 @@
             </div>
             <ul class="nav-links" id="nav-links">
                 <li><a href="/" class="btn-nav-link">HOME</a></li>
+                
                 {% if session.get('user_email') %}
-                    <li><a href="/dashboard" class="btn-user-status">PAINEL</a></li>
-                    <li><a href="javascript:void(0)" onclick="abrirModalSenha()" class="btn-user-status">ALTERAR SENHA</a></li>
-                    <li><a href="/logout" class="btn-logout">SAIR</a></li>
+                    <li><a href="/dashboard" class="btn-nav-link">PAINEL MÚSICO</a></li>
+                    <li><a href="javascript:void(0)" onclick="abrirModalSenha()" class="btn-nav-link">ALTERAR SENHA</a></li>
+                    <li><a href="/logout" class="btn-nav-link">SAIR</a></li>
                 {% endif %}
             </ul>
         </nav>
