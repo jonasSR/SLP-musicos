@@ -9,7 +9,7 @@ import {
     updatePassword,
     GoogleAuthProvider,
     signInWithPopup,
-    deleteUser // <--- ADICIONE ESTA LINHA AQUI
+    deleteUser
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
 import {
@@ -19,16 +19,17 @@ import {
     serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-// 🔥 CONFIG FIREBASE
-const firebaseConfig = {
-    apiKey: "AIzaSyByff364YvPXLeo6k1ccquKTX4Jv-CeOhA",
-    authDomain: "slp-musicos-turismo.firebaseapp.com",
-    projectId: "slp-musicos-turismo",
-    storageBucket: "slp-musicos-turismo.firebasestorage.app",
-    messagingSenderId: "289743101948",
-    appId: "1:289743101948:web:c11cb6910506e84d405c79"
-};
+// 🔐 BUSCA AS CONFIGURAÇÕES INJETADAS PELO FLASK NO HTML
+// Não coloque as chaves aqui! Elas vêm do window.firebaseConfig
+const firebaseConfig = window.firebaseConfig;
 
+// 🛡️ VERIFICAÇÃO DE SEGURANÇA
+// Se as chaves não existirem (erro de carregamento), o código avisa em vez de travar
+if (!firebaseConfig || !firebaseConfig.apiKey) {
+    console.error("❌ Erro: As chaves do Firebase não foram encontradas. Verifique o arquivo .env e o app.py.");
+}
+
+// 🔥 INICIALIZAÇÃO
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);

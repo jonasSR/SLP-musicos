@@ -10,6 +10,7 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
     <script type="module" src="{{ url_for('static', filename='js/auth.js') }}"></script>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}">
+    
 </head>
 
 <body class="login-page-root">
@@ -101,6 +102,17 @@
         </div>
     </div>
 
+    
+    <script>
+        // Colocamos aspas para o editor achar que é uma String comum
+        // O | safe garante que o Flask não quebre os caracteres
+        const configData = '{{ firebase_config | tojson | safe }}';
+        
+        // Agora transformamos essa string em um objeto de verdade
+        window.firebaseConfig = JSON.parse(configData);
+        
+        console.log("🔥 Configuração do Firebase injetada!");
+    </script>
     <script type="module" src="{{ url_for('static', filename='js/auth.js') }}"></script>
 </body>
 </html>

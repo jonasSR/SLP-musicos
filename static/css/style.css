@@ -890,13 +890,19 @@ body {
 
     /* --- 1. NAVBAR --- */
     .glass-nav {
-        height: 70px !important;
-        padding: 0 15px !important;
+        padding: 15px 20px;
         background: rgba(255, 255, 255, 0.1) !important;
         border-bottom: 1px solid var(--border) !important;
     }
 
-    .logo-img { max-height: 40px !important; }
+    .logo-img {
+        max-height: 50px;
+        height: 100%;
+        width: auto;
+        object-fit: contain;
+    
+    
+    }
 
     .btn-user-status, .btn-plasma-small, .btn-logout-index {
         padding: 6px 10px !important;

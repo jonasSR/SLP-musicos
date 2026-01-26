@@ -1,1 +1,15 @@
 serviceAccountKey.json
+# Variáveis de ambiente (Segredos)
+.env
+
+# Pastas de ambiente virtual
+venv/
+.venv/
+env/
+
+# Arquivos do Python
+__pycache__/
+*.py[cod]
+
+# Se você tiver o arquivo de chaves do Google (JSON), adicione também:
+serviceAccountKey.json

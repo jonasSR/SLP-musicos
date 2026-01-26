@@ -6,13 +6,13 @@ from werkzeug.security import generate_password_hash
 from werkzeug.security import check_password_hash
 from firebase_admin import auth as firebase_auth
 from flask_cors import CORS
-
 import firebase_admin
 from firebase_admin import credentials, firestore
 from werkzeug.utils import secure_filename
-
 import json
 from firebase_admin import credentials, initialize_app
+from dotenv import load_dotenv
+load_dotenv()
 
 
 # ======================================================
@@ -73,6 +73,20 @@ from config import ESTILOS
 def inject_estilos():
     return dict(estilos=ESTILOS)
 
+
+
+@app.context_processor
+def inject_firebase():
+    return {
+        "firebase_config": {
+            "apiKey": os.getenv("FIREBASE_API_KEY"),
+            "authDomain": os.getenv("FIREBASE_AUTH_DOMAIN"),
+            "projectId": os.getenv("FIREBASE_PROJECT_ID"),
+            "storageBucket": os.getenv("FIREBASE_STORAGE_BUCKET"),
+            "messagingSenderId": os.getenv("FIREBASE_MESSAGING_SENDER_ID"),
+            "appId": os.getenv("FIREBASE_APP_ID")
+        }
+    }
 # ======================================================
 # 🌎 ROTAS PÚBLICAS
 # ======================================================
@@ -181,14 +195,21 @@ def perfil_musico(musico_id):
     )
 
 # ======================================================
-# 🔐 AUTENTICAÇÃO
+# 🔐 AUTENTICAÇÃOdef login_page():
 # ======================================================
 
 @app.route('/login')
 def login_page():
-    """Tela de acesso para músicos"""
-    # Removi o 'if user_email in session' que redirecionava
-    return render_template('login.html')
+    """Tela de acesso para músicos com chaves seguras"""
+    config = {
+        "apiKey": os.getenv("FIREBASE_API_KEY"),
+        "authDomain": os.getenv("FIREBASE_AUTH_DOMAIN"),
+        "projectId": os.getenv("FIREBASE_PROJECT_ID"),
+        "storageBucket": os.getenv("FIREBASE_STORAGE_BUCKET"),
+        "messagingSenderId": os.getenv("FIREBASE_MESSAGING_SENDER_ID"),
+        "appId": os.getenv("FIREBASE_APP_ID")
+    }
+    return render_template('login.html', firebase_config=config)
 
 
 @app.route('/set_session', methods=['POST'])
