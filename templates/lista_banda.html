@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bandas | Explorar</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/lista_banda.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+
+    <div class="bg-scene">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+        <div class="orb orb-3"></div>
+    </div>
+
+    <nav class="glass-nav">
+        <a href="/" class="logo">
+            <img src="{{ url_for('static', filename='img/conect1.png') }}" alt="PULSAMUSICCONECT" class="logo-img">
+        </a>
+
+        <div class="mobile-menu-icon" id="mobile-menu-trigger">
+            <div class="line1"></div>
+            <div class="line2"></div>
+            <div class="line3"></div>
+        </div>
+
+        <ul class="menu-links" id="nav-links">
+            <li><a href="/" class="btn-nav-flat">HOME</a></li>
+            <li><a href="/artistas?tipo=dj" class="btn-nav-flat">DJs</a></li>
+            <li><a href="/artistas?tipo=músico independente" class="btn-nav-flat">MÚSICOS</a></li>
+            <li><a href="/artistas?tipo=banda" class="btn-nav-flat">BANDAS</a></li>
+            <li><a href= "/palco" class="btn-nav-flat">PALCOS</a></li>
+            <li><a href="/dashboard" class="btn-plasma-small">MEMBRO</a></li>
+        </ul>
+    </nav>
+
+    <main class="profile-container">
+        <header class="dash-intro">
+            <h1 class="reveal-text">BANDAS</h1>
+            <p>Parceiros Pulsa Music Conect</p>
+        </header>
+
+       <div class="estab-grid">
+            {% for m in musicos %}
+                <a href="/musico/{{ m.id }}" class="modern-card" data-tilt data-estilo="{{ m.estilo | lower | replace(' ', '-') | replace('/', '') }}">
+                    
+                    {% set foto_url = m.foto if m.foto else url_for('static', filename='img/default_banda.jpg') %}
+                    <div class="card-image" style="background-image: url('{{ foto_url }}');"></div>
+                    
+                    <div class="card-overlay">
+                        <div class="artist-main-info">
+                            <h3>{{ m.nome }}</h3>
+                            <span class="btn-profile-link">
+                                VER PERFIL <i class="fas fa-chevron-right" style="font-size: 0.6rem;"></i>
+                            </span>
+                        </div>
+                        
+                        <div class="glass-footer">
+                            <div class="footer-line">
+                                <span class="tag-genre">{{ m.estilo }}</span>
+                                <span class="tag-type">{{ m.tipo }}</span>
+                            </div>
+                            
+                            <div class="footer-line">
+                                <span class="card-location">
+                                    <svg viewBox="0 0 24 24" width="10" height="10" fill="none" stroke="currentColor" stroke-width="3">
+                                        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                                        <circle cx="12" cy="10" r="3"></circle>
+                                    </svg>
+                                    {{ m.cidade }} - {{ m.estado }}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            {% else %}
+                <div style="grid-column: 1 / -1; text-align: center; padding: 100px 20px; opacity: 0.5;">
+                    <h2>Nenhum artista encontrado.</h2>
+                </div>
+            {% endfor %}
+        </div>
+    </main>
+
+    </main> <footer class="main-footer">
+        <div class="footer-content">
+            <div class="footer-brand">
+                <img src="static/img/conect1.png" alt="PULSAMUSICCONECT" class="logo-img">
+                <p>Preservando a cultura, impulsionando talentos. A rede completa que une artistas, especialistas e infraestrutura em um só movimento.</p>
+            </div>
+            
+            <div class="footer-links">
+                <h4>Navegação</h4>
+                <ul>
+                    <li><a href="#">Início</a></li>
+                    <li><a href="#artistas">Artistas</a></li>
+                    <li><a href="/dashboard">Área do Membro</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-social">
+                </div>
+        </div>
+        
+        <div class="footer-bottom">
+            <p>&copy; 2026 Pulsa Music Conect. O Futuro da Tradição.</p>
+        </div>
+    </footer>
+
+    <script>
+        const menuTrigger = document.getElementById('mobile-menu-trigger');
+        const navLinks = document.getElementById('nav-links');
+
+        menuTrigger.addEventListener('click', () => {
+            // Abre/Fecha o Menu
+            navLinks.classList.toggle('nav-active');
+            
+            // Anima o Ícone (X)
+            menuTrigger.classList.toggle('toggle');
+        });
+
+        // Fecha o menu ao clicar em um link
+        document.querySelectorAll('.menu-links a').forEach(link => {
+            link.addEventListener('click', () => {
+                navLinks.classList.remove('nav-active');
+                menuTrigger.classList.remove('toggle');
+            });
+        });
+    </script>
+
+    </script>
+</body>
+</html>

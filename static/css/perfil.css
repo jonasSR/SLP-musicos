@@ -1,57 +1,228 @@
-/* =========================================================
-   1. DESIGN TOKENS / CONFIGURAÇÕES GLOBAIS
-========================================================= */
-
 @import url('https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Plus+Jakarta+Sans:wght@200;400;700&display=swap');
-
-
+/*#################################### CORES GLOBAIS #################################### */
 :root {
-    /* Brand */
     --accent: #00f2ff;
     --accent-2: #ff0054;
-
-    /* Glow */
-    --primary-glow: #6200ff;
-    --secondary-glow: #9d00ff;
-
-    /* Background */
     --bg-dark: #030303;
-
-    /* Glass */
     --glass: rgba(255, 255, 255, 0.03);
-    --glass-bg: rgba(255, 255, 255, 0.05);
-    --glass-border: rgba(255, 255, 255, 0.12);
-
-    /* Borders */
     --border: rgba(255, 255, 255, 0.08);
-
-    /* Text */
-    --text-muted: rgba(255, 255, 255, 0.6);
 }
 
-/* =========================================================
-   2. RESET / BASE
-========================================================= */
-
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    scroll-behavior: smooth;
+/*#################################### GERAIS #################################### */
+* { 
+    margin: 0; 
+    padding: 0; 
+    box-sizing: border-box; 
+    scroll-behavior: smooth; 
 }
 
 body {
-    background: var(--bg-dark);
-    color: #fff;
+    background-color: var(--bg-dark);
+    color: white;
     font-family: 'Plus Jakarta Sans', sans-serif;
-    line-height: 1.6;
     overflow-x: hidden;
 }
+
+.bg-scene {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    overflow: hidden;
+    filter: blur(100px);
+}
+
+.orb {
+    position: absolute;
+    border-radius: 50%;
+    opacity: 0.3;
+    animation: move 25s infinite alternate;
+}
+
+.orb-1 { width: 600px; height: 600px; background: var(--accent); top: -10%; left: -10%; }
+.orb-2 { width: 500px; height: 500px; background: var(--accent-2); bottom: -10%; right: -5%; animation-delay: -5s; }
+.orb-3 { width: 400px; height: 400px; background: #7000ff; top: 30%; left: 20%; animation-delay: -10s; }
+
+@keyframes move {
+    from { transform: translate(0, 0) scale(1); }
+    to { transform: translate(150px, 100px) scale(1.3); }
+}
+
+#cursor-aura {
+    position: fixed;
+    width: 300px;
+    height: 300px;
+    background: radial-gradient(circle, rgba(0, 242, 255, 0.1) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 9999;
+    transition: transform 0.1s ease-out;
+}
+
+
+/*######################################################################################################################*/
+
+/* =========================================================
+   CAMADA DE FUSÃO VISUAL (OVERLAY)
+   Finalidade: Criar transição suave entre a imagem do artista 
+   e o conteúdo, garantindo contraste e profundidade.
+========================================================= */
+
+
+@media (max-width: 768px) {
+    .glass-nav { padding: 15px 25px; }
+    .hero-main-title { font-size: 2.8rem; } /* Ajustado para não quebrar */
+    .sub-hero { letter-spacing: 4px; font-size: 0.9rem; }
+    .artist-grid { grid-template-columns: 1fr; }
+    
+    .profile-split { flex-direction: column; height: auto; }
+    .artist-stage { height: 50vh; flex: none; width: 100%; }
+    .image-overlay { background: linear-gradient(to bottom, transparent 0%, #050505 100%); }
+}
+
+/* 3. LAYOUT PERFIL DIVIDIDO (PÁGINA DO MÚSICO) */
+.profile-body {
+    background: #050505;
+    /* overflow: hidden;  <-- Removido para garantir que o scroll funcione no mobile */
+}
+
+.profile-split {
+    display: flex;
+    height: 100vh;
+    width: 100%;
+}
+
+/* Coluna Esquerda: Imagem */
+.artist-stage {
+    flex: 1;
+    position: relative;
+    overflow: hidden;
+    height: 100vh;
+    background: #000; /* Fundo de segurança caso a imagem demore a carregar */
+}
+
+.artist-image-fixed {
+    width: 100%;
+    height: 100%;
+    background-size: cover;
+    background-position: center;
+    transition: transform 6s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+/* Efeito de zoom na imagem ao passar o mouse na área */
+.artist-stage:hover .artist-image-fixed {
+    transform: scale(1.08);
+}
+
+.image-overlay {
+    position: absolute;
+    inset: 0;
+    /* Mantendo seus gradientes originais e adicionando um leve noise */
+    background: linear-gradient(to right, transparent 50%, #050505 100%),
+                linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 40%);
+    pointer-events: none; /* Garante que o clique passe para o que estiver abaixo */
+    z-index: 2;
+}
+
+/* --- INPUTS MODERNOS --- */
+.input-modern {
+    margin-bottom: 30px;
+    position: relative;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    transition: 0.3s;
+}
+
+/* Linha de brilho que expande no foco */
+.input-modern::after {
+    content: "";
+    position: absolute;
+    bottom: -1px;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: var(--accent);
+    transition: 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.input-modern:focus-within::after {
+    width: 100%;
+}
+
+.input-modern select {
+    width: 100%;
+    background: transparent;
+    border: none;
+    padding: 15px 0;
+    color: #fff;
+    font-family: inherit;
+    font-size: 1.1rem;
+    outline: none;
+    appearance: none;
+    cursor: pointer;
+    position: relative;
+}
+
+/* Seta customizada para o select (Cyber Style) */
+.input-modern-arrow {
+    position: absolute;
+    right: 0;
+    bottom: 20px;
+    color: var(--accent);
+    font-size: 0.7rem;
+    pointer-events: none;
+}
+
+.input-modern select option {
+    background-color: #111;
+    color: white;
+    padding: 10px;
+}
+
+.label-fixed {
+    display: block;
+    font-size: 0.65rem;
+    font-weight: 800;
+    color: var(--accent);
+    letter-spacing: 2px;
+    margin-bottom: 5px;
+    text-transform: uppercase;
+    opacity: 0.8;
+}
+
+/* --- BOTÃO --- */
+.btn-profile-action {
+    width: 100%;
+    padding: 20px;
+    background: #fff;
+    color: #000;
+    border: none;
+    border-radius: 4px; /* Estilo mais moderno que o arredondado total */
+    font-weight: 900;
+    font-family: 'Syne', sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    cursor: pointer;
+    transition: 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+    overflow: hidden;
+    position: relative;
+}
+
+.btn-profile-action:hover {
+    background: var(--accent);
+    color: #000;
+    box-shadow: 0 0 20px var(--accent);
+    transform: translateY(-2px);
+}
+
+.btn-profile-action:active {
+    transform: scale(0.97);
+}
+
+
+/*######################################################################################################################*/
+
 
 /* =========================================================
    3. BACKGROUND ANIMADO / CURSOR
 ========================================================= */
-
 .bg-scene {
     position: fixed;
     inset: 0;
@@ -108,40 +279,6 @@ body {
     transition: transform 0.1s ease-out;
 }
 
-/* =========================================================
-   4. LAYOUT PERFIL DIVIDIDO
-========================================================= */
-
-.profile-split {
-    display: flex;
-    min-height: 100vh;
-    width: 100%;
-    overflow-x: hidden;
-}
-
-/* --- Stage --- */
-
-.artist-stage {
-    flex: 1.1;
-    position: relative;
-    overflow: hidden;
-}
-
-.artist-image-fixed {
-    width: 100%;
-    height: 100%;
-    background-size: cover;
-    background-position: center;
-}
-
-.image-overlay {
-    position: absolute;
-    inset: 0;
-    background:
-        linear-gradient(to right, transparent 50%, #050505 100%),
-        linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 40%);
-}
-
 /* --- Titles --- */
 
 .artist-titles {
@@ -153,9 +290,10 @@ body {
 
 .artist-main-name {
     font-family: 'Syne', sans-serif;
-    font-size: clamp(2rem, 8vw, 5rem); /* Tamanho dinâmico: mínimo 2rem, máximo 5rem */
-    line-height: 1;
+    font-size: clamp(2.5rem, 5vw, 4rem);
+    line-height: 0.9;
     text-transform: uppercase;
+    text-shadow: 0 10px 30px rgba(0,0,0,0.5);
     white-space: normal; /* Permite quebrar linha se o zoom for muito alto */
     word-wrap: break-word;
 }
@@ -163,20 +301,23 @@ body {
 /* --- Details --- */
 
 .artist-details {
-    flex: 0.9;
+  
+    width: 700px; /* Largura fixa para o painel não "expandir" infinitamente */
+    min-width: 400px;
     background: #050505;
-    padding: 40px 5% 80px;
+    padding: 40px 30px; /* Padding mais controlado */
     overflow-y: auto;
-    scrollbar-width: none;
 }
 
 .artist-details::-webkit-scrollbar {
     display: none;
 }
 
+
 /* =========================================================
    5. COMPONENTES DE UI
 ========================================================= */
+
 
 .btn-back-minimal {
     display: inline-block;
@@ -196,201 +337,317 @@ body {
 }
 
 .section-label {
-    font-size: 0.6rem;
-    font-weight: 900;
-    letter-spacing: 4px;
+    font-size: 0.65rem;
+    font-weight: 600;
+    letter-spacing: 3px;
     text-transform: uppercase;
     color: var(--accent);
-    margin-bottom: 8px;
+    margin-bottom: 15px;
+    opacity: 0.8;
 }
 
 .info-group { margin-bottom: 40px; }
 .genre-badge { font-size: 1.2rem; font-weight: 400; }
 .bio-text {
-    font-size: 1.1rem;
-    line-height: 1.8;
-    color: var(--text-muted);
-    margin-bottom: 60px;
+    font-size: 0.85rem;
+    line-height: 1.6;
+    color: rgba(255,255,255,0.7);
+    margin-bottom: 30px;
 }
 
+
+/*######################################################################################################################*/
+
+
 /* =========================================================
-   6. GLASS / PLAYER / CARDS
+   FEEDBACK & COMUNIDADE
 ========================================================= */
 
-.glass-player {
+/* --- CONTAINER DO FORMULÁRIO --- */
+.feedback-form-card {
+    padding: 20px;
+    border-radius: 8px;
+    background: linear-gradient(135deg, rgba(255,255,255,0.05), rgba(255,255,255,0.01));
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(15px);
+    margin-bottom: 40px;
+}
+
+.feedback-form-card h3 {
+    font-size: 0.9rem;
+    font-weight: 800;
+    letter-spacing: 1px;
+    color: #fff;
+    margin-bottom: 4px;
+    font-family: 'Syne', sans-serif;
+}
+
+.feedback-form-card p {
+    font-size: 0.65rem;
+    color: #666;
+    margin-bottom: 15px;
+}
+
+/* --- GRID DO FORMULÁRIO --- */
+.feedback-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.header-inputs {
     display: flex;
     align-items: center;
     gap: 20px;
-    padding: 30px;
-    margin-bottom: 60px;
-    border-radius: 24px;
-    background: var(--glass);
-    border: 1px solid var(--border);
 }
 
-/* --- Booking Card --- */
-
-.booking-glass-card {
-    max-width: 580px;
-    padding: 20px;
-    margin-bottom: 30px;
-    border-radius: 12px;
-    background: linear-gradient(
-        135deg,
-        rgba(255,255,255,0.05),
-        rgba(255,255,255,0.01)
-    );
-    border: 1px solid var(--border);
-    backdrop-filter: blur(20px);
-}
-
-.booking-glass-card form {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px 15px;
-}
-
-/* =========================================================
-   7. FORMULÁRIOS
-========================================================= */
-
-.input-modern { margin-bottom: 0; }
-
-.label-fixed {
-    display: block;
-    margin-bottom: 4px;
-    font-size: 0.55rem;
-    font-weight: 800;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-    color: var(--accent);
-}
-
-.input-modern input,
-.input-modern textarea,
-.input-modern select,
-.select-trigger {
-    width: 100%;
-    padding: 8px 12px;
-    font-size: 0.8rem;
-    color: #fff;
-    background: rgba(255,255,255,0.02);
-    border: 1px solid rgba(255,255,255,0.08);
-    border-radius: 6px;
-    outline: none;
-    transition: 0.2s ease;
-}
-
-.input-modern select {
-    height: 34px;
-    padding: 0 12px;
-}
-
-.input-modern textarea {
-    min-height: 60px;
-    grid-column: span 2;
-}
-
-/* =========================================================
-   8. BOTÕES
-========================================================= */
-
-.btn-plasma {
-    grid-column: span 2;
-    margin-top: 10px;
-    padding: 12px;
-    font-size: 0.7rem;
-    font-weight: 800;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    background: #fff;
-    color: #000;
-    border-radius: 6px;
-    cursor: pointer;
-    transition: 0.3s ease;
-}
-
-.btn-plasma:hover {
-    background: var(--accent);
-    transform: translateY(-1px);
-    box-shadow: 0 5px 15px rgba(0,242,255,0.2);
-}
-
-/* =========================================================
-   9. CUSTOM SELECT
-========================================================= */
-
-.select-trigger {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    cursor: pointer;
-    backdrop-filter: blur(12px);
+.input-nome input {
+    width: 220px;
+    height: 32px;
     background: rgba(255,255,255,0.03);
-    border-radius: 12px;
-    padding: 15px 20px;
-}
-
-.select-options {
-    position: absolute;
-    top: 110%;
-    left: 0;
-    width: 100%;
-    max-height: 250px;
-    overflow-y: auto;
-    display: none;
-    z-index: 999;
-    background: rgba(15,15,15,0.98);
-    border: 1px solid rgba(0,210,255,0.3);
-    border-radius: 12px;
-    backdrop-filter: blur(20px);
-    box-shadow: 0 10px 30px rgba(0,0,0,0.8);
-}
-
-.select-options.active {
-    display: block;
-    animation: fadeInSlide 0.3s ease;
-}
-
-.option-group {
-    padding: 12px 15px 5px;
-    font-size: 0.7rem;
-    font-weight: 800;
-    letter-spacing: 2px;
-    color: #00d2ff;
-}
-
-.option-item {
-    padding: 12px 20px;
-    color: rgba(255,255,255,0.8);
-    cursor: pointer;
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 4px;
+    color: #fff;
+    padding: 0 12px;
+    font-size: 0.8rem;
+    outline: none;
     transition: 0.2s;
 }
-
-.option-item:hover {
-    padding-left: 25px;
-    background: rgba(0,210,255,0.15);
-    color: #fff;
-}
-
-/* =========================================================
-   10. FEEDBACK / RATING
-========================================================= */
 
 .rating-selection {
     display: flex;
     flex-direction: row-reverse;
+    gap: 8px;
+    font-size: 1.3rem;
+}
+
+.rating-selection input { display: none; }
+.rating-selection label { cursor: pointer; color: rgba(255,255,255,0.1); transition: 0.3s; }
+
+.rating-selection input:checked ~ label,
+.rating-selection label:hover,
+.rating-selection label:hover ~ label {
+    color: #ffd700;
+    text-shadow: 0 0 10px rgba(255,215,0,0.3);
+}
+
+.input-comentario textarea {
+    width: 320px;
+    max-width: 100%;
+    height: 60px;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 4px;
+    color: #fff;
+    padding: 10px 12px;
+    font-size: 0.8rem;
+    outline: none;
+    resize: none;
+    transition: 0.2s;
+}
+
+.input-nome input:focus,
+.input-comentario textarea:focus {
+    border-color: var(--accent);
+}
+
+#btn-enviar-feedback {
+    width: 320px;
+    max-width: 100%;
+    padding: 10px;
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 0.7rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    background: #fff;
+    color: #000;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+#btn-enviar-feedback:hover {
+    background: var(--accent);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0,242,255,0.3);
+}
+
+/* --- MURAL DE COMUNIDADE --- */
+.mural-container {
+    background: transparent;
+    padding: 10px 0;
+    overflow: hidden;
+}
+
+.mural-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.5rem;
+    font-weight: 900;
+    color: #fff;
+    letter-spacing: -1px;
+    margin-bottom: 25px;
+    display: flex;
+    flex-direction: column;
+}
+
+.mural-title::after {
+    content: "● LIVE FEED";
+    font-size: 0.55rem;
+    color: #00ff88;
+    letter-spacing: 3px;
+    animation: blink 2s infinite;
+}
+
+@keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+
+/* Área de Scroll */
+.mural-scroll {
+    display: flex;
+    gap: 20px;
+    overflow-x: auto;
+    padding: 15px 5px 40px 5px; /* Mais espaço para a barra respirar */
+    cursor: grab;
+    /* Firefox */
+    scrollbar-width: thin;
+    scrollbar-color: var(--accent) transparent;
+}
+
+.mural-scroll:active { cursor: grabbing; }
+
+/* --- BARRA DE ROLAGEM ULTRA MODERNA (BLINDADA) --- */
+@media (min-width: 1024px) {
+    /* 1. Remove qualquer estilo padrão do Windows/Navegador */
+    .mural-scroll::-webkit-scrollbar {
+        height: 4px !important;
+        background: transparent !important;
+    }
+
+    /* 2. Força o trilho a ser invisível para não ficar branco */
+    .mural-scroll::-webkit-scrollbar-track {
+        background: rgba(255, 255, 255, 0.02) !important;
+        border-radius: 20px;
+        margin: 0 100px; /* Deixa a barra mais curta no centro */
+    }
+
+    /* 3. O "Dedo" de arrasto - Discreto por padrão */
+    .mural-scroll::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.1) !important;
+        border-radius: 20px;
+        border: none !important;
+    }
+
+    /* 4. O Efeito Moderno: Acende no Hover do container */
+    .mural-scroll:hover::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.2) !important;
+    }
+
+    /* 5. A cor de destaque quando clica ou passa o mouse na barra */
+    .mural-scroll::-webkit-scrollbar-thumb:hover {
+        background: var(--accent) !important;
+        box-shadow: 0 0 10px var(--accent);
+    }
+
+    /* 6. Mata botões de seta brancos das pontas */
+    .mural-scroll::-webkit-scrollbar-button {
+        display: none !important;
+    }
+}
+
+/* Cards do Mural */
+.vibe-card {
+    flex: 0 0 260px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.01) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-top: 2px solid var(--accent);
+    border-radius: 4px;
+    padding: 20px;
+    position: relative;
+    backdrop-filter: blur(20px);
+    transition: 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.vibe-card:hover {
+    transform: translateY(-8px);
+    background: rgba(255, 255, 255, 0.08);
+    border-top-color: #fff;
+}
+
+.vibe-user {
+    display: block;
+    font-size: 0.75rem;
+    font-weight: 900;
+    color: var(--accent);
+    letter-spacing: 1px;
+}
+
+.vibe-rating {
+    font-size: 0.6rem;
+    color: #ffd700;
+    letter-spacing: 2px;
+    margin-top: 4px;
+    display: block;
+}
+
+.vibe-text {
+    font-size: 0.8rem;
+    color: #efefef;
+    line-height: 1.6;
+    margin: 15px 0;
+    font-weight: 500;
+}
+
+.vibe-date {
+    font-size: 0.55rem;
+    font-weight: 700;
+    color: #444;
+    text-transform: uppercase;
+}
+
+
+/*######################################################################################################################*/
+
+/* =========================================================
+   FEEDBACK / MURAL
+========================================================= */
+.feedback-form-card {
+    padding: 16px;
+    border-radius: 8px;
+    background: linear-gradient(135deg, rgba(255,255,255,0.05), rgba(255,255,255,0.01));
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(15px);
+}
+
+.feedback-form-card h3 {
+    font-size: 0.8rem;
+    font-weight: 800;
+    letter-spacing: 1px;
+    color: #fff;
+    margin-bottom: 4px;
+}
+
+.feedback-form-card p {
+    font-size: 0.65rem;
+    color: #666;
+    margin-bottom: 12px;
+}
+
+/* Estrelas Modernas */
+.rating-selection {
+    display: flex;
+    flex-direction: row-reverse;
     justify-content: center;
-    gap: 10px;
-    font-size: 2rem;
-    margin-bottom: 5px;
+    gap: 8px;
+    font-size: 1.4rem; /* Reduzido de 2rem */
+    margin-bottom: 12px;
 }
 
 .rating-selection input { display: none; }
 
 .rating-selection label {
     cursor: pointer;
-    color: #333;
+    color: rgba(255,255,255,0.1);
     transition: 0.3s;
 }
 
@@ -398,45 +655,76 @@ body {
 .rating-selection label:hover,
 .rating-selection label:hover ~ label {
     color: #ffd700;
-    text-shadow: 0 0 10px rgba(255,215,0,0.5);
+    text-shadow: 0 0 10px rgba(255,215,0,0.3);
 }
 
-.feedback-form-card {
-    height: 380px;
-    padding: 15px;
-    border-radius: 10px;
+/* Inputs Modernos (Igual ao formulário de reserva) */
+.input-nome input,
+.input-comentario textarea {
     background: rgba(255,255,255,0.03);
-    border: 1px solid rgba(0,210,255,0.3);
-}
-
-.feedback-bubble {
-    margin-bottom: 15px;
-    padding: 15px;
-    border-radius: 15px;
-    background: rgba(255,255,255,0.05);
-    border-left: 3px solid var(--accent);
-}
-
-.stars-gold {
-    margin-left: 10px;
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 4px;
+    color: #fff;
+    padding: 8px 12px;
     font-size: 0.8rem;
-    color: #ffd700;
+    outline: none;
+    transition: 0.2s;
 }
+
+.input-nome { margin-bottom: 8px; }
+
+.input-nome input { 
+    height: 32px; 
+    width: 220px; /* Largura do nome mantida conforme pedido anterior */
+}
+
+/* AJUSTE SOLICITADO: TEXTAREA MENOS CUMPRIDO NA HORIZONTAL */
+.input-comentario textarea {
+    width: 420px; /* Largura reduzida na horizontal */
+    max-width: 100%;
+    height: 60px; /* Mantive sua altura original de 60px */
+    resize: none;
+    margin-bottom: 12px;
+    display: block;
+}
+
+.input-nome input:focus,
+.input-comentario textarea:focus {
+    border-color: var(--accent);
+    background: rgba(255,255,255,0.05);
+}
+
+/* Botão Enviar (Com sua transição Syne) */
+#btn-enviar-feedback {
+    width: 320px; /* Alinhado com a largura da descrição */
+    max-width: 100%;
+    padding: 10px;
+    font-size: 0.7rem;
+    background: #fff;
+    color: #000;
+    border: none;
+    border-radius: 4px;
+}
+
+/* Bolha de Comentário que já existe no Mural */
+.feedback-bubble {
+    padding: 12px;
+    border-radius: 8px;
+    background: rgba(255,255,255,0.02);
+    border: 1px solid rgba(255,255,255,0.05);
+    border-left: 2px solid var(--accent);
+    margin-bottom: 10px;
+}
+
+
+/*######################################################################################################################*/
+
 
 /* =========================================================
-   11. NAVEGAÇÃO / ESTADOS
+   BOTÃO ENVIAR MURAL
 ========================================================= */
-
-.nav-actions {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-}
-
-.btn-user-status,
-.btn-logout,
-.btn-plasma-small,
-.btn-plasma {
+.btn-mural {
+    /* Mantendo suas propriedades exatas */
     font-family: 'Syne', sans-serif;
     font-weight: 800;
     letter-spacing: 2px;
@@ -447,142 +735,379 @@ body {
 }
 
 .btn-user-status {
-    padding: 10px 22px;
-    font-size: 0.7rem;
-    border-radius: 50px;
-    background: rgba(255,255,255,0.05);
-    border: 1px solid rgba(255,255,255,0.1);
-    backdrop-filter: blur(5px);
+    /* Aplicando o estilo "encurtado" e retangular */
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 18px;         /* Reduzido para ficar mais fino */
+    font-size: 0.65rem;        /* Sincronizado com os outros botões */
+    border-radius: 4px;        /* Retangular para combinar com o Form e Agenda */
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
     color: #fff;
 }
 
+/* Hover seguindo o padrão de cor e movimento suave */
 .btn-user-status:hover,
-.btn-plasma:hover {
+.btn-mural:hover {
     background: var(--accent);
     color: #000;
-    transform: translateY(-3px);
-    box-shadow: 0 10px 25px rgba(0,242,255,0.4);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 242, 255, 0.3);
 }
 
-.empty-state {
-    padding: 40px;
-    text-align: center;
-    opacity: 0.5;
-    border-radius: 20px;
-    border: 1px dashed rgba(255,255,255,0.1);
-}
+
+/*######################################################################################################################*/
+
 
 /* =========================================================
-   5. INPUTS E FORMULÁRIOS — ULTRA MODERN (REFINADO)
+   AGENDA - GRID DE RETÂNGULOS VERTICAIS
 ========================================================= */
 
-.input-modern {
-    position: relative;
-    width: 100%;
-    max-width: 600px;
-    margin-bottom: 30px;
+.agenda-list {
+    display: flex;
+    flex-wrap: wrap;       /* Essencial para os cards ficarem lado a lado */
+    gap: 12px;             /* Espaço entre os cards */
+    justify-content: flex-start;
 }
 
-/* Label */
-.label-fixed {
-    display: block;
-    margin-bottom: 4px;
-    font-size: 0.6rem;
-    font-weight: 800;
-    letter-spacing: 2.5px;
-    text-transform: uppercase;
-    color: var(--accent);
-    opacity: 0.8;
+.agenda-item {
+    display: flex;
+    flex-direction: column; /* Conteúdo empilhado verticalmente */
+    align-items: center;
+    text-align: center;
+    width: 110px;           /* Largura fixa para o retângulo em pé */
+    padding: 15px 8px;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 10px;
     transition: 0.3s ease;
 }
 
-/* Base Inputs */
+.agenda-item:hover {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: var(--accent);
+    transform: translateY(-3px);
+}
+
+/* Data no Topo */
+.agenda-date-box {
+    margin-bottom: 8px;
+}
+
+.agenda-date-box .day {
+    display: block;
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: var(--accent);
+    line-height: 1;
+}
+
+.agenda-date-box .month {
+    font-size: 0.6rem;
+    text-transform: uppercase;
+    font-weight: 700;
+    color: #666;
+}
+
+/* Info Central */
+.agenda-info {
+    flex: 1;
+    width: 100%;
+    margin-bottom: 8px;
+}
+
+.event-highlight {
+    font-size: 0.65rem;
+    color: #fff;
+    
+    /* Configuração para truncar texto em múltiplas linhas */
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2; /* Suporte para a maioria dos navegadores atuais */
+    
+    /* Propriedade padrão para compatibilidade futura (resolve o aviso do editor) */
+    line-clamp: 2; 
+    
+    overflow: hidden;
+    line-height: 1.2;
+}
+
+.venue-name {
+    font-size: 0.55rem;
+    color: #555;
+    display: block;
+    margin-top: 4px;
+}
+
+/* Status no Rodapé */
+.agenda-status {
+    font-size: 0.5rem;
+    font-weight: 800;
+    color: #00ff88;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    opacity: 0.8;
+}
+
+.pulse-dot {
+    width: 4px;
+    height: 4px;
+    background: #00ff88;
+    border-radius: 50%;
+    box-shadow: 0 0 5px #00ff88;
+}
+
+/* Esconder detalhes extras no card vertical para manter curto */
+.venue-meta {
+    display: none; 
+}
+
+
+/*######################################################################################################################*/
+
+
+/* =========================================================
+   8. BOTÃO SOLICITAR ORÇAMENTO
+========================================================= */
+.btn-plasma {
+    grid-column: span 2;
+    margin-top: 5px;        /* Reduzido de 10px */
+    padding: 8px;           /* Reduzido de 12px para ficar fino */
+    font-size: 0.65rem;     /* Leve redução para legibilidade densa */
+    font-weight: 900;
+    letter-spacing: 1.5px;  /* Espaçamento sutilmente menor */
+    text-transform: uppercase;
+    background: #fff;
+    color: #000;
+    border-radius: 4px;     /* Arredondamento menor seguindo os inputs */
+    border: none;
+    cursor: pointer;
+    transition: 0.3s ease;
+}
+
+.btn-plasma:hover {
+    background: var(--accent);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 10px rgba(0,242,255,0.15); /* Sombra mais discreta */
+}
+
+
+/*######################################################################################################################*/
+
+
+/* =========================================================
+   SOLICITAR ORÇAMENTO (UNIFICADO & COMPACTO)
+========================================================= */
+/* Card de Reserva */
+.booking-glass-card {
+    max-width: 100%;
+    padding: 16px;
+    margin: 15px 0;
+    border-radius: 8px;
+    background: linear-gradient(135deg, rgba(255,255,255,0.05), rgba(255,255,255,0.01));
+    border: 1px solid var(--border);
+    backdrop-filter: blur(15px);
+}
+
+.booking-glass-card form {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px 12px;
+}
+
+/* 1. BASE COMUM (Inputs e Trigger do Select) */
 .input-modern input,
-.input-modern textarea,
 .input-modern select,
 .select-trigger {
     width: 100%;
-    padding: 10px;
-    font-family: 'Plus Jakarta Sans', sans-serif;
-    font-size: 0.95rem;
+    padding: 6px 10px;
+    font-size: 0.8rem;
     color: #fff;
-
-    background: rgba(255,255,255,0.02);
-    border: 1px solid rgba(255,255,255,0.08);
-    border-radius: 10px;
-
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 4px;
     outline: none;
-    box-shadow: inset 0 2px 4px rgba(0,0,0,0.3);
-    transition: 
-        background 0.3s ease,
-        border-color 0.3s ease,
-        box-shadow 0.3s ease,
-        transform 0.3s ease;
+    height: 32px; /* Altura compacta sincronizada */
+    transition: 0.2s ease;
 }
 
-/* Placeholder */
-.input-modern input::placeholder,
-.input-modern textarea::placeholder {
-    color: rgba(255,255,255,0.2);
-    font-weight: 200;
+/* 2. LABELS */
+.label-fixed {
+    display: block;
+    margin-bottom: 2px;
+    font-size: 0.5rem;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    color: var(--accent);
 }
 
-/* Focus Glow */
-.input-modern input:focus,
-.input-modern textarea:focus,
-.input-modern select:focus {
-    background: rgba(255,255,255,0.05);
-    border-color: var(--accent);
-    box-shadow:
-        inset 0 2px 4px rgba(0,0,0,0.2),
-        0 0 15px rgba(0,242,255,0.15);
-    transform: translateY(-2px);
+/* 3. ALINHAMENTO LADO A LADO (Local e Tipo) */
+.input-modern, 
+.custom-select-container {
+    grid-column: span 1; /* Ocupam metade da linha cada um */
+    position: relative;
 }
 
-/* Label reação ao foco */
-.input-modern:focus-within .label-fixed {
-    color: #fff;
-    opacity: 1;
-    letter-spacing: 3.5px;
-    text-shadow: 0 0 8px var(--accent);
-}
-
-/* Textarea */
-.input-modern textarea {
-    min-height: 60px;
-    resize: none;
-}
-
-/* Select Nativo */
-.input-modern select {
+.select-trigger {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
     cursor: pointer;
-    appearance: none;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%2300f2ff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: right 18px center;
-    background-size: 14px;
 }
+
+/* 4. MENU DROP-DOWN */
+.select-options {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    width: 100%;
+    z-index: 10000;
+    max-height: 180px;
+    overflow-y: auto;
+    display: none;
+    background: #0a0a0a;
+    border: 1px solid rgba(0, 210, 255, 0.2);
+    border-radius: 4px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.8);
+}
+
+.select-options.active { display: block !important; }
+
+/* Itens do Menu */
+.option-group { padding: 6px 10px 2px; font-size: 0.55rem; color: #00d2ff; font-weight: 800; text-transform: uppercase; }
+.option-item { padding: 8px 10px; font-size: 0.75rem; color: rgba(255,255,255,0.7); cursor: pointer; }
+.option-item:hover { background: rgba(0, 210, 255, 0.1); color: #fff; }
+
+/* 5. ÁREA DE TEXTO (Ocupa a linha toda) */
+.input-modern textarea {
+    width: 100%;
+    height: 45px;
+    min-height: 45px;
+    grid-column: span 2;
+    padding: 6px 10px;
+    font-size: 0.8rem;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 4px;
+    color: #fff;
+    outline: none;
+}
+
+
+/*######################################################################################################################*/
+
 
 /* =========================================================
-   GRID DE FORMULÁRIO
+    BARRA FÂS E AVALIAÇÕES
 ========================================================= */
 
-@media (min-width: 993px) {
-    .form-row {
-        display: flex;
-        gap: 20px;
-        max-width: 600px;
-    }
-
-    .form-row .input-modern {
-        flex: 1;
-    }
+.stats-bar-modern {
+    display: inline-flex; /* Ocupa apenas o espaço necessário */
+    align-items: center;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    border-radius: 12px;
+    padding: 8px 15px;    /* Reduzido de 15px para 8px/15px */
+    margin: 15px 0;       /* Margem reduzida drasticamente */
+    gap: 15px;
 }
+
+.stat-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;             /* Gap menor entre ícone e texto */
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.stat-icon {
+    width: 28px;          /* Reduzido de 35px */
+    height: 28px;
+    background: rgba(0, 243, 255, 0.1);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #00f3ff;
+    font-size: 0.8rem;    /* Reduzido de 0.9rem */
+}
+
+/* Ícone de destaque */
+.stat-item:nth-child(3) .stat-icon {
+    color: #ffcc00;
+}
+
+.stat-value {
+    font-size: 0.9rem;    /* Reduzido de 1.1rem */
+    font-weight: 800;
+    color: #fff;
+    line-height: 1;
+}
+
+.stat-label {
+    font-size: 0.5rem;    /* Reduzido de 0.6rem */
+    color: #666;
+    text-transform: uppercase;
+    font-weight: 700;
+}
+
+.stat-divider {
+    width: 1px;
+    height: 15px;         /* Reduzido de 30px */
+    background: rgba(255, 255, 255, 0.1);
+}
+
+
+/*######################################################################################################################*/
+
+
+/* =========================================================
+    COMPACT GLASS PLAYER (REFINADO)
+========================================================= */
+.glass-player {
+    display: inline-flex;    /* Ocupa apenas o espaço necessário */
+    align-items: center;
+    gap: 12px;
+    padding: 8px 16px;       /* Mais fino e equilibrado */
+    margin-bottom: 20px;
+    border-radius: 50px;     /* Estilo pílula (mais moderno) */
+    background: var(--glass);
+    border: 1px solid var(--border);
+    backdrop-filter: blur(8px);
+}
+
+.play-icon {
+    font-size: 0.9rem;       /* Ícone menor e elegante */
+    color: var(--accent);
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.play-icon:hover {
+    transform: scale(1.1);
+    text-shadow: 0 0 10px var(--accent);
+}
+
+.glass-player p {
+    font-size: 0.7rem;       /* Fonte minúscula e densa */
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin: 0;
+    color: rgba(255,255,255,0.8);
+}
+
+
+/*######################################################################################################################*/
+
 
 /* =========================================================
    DIVISOR DE SEÇÃO
 ========================================================= */
-
 .section-divider {
     width: 100%;
     max-width: 650px;
@@ -597,10 +1122,13 @@ body {
     border: none;
 }
 
+
+/*######################################################################################################################*/
+
+
 /* =========================================================
    REDES SOCIAIS
 ========================================================= */
-
 .social-icon-link {
     font-size: 1.8rem;
     color: #fff;
@@ -617,239 +1145,177 @@ body {
 }
 
 
-/*#################################### RESPONSIVIDADE #################################### */
-@media (max-width: 768px) {
-    .glass-nav { padding: 15px 25px; }
-    .hero-main-title { font-size: 4rem; }
-    .sub-hero { letter-spacing: 8px; font-size: 1rem; }
-    .artist-grid { grid-template-columns: 1fr; }
-}
+/*######################################################################################################################*/
 
-/* 3. LAYOUT PERFIL DIVIDIDO (PÁGINA DO MÚSICO) */
-.profile-body {
-    background: #050505;
-    overflow: hidden;
-}
 
-.profile-split {
+/* =========================================================
+   BOTÕES - PERFIL CONTATO AGENDA COMUNIDADE
+========================================================= */
+.nav-links-container {
     display: flex;
-    height: 100vh;
-    width: 100vw;
-}
-
-/* Coluna Esquerda: Imagem */
-.artist-stage {
-    flex: 1.1;
-    position: relative;
-    overflow: hidden;
-}
-
-.artist-image-fixed {
-    width: 100%;
-    height: 100%;
-    background-size: cover;
-    background-position: center;
-}
-
-.image-overlay {
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(to right, transparent 50%, #050505 100%),
-                linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 40%);
-}
-
-
-
-.input-modern {
+    gap: 15px;
     margin-bottom: 30px;
-    position: relative;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 15px;
 }
 
-/* Remove o fundo branco do select e das opções */
-.input-modern select {
-    width: 100%;
-    background: transparent; /* Fundo do select transparente */
-    border: none;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    padding: 15px 0;
-    color: #fff;
-    font-family: inherit;
-    font-size: 1.1rem;
-    outline: none;
-    appearance: none; /* Remove a setinha padrão do navegador se desejar */
-    cursor: pointer;
-}
-
-/* Estiliza a lista que abre (as opções) */
-.input-modern select option {
-    background-color: #111; /* Fundo escuro para a lista suspensa */
-    color: white;
-    padding: 10px;
-}
-
-/* Ajuste para quando o select estiver em foco */
-.input-modern select:focus {
-    border-bottom-color: var(--accent);
-}
-
-/* Garante que o rótulo (label) não seja afetado */
-.label-fixed {
-    display: block;
-    font-size: 0.65rem;
-    font-weight: 800;
-    color: var(--accent);
+.btn-nav-link {
+    text-decoration: none;
+    color: #888;
+    font-size: 0.75rem;
+    font-weight: 700;
     letter-spacing: 1px;
-    margin-bottom: 5px;
-    text-transform: uppercase;
+    padding: 8px 12px;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
-.btn-profile-action {
-    width: 100%;
-    padding: 20px;
-    background: #fff;
-    color: #000;
-    border: none;
-    border-radius: 100px;
-    font-weight: 800;
-    font-family: 'Syne', sans-serif;
-    cursor: pointer;
-    transition: 0.4s;
+.btn-nav-link:hover {
+    color: var(--accent);
+    background: rgba(255, 255, 255, 0.08);
+    border-color: var(--accent);
+    transform: translateY(-2px);
 }
 
-.btn-profile-action:hover {
-    background: var(--accent);
-    box-shadow: 0 10px 30px rgba(0, 242, 255, 0.3);
+/* Scroll suave para quando clicar no link */
+html {
+    scroll-behavior: smooth;
 }
-
-/* Agenda */
-.agenda-list { display: flex; flex-direction: column; gap: 15px; }
-
-.agenda-item {
-    display: flex;
-    justify-content: space-between;
-    padding: 20px;
-    background: rgba(255,255,255,0.02);
-    border-radius: 15px;
-}
-
-.show-date { color: var(--accent); font-weight: 800; }
-
 
 /* ==========================================================================
-   8. OTIMIZAÇÃO PARA DISPOSITIVOS MÓVEIS (CORREÇÃO DE SCROLL E ABAS)
+   CONFIGURAÇÃO GLOBAL (DESKTOP)
    ========================================================================== */
 
-/* Esconde o menu de abas no PC */
+/* Esconde as tabs mobile no Desktop por padrão */
 .mobile-tabs {
     display: none !important;
 }
 
-/* Garante que todo o conteúdo apareça um abaixo do outro no PC */
-.tab-section {
-    display: block !important;
-    opacity: 1 !important;
-    transform: none !important;
-    visibility: visible !important;
-    margin-bottom: 60px; /* Espaçamento entre blocos no Desktop */
-}
-
-/* --- COMPORTAMENTO MOBILE (Até 992px) --- */
-@media (max-width: 768px) {
-    /* Mostra a barra de abas inferior */
-    .mobile-tabs {
-        display: flex !important;
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        width: 100%;
-        height: 70px;
-        background: rgba(5, 5, 5, 0.98);
-        backdrop-filter: blur(15px);
-        border-top: 1px solid rgba(255, 255, 255, 0.1);
-        justify-content: space-around;
-        align-items: center;
-        z-index: 10000;
-        padding-bottom: env(safe-area-inset-bottom);
-    }
-
-    /* Esconde todas as seções por padrão no mobile */
-    .tab-section {
-        display: none !important;
-        margin-bottom: 0;
-    }
-
-    /* Mostra apenas a seção que tiver a classe .active */
-    .tab-section.active {
+/* Garante que o conteúdo das tabs (seções) apareça no desktop se não houver troca de abas */
+@media (min-width: 993px) {
+    .tab-section, .tab-content {
         display: block !important;
-        animation: tabFadeIn 0.3s ease-in-out forwards;
-    }
-
-    /* Estilo dos botões das abas */
-    .tab-btn {
-        background: transparent;
-        border: none;
-        color: #666;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 4px;
-        flex: 1;
-        cursor: pointer;
-    }
-
-    .tab-btn i { font-size: 1.2rem; }
-    .tab-btn span { font-size: 0.6rem; text-transform: uppercase; font-weight: 700; }
-
-    /* Cor do botão ativo (Troque pelo seu accent se necessário) */
-    .tab-btn.active {
-        color: #fff;
+        opacity: 1 !important;
+        transform: none !important;
     }
 }
 
-@keyframes tabFadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
-}
 
-/* --------------------------------------------------------------------------
-   MEDIA QUERY: TABLETS E CELULARES (Até 992px)
-   -------------------------------------------------------------------------- */
-@media (max-width: 768px) {
-    /* Libera o scroll global */
-    body, html, .profile-body {
-        overflow-y: auto !important;
-        height: auto !important;
+
+
+
+
+
+/* ==========================================================================
+   SISTEMA DE OTIMIZAÇÃO MOBILE (FIX TOTAL)
+   Foco: Imagem visível, textos contidos e navegação tipo App
+   ========================================================================== */
+
+@media (max-width: 992px) {
+    
+    /* 1. RESET E LIMPEZA DE INTERFACE */
+    .glass-nav, nav, header, .navbar { 
+        display: none !important; 
     }
 
-    .profile-split {
-        flex-direction: column;
-        height: auto;
-        overflow: visible;
-    }
-
-    /* Topo do perfil (Imagem) */
-    .artist-stage {
-        height: 50vh;
-        flex: none;
-        position: relative;
-    }
-
-    /* Detalhes do Artista (Conteúdo) */
-    .artist-details {
-        flex: none;
-        width: 100%;
-        height: auto !important;
-        padding: 40px 20px 120px 20px !important; 
-        overflow: visible !important;
+    body, html {
+        overflow-x: hidden; /* Impede a tela de "dançar" pros lados */
         background: #050505;
+        height: auto !important;
+    }
+
+    /* 2. ESTRUTURA DE EMPILHAMENTO (COLLAPSE) */
+    .profile-split {
+        display: flex !important;
+        flex-direction: column !important;
+        height: auto !important;
+        min-height: 100vh;
+    }
+
+    /* 3. FIX DA IMAGEM DO ARTISTA (VISIBILIDADE TOTAL) */
+    .artist-stage {
+        width: 100% !important;
+        height: 45vh !important; /* Altura fixa garantida no mobile */
+        min-height: 320px;
+        position: relative !important;
+        flex: none !important;
+        overflow: hidden;
+        background: #111; /* Cor de fundo caso a imagem falhe */
+        z-index: 1;
+        display: block !important;
+    }
+
+    /* Força a imagem a aparecer se estiver como background-image no HTML */
+    .artist-image-fixed {
+        display: block !important;
+        width: 100% !important;
+        height: 100% !important;
+        background-size: cover !important;
+        background-position: center center !important;
+        background-repeat: no-repeat !important;
+        transform: none !important; /* Remove zooms que possam esconder a imagem */
     }
 
     .image-overlay {
-        background: linear-gradient(to bottom, transparent 40%, #050505 100%);
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(to bottom, 
+            transparent 0%, 
+            rgba(5, 5, 5, 0.4) 50%, 
+            #050505 100%) !important;
+        z-index: 2;
+        pointer-events: none;
     }
 
-    /* MENU INFERIOR (THUMB ZONE - MOBILE NAV) */
-    .mobile-only-nav,
+    /* 4. ÁREA DE DETALHES (CONTENÇÃO DE TEXTO) */
+    .artist-details {
+        width: 100% !important;
+        padding: 30px 18px 120px 18px !important;
+        margin-top: -50px; /* Sobe suavemente sobre a imagem */
+        background: #050505;
+        border-radius: 32px 32px 0 0;
+        position: relative;
+        z-index: 10;
+        box-sizing: border-box !important;
+        margin-left: -5px;
+    }
+
+    /* 5. CONTROLE DE DESCRIÇÕES E NOMES LONGOS (ANTI-BAGUNÇA) */
+    .artist-main-name {
+        font-size: 2.2rem !important;
+        line-height: 1.1;
+        margin-bottom: 20px;
+        color: #fff;
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+    }
+
+    /* Regra de ouro para Bio/Descrição Grande */
+    .artist-bio, .vibe-text, p, .description {
+        font-size: 1rem !important;
+        line-height: 1.6 !important;
+        color: #b0b0b0 !important;
+        max-width: 100% !important;
+        display: block !important;
+        /* Impede o texto de "empurrar" a largura da tela */
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+        white-space: normal !important;
+        margin-bottom: 25px;
+    }
+
+    /* 6. CARDS E FORMULÁRIOS (RESPONSIVOS) */
+    .vibe-card, .feedback-form-card, .input-modern {
+        width: 100% !important;
+        max-width: 100% !important;
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+        box-sizing: border-box !important;
+    }
+
+    /* 7. NAVEGAÇÃO INFERIOR (ESTILO NATIVO) */
     .mobile-tabs {
         display: flex !important;
         position: fixed;
@@ -857,350 +1323,79 @@ body {
         left: 0;
         width: 100%;
         height: 75px;
-        background: rgba(5, 5, 5, 0.95);
+        background: rgba(8, 8, 8, 0.98);
         backdrop-filter: blur(20px);
-        border-top: 1px solid var(--border);
+        -webkit-backdrop-filter: blur(20px);
+        border-top: 1px solid rgba(255, 255, 255, 0.08);
+        z-index: 99999;
         justify-content: space-around;
-        align-items: center;
-        z-index: 9999;
         padding-bottom: env(safe-area-inset-bottom);
     }
 
-    .tab-btn, 
-    .mobile-only-nav .tab-link {
-        background: transparent;
-        border: none !important;
-        color: #888;
+    .tab-btn {
+        flex: 1;
+        background: none;
+        border: none;
+        color: #555;
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: center;
         gap: 5px;
-        flex: 1;
-        cursor: pointer;
         transition: 0.3s;
-        font-family: inherit;
     }
 
-    .tab-btn i, 
-    .mobile-only-nav .tab-link i {
-        font-size: 1.3rem;
+    .tab-btn.active {
+        color: var(--accent, #00f2ff);
     }
 
-    .tab-btn span, 
-    .mobile-only-nav .tab-link span {
-        font-size: 0.65rem;
-        font-weight: 600;
-        text-transform: uppercase;
+    .tab-btn i { font-size: 1.3rem; }
+    .tab-btn span { 
+        font-size: 0.65rem; 
+        font-weight: 800; 
+        text-transform: uppercase; 
         letter-spacing: 0.5px;
     }
 
-    /* Estado Ativo Mobile */
-    .tab-btn.active, 
-    .mobile-only-nav .tab-link.active {
-        color: var(--accent, #ff0055);
-        background: none;
-    }
-
-    .tab-btn.active i {
-        transform: scale(1.1);
-    }
-
-    /* Esconde as abas de topo no mobile */
-    .artist-details > .profile-tabs-nav {
-        display: none !important;
-    }
-}
-
-/* --------------------------------------------------------------------------
-   MEDIA QUERY: CELULARES PEQUENOS (Até 480px)
-   -------------------------------------------------------------------------- */
-@media (max-width: 480px) {
-    .artist-main-name { 
-        font-size: 2.8rem; 
-        letter-spacing: -1px;
-        margin-bottom: -50px;
-        margin-left: 1px;
-    }
-    
-    .btn-plasma { 
-        width: 100%; 
-        text-align: center; 
-        padding: 15px 20px; 
-    }
-
-    .rating-selection { 
-        font-size: 1.5rem; 
-    }
-
-    .orb { 
-        display: none; 
-    }
-    
-    .section-label {
-        font-size: 0.55rem;
-    }
-}
-
-
-
-/* GARANTE QUE NO MOBILE APENAS A ABA ATIVA APAREÇA */
-@media (max-width: 768px) {
-    .tab-content {
+    /* 8. LÓGICA DE EXIBIÇÃO DE SEÇÕES */
+    .tab-section, .tab-content, .section-target {
         display: none;
+        width: 100% !important;
     }
-    .tab-content.active {
-        display: block;
-    }
-}
-/* NO DESKTOP TUDO APARECE NORMALMENTE */
-@media (min-width: 993px) {
-    .tab-content {
+
+    .tab-section.active, .tab-content.active, .section-target.active {
         display: block !important;
+        animation: tabFadeUp 0.4s ease-out forwards;
     }
 }
 
-
-/* Card Mestre (O container principal) */
-.mural-container {
-    background: #0a0a0a; /* Fundo levemente mais claro que o fundo da página */
-    border: 1px solid #1a1a1a;
-    border-radius: 24px;
-    padding: 30px;
-    max-width: 1000px;
-    margin: 20px auto;
+/* ANIMAÇÃO DE ENTRADA MOBILE */
+@keyframes tabFadeUp {
+    from { opacity: 0; transform: translateY(15px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
-/* Título Destacado */
-.mural-title {
-    font-size: 24px;
-    font-weight: 900;
-    color: #fff;
-    text-transform: uppercase;
-    letter-spacing: -1px;
-    margin-bottom: 25px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
 
-.mural-title::before {
-    content: "";
-    width: 4px;
-    height: 24px;
-    background: #ffaa00; /* Detalhe lateral para destaque */
-    border-radius: 4px;
-}
-
-/* Área de Scroll Horizontal */
-.mural-scroll {
-    display: flex;
-    gap: 15px;
-    overflow-x: auto;
-    padding-bottom: 10px;
-    scrollbar-width: none; /* Firefox */
-}
-
-.mural-scroll::-webkit-scrollbar {
-    display: none; /* Chrome/Safari */
-}
-
-/* Micro Cards Internos */
-.vibe-card {
-    flex: 0 0 240px; /* Tamanho fixo para o scroll funcionar */
-    background: #111111;
-    border: 1px solid #222;
+.vibracao-local-card {
+    width: 100%;
+    max-width: 400px; /* Impede que ele fique largo e feio */
+    background: rgba(0, 0, 0, 0.4);
     border-radius: 16px;
-    padding: 16px;
-    transition: all 0.3s ease;
+    padding: 6px;
+    border: 1px solid rgba(0, 242, 255, 0.3);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+    margin: 10px 0;
+    animation: fadeIn 0.5s ease;
 }
 
-.vibe-card:hover {
-    border-color: #333;
-    transform: translateY(-3px);
-}
-
-.vibe-text {
-    font-size: 13px;
-    color: #888;
-    line-height: 1.4;
-    min-height: 40px;
-    margin-bottom: 15px;
-}
-
-.vibe-divider {
-    border: 0;
-    border-top: 1px solid #222;
-    margin-bottom: 12px;
-}
-
-.vibe-footer {
+/* Ajuste fino para o seu ícone original no estado desativado */
+.glass-player {
     display: flex;
-    justify-content: space-between;
     align-items: center;
-}
-
-.vibe-user {
-    font-size: 14px;
-    font-weight: 800;
-    color: #fff;
-    text-transform: uppercase;
-}
-
-.vibe-rating {
-    color: #ffcc00; /* Cor dourada para a estrela no mural */
-    font-weight: bold;
-}
-
-
-
-.comments-grid {
-    display: flex;
-    flex-direction: column;
     gap: 15px;
-}
-
-.comment-pill {
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 20px;
-    padding: 18px;
-    transition: transform 0.3s ease;
-    backdrop-filter: blur(5px);
-}
-
-.comment-pill:hover {
+    padding: 12px 20px;
     background: rgba(255, 255, 255, 0.05);
-    border-color: var(--primary); /* ou sua cor de destaque */
-}
-
-.pill-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 8px;
-}
-
-.fan-name {
-    font-weight: 700;
-    font-size: 0.85rem;
-    color: #fff;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-}
-
-.fan-stars {
-    color: #ffd700; /* Dourado para as estrelas */
-    font-size: 0.7rem;
-    letter-spacing: 2px;
-}
-
-.fan-text {
-    font-size: 0.9rem;
-    color: #bbb;
-    line-height: 1.4;
-    font-style: italic;
-    margin: 5px 0;
-}
-
-.fan-date {
-    display: block;
-    font-size: 0.6rem;
-    color: #555;
-    text-align: right;
-    margin-top: 5px;
-}
-
-/* Ajuste específico para Mobile */
-@media (max-width: 768px) {
-    .comment-pill {
-        border-radius: 15px;
-        padding: 15px;
-    }
-}
-
-/* Container da Barra de Status */
-.stats-bar-modern {
-    display: flex;
-    align-items: center;
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.07);
-    border-radius: 16px;
-    padding: 15px;
-    margin: 20px 0 30px 0;
-    gap: 20px;
-}
-
-.stat-item {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    cursor: pointer;
-    transition: 0.3s;
-}
-
-.stat-item:hover {
-    transform: translateY(-2px);
-}
-
-.stat-icon {
-    width: 35px;
-    height: 35px;
-    background: rgba(0, 243, 255, 0.1); /* Cor Ciano Neon */
-    border-radius: 10px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #00f3ff;
-    font-size: 0.9rem;
-    box-shadow: 0 0 15px rgba(0, 243, 255, 0.1);
-}
-
-/* Segundo ícone em cor diferente para dinamismo */
-.stat-item:nth-child(3) .stat-icon {
-    color: #ffcc00; /* Cor dourada para a estrela no mural */
-    font-weight: bold;
-}
-
-.stat-content {
-    display: flex;
-    flex-direction: column;
-}
-
-.stat-value {
-    font-size: 1.1rem;
-    font-weight: 800;
-    color: #fff;
-    line-height: 1;
-}
-
-.stat-label {
-    font-size: 0.6rem;
-    color: #666;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    font-weight: 700;
-    margin-top: 4px;
-}
-
-.stat-divider {
-    width: 1px;
-    height: 30px;
-    background: rgba(255, 255, 255, 0.1);
-}
-
-/* Ajuste Mobile */
-@media (max-width: 768px) {
-    .stats-bar-modern {
-        margin: 15px 0 25px 0;
-        padding: 12px;
-    }
-}
-
-
-/* Esconde a linha em dispositivos móveis */
-@media (max-width: 768px) {
-    .section-divider {
-        display: none !important;
-    }
+    border-radius: 50px; /* Estilo pílula */
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    width: fit-content;
 }

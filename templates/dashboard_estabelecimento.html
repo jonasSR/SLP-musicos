@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Painel | {{ estab.nome }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard_estabelecimento.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="tab-perfil">
+
+    <div class="bg-scene">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+        <div class="orb orb-3"></div>
+    </div>
+    
+    <nav class="glass-nav">
+        <a href="/" class="logo-link">
+            <img src="static/img/conect1.png" alt="PULSAMUSICCONECT" class="logo-img">
+        </a>
+        
+        <div class="menu-mobile-icon" onclick="toggleMobileMenu()">
+            <i class="fa-solid fa-bars"></i>
+        </div>
+
+        <ul class="menu-links" id="nav-menu">
+            <li><a href="/" class="btn-nav-link">HOME</a></li>
+            <li><a href="/dashboard-estabelecimento" class="btn-nav-link active">Meu Perfil</a></li>
+            <li><a href="javascript:void(0)" onclick="toggleEditMode()" id="btn-edit-toggle" class="btn-nav-link">Editar Dados</a></li>
+            <li><a href="/logout" class="btn-logout">Sair</a></li>
+        </ul>
+    </nav>
+
+    <main class="profile-container">
+        
+        <header class="dash-main">
+            <h1 class="reveal-text">PAINEL</h1>
+            <p>Gerencie os dados do seu estabelecimento.</p>
+        </header>
+        
+        <div id="view-mode">
+            <section class="profile-header-card glass-card">
+                <div class="img-wrapper">
+                    <img src="{{ estab.foto }}" alt="Foto de {{ estab.nome }}" class="estab-img">
+                </div>
+                <div class="header-info">
+                    <h1 class="info-title">{{ estab.nome }}</h1>
+                    <span class="info-sub">
+                        <i class="fa-solid fa-location-dot"></i> {{ estab.cidade }} - {{ estab.estado }}
+                    </span>
+                </div>
+            </section>
+
+            <section class="info-grid">
+                <div class="info-card glass-card">
+                    <div class="card-icon"><i class="fa-solid fa-map-pin"></i></div>
+                    <h3>Localização</h3>
+                    <div class="card-content">
+                        <p><strong>Cidade:</strong> {{ estab.cidade }}</p>
+                        <p><strong>Estado:</strong> {{ estab.estado }}</p>
+                    </div>
+                </div>
+
+                <div class="info-card glass-card">
+                    <div class="card-icon"><i class="fa-solid fa-share-nodes"></i></div>
+                    <h3>Redes Sociais</h3>
+                    <div class="social-links">
+                        {% if estab.instagram %}
+                        <div class="social-btn"><i class="fa-brands fa-instagram"></i> {{ estab.instagram }}</div>
+                        {% endif %}
+                        
+                        {% if estab.facebook %}
+                        <div class="social-btn"><i class="fa-brands fa-facebook"></i> {{ estab.facebook }}</div>
+                        {% endif %}
+                        
+                        <div class="contact-item"><i class="fa-solid fa-envelope"></i> {{ estab.dono_email }}</div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <div id="edit-mode" class="section-hidden" style="display: none;">
+            <form action="/api_cadastrar_estabelecimento" method="POST" enctype="multipart/form-data" class="edit-form-card glass-card">
+                <h2 class="edit-title">Editar Perfil</h2>
+                
+                <div class="input-group">
+                    <label>Nome do Estabelecimento</label>
+                    <input type="text" name="nome" value="{{ estab.nome }}" placeholder="Ex: Restaurante do Jonas" required>
+                </div>
+
+                <div class="input-row">
+                    <div class="input-group">
+                        <label>Cidade</label>
+                        <input type="text" name="cidade" value="{{ estab.cidade }}" required>
+                    </div>
+                    <div class="input-group">
+                        <label>Estado</label>
+                        <input type="text" name="estado" value="{{ estab.estado }}" required>
+                    </div>
+                </div>
+
+                <div class="input-row">
+                    <div class="input-group">
+                        <label>Instagram</label>
+                        <input type="text" name="instagram" value="{{ estab.instagram }}" placeholder="@usuario">
+                    </div>
+                    <div class="input-group">
+                        <label>Facebook/WhatsApp</label>
+                        <input type="text" name="facebook" value="{{ estab.facebook }}">
+                    </div>
+                </div>
+
+                <div class="upload-section">
+                    <div class="current-photo-preview">
+                        <img src="{{ estab.foto }}" alt="Foto Atual" class="preview-thumb" id="image-preview">
+                        <div class="preview-text">
+                            <p>Prévia da Foto</p>
+                        </div>
+                    </div>
+
+                    <div class="custom-upload-wrapper">
+                        <label for="file-input" class="drop-zone">
+                            <i class="fa-solid fa-cloud-arrow-up"></i>
+                            <span class="drop-zone-text">Arraste a foto ou <strong>clique para buscar</strong></span>
+                            <input type="file" name="foto_estabelecimento" id="file-input" accept="image/*" class="file-input-hidden" onchange="updatePreview(this)">
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-buttons">
+                    <button type="submit" class="btn-save">Salvar Alterações</button>
+                    <button type="button" class="btn-cancel" onclick="toggleEditMode()">Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </main>
+
+    <script>
+        // Scripts mantidos conforme solicitado
+        function toggleMobileMenu() {
+            const menu = document.getElementById('nav-menu');
+            const icon = document.querySelector('.menu-mobile-icon i');
+            menu.classList.toggle('active');
+            if (menu.classList.contains('active')) {
+                icon.classList.replace('fa-bars', 'fa-xmark');
+            } else {
+                icon.classList.replace('fa-xmark', 'fa-bars');
+            }
+        }
+
+        document.querySelectorAll('.menu-links a').forEach(link => {
+            link.addEventListener('click', () => {
+                document.getElementById('nav-menu').classList.remove('active');
+                const icon = document.querySelector('.menu-mobile-icon i');
+                if(icon) icon.classList.replace('fa-xmark', 'fa-bars');
+            });
+        });
+
+        function updatePreview(input) {
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
+                reader.onload = function (e) {
+                    const img = document.getElementById('image-preview');
+                    img.src = e.target.result;
+                    img.style.borderColor = "#00f2fe";
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        function toggleEditMode() {
+            const viewMode = document.getElementById('view-mode');
+            const editMode = document.getElementById('edit-mode');
+            const btnToggle = document.getElementById('btn-edit-toggle');
+
+            if (editMode.style.display === 'none') {
+                viewMode.style.display = 'none';
+                editMode.style.display = 'block';
+                btnToggle.innerHTML = '<i class="fa-solid fa-arrow-left"></i> Voltar ao Perfil';
+                btnToggle.classList.add('editing-active');
+            } else {
+                viewMode.style.display = 'block';
+                editMode.style.display = 'none';
+                btnToggle.innerText = 'Editar Dados';
+                btnToggle.classList.remove('editing-active');
+            }
+        }
+    </script>
+</body>
+</html>

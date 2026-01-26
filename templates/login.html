@@ -21,7 +21,7 @@
         </a>
 
         <h1 class="log-glitch-title">Acesso ao <span>Painel</span></h1>
-        <p class="log-subtitle">Gestão de Perfil Artístico | Pulsa São Luiz.</p>
+        <p class="log-subtitle">Gestão de Perfil | Pulsa Music Conect.</p>
 
         <form id="auth-form" class="log-form-wrapper">
             <div class="log-field-group">
@@ -49,10 +49,56 @@
                 <span class="btn-text">ENTRAR COM GOOGLE</span>
             </button>
 
+            <div id="modal-auth" class="modal-overlay">
+                <div class="modal-content glass-card">
+                    <span class="close-modal" id="btn-close-x">&times;</span>
+                    <h3 id="modal-title">Atenção</h3>
+                    <p id="modal-text">Preencha o usuário e a senha e clique em criar conta.</p>
+                    <button type="button" class="log-btn-main" id="btn-modal-confirm" style="width: 100%; margin-top: 15px;">ENTENDI</button>
+                </div>
+            </div>
+
             <button type="button" id="btn-signup" class="log-btn-main log-btn-outline">
                 CRIAR CONTA
             </button>
         </form>
+    </div>
+
+    <div id="modal-escolha-perfil" class="modal-overlay">
+        <div class="modal-content glass-card">
+            <h3>Como deseja entrar?</h3>
+            <p>Selecione seu tipo de perfil para continuar:</p>
+            
+            <div class="opcoes-perfil">
+                <button type="button" class="btn-perfil" id="btn-escolha-musico">
+                    🎸 SOU MÚSICO / BANDA
+                </button>
+                
+                <button type="button" class="btn-perfil" id="btn-escolha-empresa">
+                    🏢 SOU ESTABELECIMENTO
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-retomar-cadastro" class="modal-overlay">
+        <div class="modal-content glass-card">
+            <h3 style="color: #ffcc00;">Cadastro em Aberto</h3>
+            <p>Vimos que você parou seu cadastro como: <br>
+            <strong id="tipo-pendente" style="color: #fff; font-size: 1.2em;"></strong>
+            </p>
+            <p style="font-size: 0.9em; color: #ccc;">Deseja continuar de onde parou?</p>
+            
+            <div class="opcoes-perfil">
+                <button type="button" class="btn-perfil" id="btn-retomar-sim" style="background: #00ff88; color: #000;">
+                    CONTINUAR CADASTRO
+                </button>
+                
+                <button type="button" class="btn-perfil btn-perfil-cancelar" id="btn-retomar-nao">
+                    ❌ EXCLUIR E RECOMEÇAR
+                </button>
+            </div>
+        </div>
     </div>
 
     <script type="module" src="{{ url_for('static', filename='js/auth.js') }}"></script>

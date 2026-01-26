@@ -82,7 +82,7 @@ body {
     backdrop-filter: blur(20px);
     border: 1px solid var(--border);
     padding: 50px 40px;
-    border-radius: 40px;
+    border-radius: 10px;
     text-align: center;
 }
 
@@ -230,7 +230,7 @@ body {
     -webkit-backdrop-filter: blur(20px);
     border: 1px solid rgba(255, 255, 255, 0.1);
     padding: 25px 30px; /* Reduzido para não inflar o card */
-    border-radius: 16px;
+    border-radius: 10px;
     text-align: center;
     width: 90%;
     max-width: 350px; /* Reduzido de 420px para um visual mais clean */
@@ -509,4 +509,212 @@ body {
         width: fit-content;
         align-self: flex-start; /* Alinha à esquerda no mobile */
     }
+}
+
+
+/* Fundo escurecido com desfoque (Blur) */
+.modal-overlay {
+    display: none; /* Escondido por padrão */
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.75);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    z-index: 9999;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Caixa da Modal seguindo seu padrão glass-card */
+.modal-content {
+    background: rgb(0, 0, 0) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 40px;
+    border-radius: 25px;
+    text-align: center;
+    max-width: 400px;
+    width: 90%;
+    position: relative;
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+    animation: fadeInModal 0.3s ease-out;
+}
+
+@keyframes fadeInModal {
+    from { opacity: 0; transform: scale(0.9); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+.modal-content h3 { 
+    color: #00f2ff; 
+    margin-bottom: 15px; 
+    font-size: 1.5rem;
+    letter-spacing: 1px;
+}
+
+.modal-content p { 
+    color: #ffffff; 
+    line-height: 1.6; 
+    opacity: 0.9;
+    margin-bottom: 20px;
+}
+
+/* Botão de fechar (X) */
+.close-modal {
+    position: absolute;
+    top: 20px;
+    right: 25px;
+    font-size: 30px;
+    color: #fff;
+    cursor: pointer;
+    opacity: 0.4;
+    transition: 0.2s;
+}
+.close-modal:hover { opacity: 1; }
+
+
+
+
+
+
+
+
+/* #################### MODAL BANDA OU ESTABELECIMENTO #################### */
+/* Container da Modal (Fundo) */
+.modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.85); /* Fundo mais escuro para destaque */
+    backdrop-filter: blur(12px); /* Desfoque de fundo elegante */
+    -webkit-backdrop-filter: blur(12px);
+    z-index: 9999;
+    justify-content: center;
+    align-items: center;
+    animation: fadeIn 0.3s ease;
+}
+
+/* Caixa da Modal */
+.modal-content {
+    background: rgb(0, 0, 0) !important;
+    border: 1px solid rgba(0, 242, 255, 0.3); /* Borda Neon sutil */
+    padding: 40px;
+    border-radius: 28px;
+    text-align: center;
+    max-width: 450px;
+    width: 90%;
+    box-shadow: 0 0 40px rgba(0, 242, 255, 0.1), inset 0 0 20px rgba(255, 255, 255, 0.02);
+}
+
+.modal-content h3 {
+    font-family: 'Syne', sans-serif;
+    color: #00f2ff;
+    font-size: 1.8rem;
+    margin-bottom: 10px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+.modal-content p {
+    color: rgba(255, 255, 255, 0.7);
+    margin-bottom: 30px;
+    font-size: 0.95rem;
+}
+
+/* Botões de Opção */
+.opcoes-perfil {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.btn-perfil {
+    position: relative;
+    padding: 18px !important;
+    border-radius: 10px !important;
+    font-weight: 800 !important;
+    letter-spacing: 1px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    overflow: hidden;
+    cursor: pointer;
+}
+
+/* Estilo específico botão Músico (Cheio) */
+#btn-escolha-musico {
+    background: #00f2ff !important;
+    color: #000 !important;
+    border: none !important;
+}
+
+#btn-escolha-musico:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 20px rgba(0, 242, 255, 0.4);
+    filter: brightness(1.1);
+}
+
+/* Estilo específico botão Empresa (Outline) */
+#btn-escolha-empresa {
+    background: transparent !important;
+    color: #fff !important;
+    border: 2px solid rgba(255, 255, 255, 0.2) !important;
+}
+
+#btn-escolha-empresa:hover {
+    border-color: #00f2ff !important;
+    color: #00f2ff !important;
+    background: rgba(0, 242, 255, 0.05) !important;
+    transform: translateY(-3px);
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+
+
+
+/* Estilo para o botão de excluir/cancelar na modal */
+.btn-perfil-cancelar {
+    margin-top: 15px;
+    background: #d32f2f !important; /* Vermelho sólido mais forte */
+    color: #ffffff !important;      /* Texto branco puro */
+    font-weight: bold;
+    border: none;
+    padding: 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    width: 100%;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(211, 47, 47, 0.3); /* Sombra avermelhada para destaque */
+    text-transform: uppercase;
+    font-size: 0.85em;
+    letter-spacing: 1px;
+}
+
+.btn-perfil-cancelar:hover {
+    background: #b71c1c !important; /* Vermelho ainda mais escuro no hover */
+    transform: translateY(-2px);    /* Leve subida ao passar o mouse */
+    box-shadow: 0 6px 20px rgba(211, 47, 47, 0.5);
+}
+
+/* Remove o fundo branco/amarelo do preenchimento automático */
+.log-input-field:-webkit-autofill,
+.log-input-field:-webkit-autofill:hover, 
+.log-input-field:-webkit-autofill:focus, 
+.log-input-field:-webkit-autofill:active {
+    /* Isso cria uma transição infinita na cor de fundo, impedindo que ela apareça */
+    -webkit-transition: background-color 9999s ease-out;
+    transition: background-color 9999s ease-out;
+    
+    /* Define a cor do texto para que não fique branca sobre o fundo claro ou vice-versa */
+    -webkit-text-fill-color: #ffffff !important; /* Ajuste para a cor do seu texto */
+}
+
+/* Garante que a borda e o estilo permaneçam consistentes */
+.log-input-field {
+    background-color: transparent !important;
 }

@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Palcos | Explorar</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/palco.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+    <div class="bg-scene">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+    </div>
+
+    <nav>
+        <a href="/" class="logo-link">
+           <img src="static/img/conect1.png" alt="PULSAMUSICCONECT" class="logo-img">
+        </a>
+        <ul class="menu-links" id="nav-menu">
+            <li><a href="/" class="btn-nav-flat">HOME</a></li>
+            <li><a href="/artistas?tipo=dj" class="btn-nav-flat">DJs</a></li>
+            <li><a href="/artistas?tipo=músico independente" class="btn-nav-flat">MÚSICOS</a></li>
+            <li><a href="/artistas?tipo=banda" class="btn-nav-flat">BANDAS</a></li>
+            <li><a href= "/palco" class="btn-nav-flat">PALCOS</a></li>
+            <li><a href="/dashboard" class="btn-plasma-small">MEMBRO</a></li>
+           
+        </ul>
+    </nav>
+
+    <main class="profile-container">
+        <header class="dash-intro">
+            <h1 class="reveal-text">PALCOS</h1>
+            <p>Parceiros Pulsa Music Conect</p>
+        </header>
+
+        <section class="estab-grid">
+            {% for estab in todos_estabelecimentos %}
+            <a href="/perfil/{{ estab.id }}" class="estab-card">
+                <div class="card-image">
+                    <img src="{{ estab.foto }}" alt="{{ estab.nome }}">
+                </div>
+                
+                <div class="card-body">
+                    <h3>{{ estab.nome }}</h3>
+                    
+                    <div class="card-footer">
+                        <div class="location-stack">
+                            <span class="city-name">{{ estab.cidade }}</span>
+                            <span class="uf-name"><i class="fa-solid fa-location-dot"></i> {{ estab.estado }}</span>
+                        </div>
+                        
+                        <div class="social-mini">
+                            {% if estab.instagram %}
+                                <i class="fa-brands fa-instagram"></i>
+                            {% endif %}
+                            {% if estab.facebook %}
+                                <i class="fa-brands fa-facebook"></i>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </a>
+            {% endfor %}
+        </section>
+    </main> <footer class="main-footer">
+        <div class="footer-content">
+            <div class="footer-brand">
+                <img src="static/img/conect1.png" alt="PULSAMUSICCONECT" class="logo-img">
+                <p>Preservando a cultura, impulsionando talentos. A rede completa que une artistas, especialistas e infraestrutura em um só movimento.</p>
+            </div>
+            
+            <div class="footer-links">
+                <h4>Navegação</h4>
+                <ul>
+                    <li><a href="#">Início</a></li>
+                    <li><a href="#artistas">Artistas</a></li>
+                    <li><a href="/dashboard">Área do Membro</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-social">
+                </div>
+        </div>
+        
+        <div class="footer-bottom">
+            <p>&copy; 2026 Pulsa Music Conect. O Futuro da Tradição.</p>
+        </div>
+    </footer>
+
+</body>
+</html>

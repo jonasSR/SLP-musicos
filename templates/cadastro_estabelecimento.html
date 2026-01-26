@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastro de Estabelecimento | Live Scene</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/cadastro_estabelecimento.css') }}">
+</head>
+<body>
+
+    <div class="bg-scene">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+    </div>
+
+    <nav>
+        <a href="/" class="logo-link">
+           <img src="static/img/conect1.png" alt="PULSAMUSICCONECT" class="logo-img">
+        </a>
+        <ul class="menu-links" id="nav-menu">
+            <a href="/logout" class="btn-logout">SAIR</a>
+        </ul>
+    </nav>
+
+    <div class="container-cadastro">
+        <h2>Novo Local</h2>
+        <p>Preencha os dados para destacar seu estabelecimento.</p>
+
+        <form action="/api_cadastrar_estabelecimento" method="POST" enctype="multipart/form-data">
+            
+            <div class="form-group" style="text-align: center;">
+                <label style="text-align: left; display: block;">Foto de Capa (288x288)</label>
+                
+                <div class="preview-img" id="previewContainer">
+                    <div id="placeholderContent">
+                        <span class="placeholder-icon">?</span>
+                        <span id="placeholderText">Nenhuma foto selecionada</span>
+                    </div>
+                    <img id="imagePreview" src="" alt="Preview" style="display: none;">
+                </div>
+
+                <label for="fotoInput" class="custom-file-upload" id="labelUpload">
+                    <span class="upload-icon">📁</span> Selecionar Imagem
+                </label>
+                <input type="file" name="foto_estabelecimento" id="fotoInput" accept="image/*" required style="display: none;">
+            </div>
+
+            <div class="form-group">
+                <label>Nome do Estabelecimento</label>
+                <input type="text" name="nome" placeholder="Ex: Blue Night Club" required>
+            </div>
+
+            <div style="display: flex; gap: 15px;">
+                <div class="form-group" style="flex: 3;">
+                    <label>Cidade</label>
+                    <input type="text" name="cidade" placeholder="Sua cidade" required>
+                </div>
+                <div class="form-group" style="flex: 1.5;">
+                    <label>UF</label>
+                    <select name="estado" required>
+                        <option value="" disabled selected>Selecione</option>
+                        <option value="AC">AC</option>
+                        <option value="AL">AL</option>
+                        <option value="AP">AP</option>
+                        <option value="AM">AM</option>
+                        <option value="BA">BA</option>
+                        <option value="CE">CE</option>
+                        <option value="DF">DF</option>
+                        <option value="ES">ES</option>
+                        <option value="GO">GO</option>
+                        <option value="MA">MA</option>
+                        <option value="MT">MT</option>
+                        <option value="MS">MS</option>
+                        <option value="MG">MG</option>
+                        <option value="PA">PA</option>
+                        <option value="PB">PB</option>
+                        <option value="PR">PR</option>
+                        <option value="PE">PE</option>
+                        <option value="PI">PI</option>
+                        <option value="RJ">RJ</option>
+                        <option value="RN">RN</option>
+                        <option value="RS">RS</option>
+                        <option value="RO">RO</option>
+                        <option value="RR">RR</option>
+                        <option value="SC">SC</option>
+                        <option value="SP">SP</option>
+                        <option value="SE">SE</option>
+                        <option value="TO">TO</option>
+                    </select>
+                </div>
+            </div>
+
+            <h3 style="border-left: 3px solid var(--accent-2); padding-left: 10px; margin-top: 30px; margin-bottom: 20px;">Redes Sociais</h3>
+            
+            <div class="form-group">
+                <label>Instagram</label>
+                <input type="text" name="instagram" placeholder="@seu_estabelecimento">
+            </div>
+
+            <div class="form-group">
+                <label>Facebook</label>
+                <input type="text" name="instagram" placeholder="@seu_estabelecimento">
+            </div>
+
+            <button type="submit" class="btn-enviar">Finalizar Cadastro</button>
+        </form>
+    </div>
+
+    <script>
+        // Aguarda o DOM carregar para evitar erros de inicialização
+        document.addEventListener("DOMContentLoaded", function() {
+            const fotoInput = document.getElementById('fotoInput');
+            const imagePreview = document.getElementById('imagePreview');
+            const placeholderContent = document.getElementById('placeholderContent');
+            const labelUpload = document.getElementById('labelUpload');
+
+            if (fotoInput) {
+                fotoInput.addEventListener('change', function() {
+                    const file = this.files[0];
+                    
+                    if (file) {
+                        const reader = new FileReader();
+                        
+                        reader.onload = function(e) {
+                            // 1. Exibe a imagem no preview
+                            imagePreview.src = e.target.result;
+                            imagePreview.style.display = 'block';
+                            
+                            // 2. Esconde o placeholder (? e texto)
+                            if (placeholderContent) {
+                                placeholderContent.style.display = 'none';
+                            }
+                            
+                            // 3. Atualiza o estilo do botão para "Sucesso"
+                            if (labelUpload) {
+                                labelUpload.innerHTML = '<span>✅</span> Alterar Foto';
+                                labelUpload.style.borderColor = 'var(--accent)';
+                                labelUpload.style.color = '#fff';
+                                labelUpload.style.background = 'rgba(0, 242, 255, 0.1)';
+                            }
+                        }
+                        
+                        reader.readAsDataURL(file);
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>

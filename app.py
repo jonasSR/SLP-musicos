@@ -81,15 +81,56 @@ def inject_estilos():
 def index():
     musicos_ref = db.collection('artistas')
     musicos = []
+    
+    # 1. Busca feedbacks aprovados para saber quem é relevante
+    feedbacks_ref = db.collection('feedbacks').where('status', '==', 'aprovado').stream()
+    contagem_feedbacks = {}
 
+    for f in feedbacks_ref:
+        f_dados = f.to_dict()
+        aid = f_dados.get('artista_id')
+        if aid:
+            contagem_feedbacks[aid] = contagem_feedbacks.get(aid, 0) + 1
+
+    # 2. Processa os músicos
     for doc in musicos_ref.stream():
         dados = doc.to_dict()
         dados['id'] = doc.id
+        dados['qtd_fb'] = contagem_feedbacks.get(doc.id, 0)
         musicos.append(dados)
 
+    # 3. DESTAQUES (Mantido conforme sua solicitação)
+    destaques = [m for m in musicos if m.get('qtd_fb', 0) > 0]
+    destaques = sorted(destaques, key=lambda x: x['qtd_fb'], reverse=True)[:3]
+
+    # --- NOVAS ATUALIZAÇÕES PARA ARTISTAS LOCAIS ---
+    
+    # 4. Captura a cidade selecionada no filtro
+    cidade_selecionada = request.args.get('cidade')
+    
+    # 5. Gera lista de cidades únicas para o componente de filtro (Dropdown)
+    # Filtra apenas músicos que têm o campo 'cidade' preenchido
+    # m.get('cidade') busca o valor dentro de cada documento no banco
+    cidades_disponiveis = sorted(list(set([
+        str(m.get('cidade')).strip() 
+        for m in musicos 
+        if m.get('cidade')
+    ])))
+    
+    # 6. Filtra os artistas para a seção local
+    if cidade_selecionada:
+        artistas_locais = [m for m in musicos if str(m.get('cidade')).strip().lower() == cidade_selecionada.strip().lower()]
+    else:
+        # Se nenhuma cidade for selecionada, mostramos os 4 músicos mais recentes (ou os primeiros da lista)
+        artistas_locais = musicos[:4]
+
     return render_template(
-        'index.html',
-        musicos=musicos
+        'index.html', 
+        musicos=musicos, 
+        destaques=destaques,
+        artistas_locais=artistas_locais,
+        cidades_disponiveis=cidades_disponiveis,
+        cidade_nome=cidade_selecionada
     )
 
 
@@ -146,8 +187,7 @@ def perfil_musico(musico_id):
 @app.route('/login')
 def login_page():
     """Tela de acesso para músicos"""
-    if 'user_email' in session:
-        return redirect(url_for('dashboard'))
+    # Removi o 'if user_email in session' que redirecionava
     return render_template('login.html')
 
 
@@ -155,27 +195,16 @@ def login_page():
 def set_session():
     data = request.get_json()
     email = data.get('email')
-    tipo_escolhido = data.get('tipo') # Pode ser None no login
-
     session['user_email'] = email
-    user_ref = db.collection('usuarios').document(email)
-    user_doc = user_ref.get()
-
-    if user_doc.exists:
-        user_data = user_doc.to_dict()
-        tipo_no_banco = user_data.get('tipo')
-
-        # CASO 1: Usuário escolhendo tipo agora (Modal ou Botão de Troca)
-        if tipo_escolhido:
-            user_ref.set({'tipo': tipo_escolhido}, merge=True)
-            session['user_tipo'] = tipo_escolhido
-            return jsonify({"status": "success", "tipo": tipo_escolhido}), 200
-
-        # CASO 2: Apenas Login. Retorna o tipo que ele já tem.
-        return jsonify({"status": "success", "tipo": tipo_no_banco}), 200
     
-    # CASO 3: Usuário novo (ainda não existe no Firestore)
-    return jsonify({"status": "success", "tipo": None}), 200
+    # Verifica na hora se é estabelecimento
+    doc_estab = db.collection('estabelecimentos').document(email).get()
+    if doc_estab.exists:
+        session['user_tipo'] = 'estabelecimento'
+    else:
+        session['user_tipo'] = 'musico'
+        
+    return jsonify({"status": "success"}), 200
 
 
 
@@ -189,36 +218,84 @@ def logout():
 # 🔒 ÁREA PRIVADA
 # ======================================================
 
+# --- NOVA ROTA DE VERIFICAÇÃO (ESSENCIAL PARA A MODAL) ---
+@app.route('/check_user_type')
+def check_user_type():
+    email = request.args.get('email')
+    
+    # 1. Checa se o cadastro está TOTALMENTE COMPLETO
+    # Verifica em Estabelecimentos
+    if db.collection('estabelecimentos').document(email).get().exists:
+        return jsonify({"status": "completo", "redirect": "/dashboard-estabelecimento"})
+    
+    # Verifica em Artistas
+    artista = db.collection('artistas').where('dono_email', '==', email).limit(1).get()
+    if len(list(artista)) > 0:
+        return jsonify({"status": "completo", "redirect": "/dashboard"})
+
+    # 2. Se não está completo, checa se ele já ESCOLHEU um tipo na modal antes
+    # Buscamos na coleção genérica de 'usuarios' criada no Auth
+    user_query = db.collection('usuarios').where('email', '==', email).limit(1).get()
+    user_docs = list(user_query)
+    
+    if len(user_docs) > 0:
+        dados = user_docs[0].to_dict()
+        tipo = dados.get('tipo')
+        
+        if tipo in ['musico', 'estabelecimento']:
+            return jsonify({"status": "pendente", "tipo": tipo})
+
+    # 3. Se chegou aqui, ele nunca escolheu nada (abrir modal)
+    return jsonify({"status": "novo"})
+
 @app.route('/dashboard')
 @login_required
 def dashboard():
     email_logado = session.get('user_email')
     
-    artista_query = db.collection('artistas').where('dono_email', '==', email_logado).limit(1).stream()
+    # 1. BUSCA O TIPO DE USUÁRIO
+    user_query = db.collection('usuarios').where('email', '==', email_logado).limit(1).stream()
+    user_docs = list(user_query)
     
-    pedidos = []
-    agenda = [] 
-    feedbacks = [] 
-    artista_dados = None 
-    total_cliques = 0 
-    notificacoes_fas = 0  # <--- INICIALIZA O CONTADOR DE PENDENTES
+    tipo_usuario = None
+    if user_docs:
+        tipo_usuario = user_docs[0].to_dict().get('tipo')
 
-    for doc in artista_query:
+    # 2. SE FOR ESTABELECIMENTO
+    if tipo_usuario == 'estabelecimento':
+        doc_estab = db.collection('estabelecimentos').document(email_logado).get()
+        if not doc_estab.exists:
+            return redirect(url_for('abrir_pagina_estabelecimento'))
+        return redirect(url_for('dashboard_estabelecimento'))
+
+    # 3. SE FOR MÚSICO
+    artista_query = db.collection('artistas').where('dono_email', '==', email_logado).limit(1).stream()
+    artista_docs = list(artista_query)
+
+    artista_dados = None
+    pedidos, agenda, feedbacks = [], [], []
+    total_cliques, notificacoes_fas, total_estrelas = 0, 0, 0
+
+    if artista_docs:
+        doc = artista_docs[0]
         artista_id = doc.id
         artista_dados = doc.to_dict()
         artista_dados['id'] = artista_id
         
         # --- BUSCAR CLICKS ---
-        total_cliques = artista_dados.get('cliques', 0) 
-        
-        # BUSCAR PEDIDOS
+        total_cliques = artista_dados.get('cliques', 0)
+
+        # --- BUSCAR PEDIDOS (CAIXA DE ENTRADA) ---
         pedidos_ref = db.collection('pedidos_reserva').where('musico_id', '==', artista_id).stream()
         for p in pedidos_ref:
             p_dados = p.to_dict()
             p_dados['id'] = p.id
             pedidos.append(p_dados)
+        
+        # Ordenar pedidos pelo mais recente
+        pedidos.sort(key=lambda x: x.get('criado_em') if x.get('criado_em') else 0, reverse=True)
 
-        # BUSCAR AGENDA
+        # --- BUSCAR AGENDA ---
         agenda_ref = db.collection('artistas').document(artista_id).collection('agenda').order_by('data_completa').stream()
         for s in agenda_ref:
             s_dados = s.to_dict()
@@ -226,29 +303,34 @@ def dashboard():
             agenda.append(s_dados)
 
         # --- BUSCAR FEEDBACKS (MURAL DE FÃS) ---
+        # Nota: verifique se no seu banco o campo é 'artista_email' ou 'artista_id'
         feedbacks_ref = db.collection('feedbacks').where('artista_email', '==', email_logado).stream()
         for f in feedbacks_ref:
             f_dados = f.to_dict()
-            f_dados['id'] = f.id 
+            f_dados['id'] = f.id
             feedbacks.append(f_dados)
             
-            # --- LÓGICA DO CONTADOR ---
-            # Se o status for pendente, aumenta o número da notificação
+            # Contagem de estrelas para média
+            total_estrelas += int(f_dados.get('estrelas', 0))
+            
+            # Lógica do contador de notificações pendentes
             if f_dados.get('status') == 'pendente':
                 notificacoes_fas += 1
 
-    pedidos.sort(key=lambda x: x.get('criado_em') if x.get('criado_em') else 0, reverse=True)
+    # Cálculos finais
+    qtd_feedbacks = len(feedbacks)
+    media_estrelas = round(total_estrelas / qtd_feedbacks, 1) if qtd_feedbacks > 0 else 0.0
 
     return render_template(
         'dashboard.html', 
         pedidos=pedidos, 
-        musico=artista_dados,
+        musico=artista_dados, 
         agenda=agenda,
         feedbacks=feedbacks, 
-        notificacoes_fas=notificacoes_fas, # <--- ENVIA O NÚMERO PARA O ÍCONE
-        total_cliques=total_cliques 
+        notificacoes_fas=notificacoes_fas,
+        total_cliques=total_cliques,
+        media_estrelas=media_estrelas
     )
-
 # NOVA ROTA: Para marcar como lida via JavaScript quando você clicar
 @app.route('/marcar_lido/<pedido_id>', methods=['POST'])
 @login_required
@@ -304,12 +386,13 @@ def api_enviar_feedback():
     db.collection('feedbacks').add(dados)
     return jsonify({'status': 'success'})
 # ======================================================
-# CADASTRAR MÚSICO-DASHBOARD
+# CADASTRAR MÚSICO-DASHBOARD (ATUALIZADO COM TIPO)
 # ======================================================
 @app.route('/api_cadastrar_musico', methods=['POST'])
 @login_required
 def cadastrar_musico():
     nome = request.form.get('nome')
+    tipo = request.form.get('tipo') 
     estilo = request.form.get('estilo')
     cidade = request.form.get('cidade')
     estado = request.form.get('estado')
@@ -322,6 +405,9 @@ def cadastrar_musico():
     facebook = request.form.get('facebook')
     youtube = request.form.get('youtube')
     # ----------------------------------
+
+    # 1. ACRESCENTADO: Captura o link do formulário
+    vibracao_link = request.form.get('vibracao_link')
 
     email = session['user_email']
 
@@ -355,16 +441,19 @@ def cadastrar_musico():
         file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
         final_path = f"/static/img/{filename}"
 
-    # Dicionário de dados atualizado com as redes sociais
+    # Dicionário de dados atualizado
     dados = {
         'nome': nome,
+        'tipo': tipo,
         'cidade': cidade,
         'estado': estado,
         'estilo': estilo,
         'bio': bio,
-        'instagram': instagram, # Salva no banco
-        'facebook': facebook,   # Salva no banco
-        'youtube': youtube,     # Salva no banco
+        'instagram': instagram, 
+        'facebook': facebook,   
+        'youtube': youtube, 
+        # 2. ACRESCENTADO: Adiciona o link ao dicionário que vai para o Firebase
+        'vibracao_link': vibracao_link, 
         'dono_email': email,
         'timestamp': firestore.SERVER_TIMESTAMP
     }
@@ -375,7 +464,7 @@ def cadastrar_musico():
     if artista_doc:
         db.collection('artistas').document(artista_doc.id).update(dados)
     else:
-        dados['cliques'] = 0 # <--- Inicializa com 0 apenas se for um documento novo
+        dados['cliques'] = 0 
         db.collection('artistas').add(dados)
 
     return redirect(url_for('dashboard'))
@@ -618,6 +707,171 @@ def api_artistas_vitrine():
     except Exception as e:
         return jsonify({"error": str(e)}), 500        
     
+
+# 1. ROTA PARA EXIBIR O FORMULÁRIO DE CADASTRO
+@app.route('/cadastro-estabelecimento')
+@login_required
+def abrir_pagina_estabelecimento():
+    return render_template('cadastro_estabelecimento.html')
+
+# 2. ROTA QUE PROCESSA O CADASTRO (API)
+@app.route('/api_cadastrar_estabelecimento', methods=['POST'])
+@login_required
+def api_cadastrar_estabelecimento():
+    email_dono = session.get('user_email')
+    
+    # 1. Busca os dados atuais no banco antes de salvar
+    doc_ref = db.collection('estabelecimentos').document(email_dono)
+    doc_atual = doc_ref.get()
+    
+    # Define o caminho da foto como o que já está no banco (caso exista)
+    foto_final = "/static/img/default_estabelecimento.jpg"
+    if doc_atual.exists:
+        foto_final = doc_atual.to_dict().get('foto', foto_final)
+
+    # 2. Processa a nova foto APENAS se o usuário enviou uma
+    file = request.files.get('foto_estabelecimento')
+    if file and file.filename != '' and allowed_file(file.filename):
+        filename = secure_filename(file.filename)
+        unique_filename = f"estabel_{email_dono.replace('@', '_')}_{filename}"
+        file.save(os.path.join(app.config['UPLOAD_FOLDER'], unique_filename))
+        foto_final = f"/static/img/{unique_filename}"
+
+    # 3. Monta os dados (mantendo a foto antiga ou a nova)
+    dados = {
+        'nome': request.form.get('nome'),
+        'cidade': request.form.get('cidade'),
+        'estado': request.form.get('estado'),
+        'instagram': request.form.get('instagram'),
+        'facebook': request.form.get('facebook'),
+        'foto': foto_final, # Aqui está a segurança: ela nunca será vazia
+        'dono_email': email_dono,
+        'tipo': 'estabelecimento',
+        'timestamp': firestore.SERVER_TIMESTAMP
+    }
+
+    doc_ref.set(dados)
+    return redirect(url_for('dashboard_estabelecimento'))
+
+# 3. ROTA DO DASHBOARD EXCLUSIVO DO ESTABELECIMENTO
+@app.route('/dashboard-estabelecimento')
+@login_required
+def dashboard_estabelecimento():
+    email_usuario = session.get('user_email')
+    
+    # Busca o documento diretamente pelo ID (que definimos como o e-mail)
+    doc_ref = db.collection('estabelecimentos').document(email_usuario)
+    doc = doc_ref.get()
+    
+    if doc.exists:
+        dados_estab = doc.to_dict()
+        dados_estab['id'] = doc.id
+        return render_template('dashboard_estabelecimento.html', estab=dados_estab)
+    else:
+        # Se não houver cadastro, redireciona para o formulário
+        return redirect(url_for('abrir_pagina_estabelecimento'))
+
+
+@app.route('/palco')
+def lista_palcos():
+    # 1. Acessa a coleção 'estabelecimentos' no Firestore
+    estab_ref = db.collection('estabelecimentos')
+    
+    # 2. Pega todos os documentos (estabelecimentos cadastrados)
+    docs = estab_ref.stream()
+    
+    # 3. Converte os documentos em uma lista de dicionários para o HTML
+    todos_estabs = []
+    for doc in docs:
+        dados = doc.to_dict()
+        dados['id'] = doc.id  # Garante que o ID (e-mail) esteja disponível
+        todos_estabs.append(dados)
+    
+    # 4. Renderiza o template passando a lista correta
+    return render_template('palco.html', todos_estabelecimentos=todos_estabs)
+
+
+@app.route('/artistas')
+def lista_artistas():
+    tipo_original = request.args.get('tipo', '') # Recebe "músico independente"
+    
+    # TRADUÇÃO PARA O BANCO DE DADOS
+    # Se receber "músico independente", vira "musico" para buscar no Firebase
+    termo_busca = tipo_original.lower()
+    if termo_busca == 'músico independente':
+        termo_busca = 'musico'
+
+    # 1. Ajuste para o nome do arquivo template
+    tipo_limpo = termo_busca.replace(' ', '_')
+    
+    artistas_ref = db.collection('artistas')
+    
+    # 2. Agora a busca usa o termo traduzido ("musico")
+    docs = artistas_ref.where('tipo', '==', termo_busca).stream()
+    
+    lista = []
+    for doc in docs:
+        d = doc.to_dict()
+        d['id'] = doc.id
+        lista.append(d)
+
+    try:
+        # Retorna lista_musico.html com os dados encontrados
+        return render_template(f'lista_{tipo_limpo}.html', musicos=lista, categoria=tipo_original)
+    except Exception as e:
+        print(f"Erro ao carregar template: {e}")
+        return f"Erro: Arquivo lista_{tipo_limpo}.html não encontrado", 404
+    
+    
+
+@app.route('/api_deletar_dados_usuario', methods=['POST'])
+def api_deletar_dados_usuario():
+    try:
+        data = request.get_json()
+        email = data.get('email')
+        
+        if not email:
+            return jsonify({"status": "error", "message": "E-mail não fornecido"}), 400
+
+        # 1. Deleta da coleção 'usuarios' (onde você viu na imagem)
+        users_ref = db.collection('usuarios').where('email', '==', email).stream()
+        for doc in users_ref:
+            doc.reference.delete()
+
+        # 2. Deleta da coleção 'artistas' (caso tenha começado algo)
+        artistas_ref = db.collection('artistas').where('dono_email', '==', email).stream()
+        for doc in artistas_ref:
+            doc.reference.delete()
+
+        # 3. Deleta da coleção 'estabelecimentos' (caso seja o caso)
+        db.collection('estabelecimentos').document(email).delete()
+
+        return jsonify({"status": "success"}), 200
+    except Exception as e:
+        print(f"Erro ao deletar dados do Firestore: {e}")
+        return jsonify({"status": "error", "message": str(e)}), 500
+
+
+
+@app.route('/api_deletar_dados_usuario', methods=['POST'])
+def api_excluir_conta_definitiva(): # <--- Mudei o nome da função aqui
+    try:
+        data = request.get_json()
+        email = data.get('email')
+        # ... resto do seu código de deletar ...
+        db.collection('estabelecimentos').document(email).delete()
+        
+        user_query = db.collection('usuarios').where('email', '==', email).stream()
+        for doc in user_query:
+            doc.reference.delete()
+
+        return jsonify({"status": "success"}), 200
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
+
+
+
+
 # ======================================================
 # 🚀 START
 # ======================================================

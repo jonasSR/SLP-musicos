@@ -208,3 +208,43 @@ function showMobileTab(evt, tabName) {
             });
         });
     });
+
+
+
+
+
+
+
+    
+
+// FUNÇÂO BARRA MENU DESKTOP
+function showSection(sectionId) {
+    // Lista de IDs das suas seções
+    const sections = ['aba-perfil', 'aba-agenda', 'aba-inbox', 'aba-fas'];
+    
+    sections.forEach(id => {
+        const element = document.getElementById(id);
+        if (element) {
+            element.classList.remove('section-active');
+            element.style.display = 'none';
+        }
+    });
+
+    const target = document.getElementById(sectionId);
+    if (target) {
+        target.classList.add('section-active');
+        // Garantir que o display apareça mesmo se o CSS travar
+        target.style.display = 'block'; 
+    }
+}
+
+// Inicializa a página mostrando o Perfil
+document.addEventListener('DOMContentLoaded', () => {
+    if (window.innerWidth > 1024) {
+        showSection('aba-perfil');
+    }
+});
+
+
+
+

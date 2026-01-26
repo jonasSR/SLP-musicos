@@ -96,3 +96,54 @@ document.addEventListener("DOMContentLoaded", function() {
         appearanceObserver.observe(card);
     });
 });
+
+const observerOptions = {
+    threshold: 0.1
+};
+
+const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+        if (entry.isIntersecting) {
+            entry.target.classList.add('visible');
+        }
+    });
+}, observerOptions);
+
+document.querySelectorAll('.modern-card').forEach(card => {
+    observer.observe(card);
+});
+
+
+document.addEventListener('DOMContentLoaded', function() {
+    var swiper = new Swiper(".highlightsSwiper", {
+        slidesPerView: "auto",      // Mostra quantos couberem
+        spaceBetween: 20,           // Espaço entre os cards
+        loop: true,                 // Faz o carrossel ser infinito
+        grabCursor: true,           // Mostra a mãozinha ao passar o mouse
+        autoplay: {
+            delay: 2000,            // 2 segundos (2000ms)
+            disableOnInteraction: false, // Continua rodando mesmo se o usuário clicar
+        },
+        speed: 800,                 // Velocidade da transição (suavidade)
+    });
+});
+
+
+
+const menuTrigger = document.getElementById('mobile-menu-trigger');
+    const navActions = document.getElementById('nav-links');
+
+    menuTrigger.addEventListener('click', () => {
+        // Abre e fecha o menu lateral
+        navActions.classList.toggle('nav-active');
+        // Transforma o ícone em X
+        menuTrigger.classList.toggle('toggle');
+    });
+
+    // Fecha o menu se clicar em qualquer link lá dentro
+    document.querySelectorAll('.nav-actions a').forEach(link => {
+        link.addEventListener('click', () => {
+            navActions.classList.remove('nav-active');
+            menuTrigger.classList.remove('toggle');
+        });
+    });

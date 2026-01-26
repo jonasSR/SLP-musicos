@@ -6,20 +6,11 @@
     <title>Dashboard | Pulsa Music Conect</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <style>
-        /* CSS Extra para garantir que os ícones fiquem escondidos */
-        input::-webkit-calendar-picker-indicator,
-        input::-webkit-inner-spin-button,
-        input::-webkit-clear-button {
-            display: none !important;
-            -webkit-appearance: none !important;
-        }
-    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
     <div id="toast-container" class="toast-container"></div>
     {% set foto_url = musico.foto if musico.foto else 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?q=80&w=1000' %}
-
     <div id="cursor-aura"></div>
     <div class="bg-scene">
         <div class="orb orb-1"></div>
@@ -27,66 +18,76 @@
         <div class="orb orb-3"></div>
     </div>
 
-        <nav class="glass-nav">
-            <a href="/" style="text-decoration: none;">
-                <div class="logo">PULSA<span>MUSIC</span>CONECT</div>
-            </a>
-            <div class="menu-toggle" id="mobile-menu">
-                <span class="bar"></span><span class="bar"></span><span class="bar"></span>
-            </div>
-            <ul class="nav-links" id="nav-links">
-                <li><a href="/" class="btn-nav-link">HOME</a></li>
-                
-                {% if session.get('user_email') %}
-                    <li><a href="/dashboard" class="btn-nav-link">PAINEL MÚSICO</a></li>
-                    <li><a href="javascript:void(0)" onclick="abrirModalSenha()" class="btn-nav-link">ALTERAR SENHA</a></li>
-                    <li><a href="/logout" class="btn-nav-link">SAIR</a></li>
-                {% endif %}
-            </ul>
-        </nav>
-
-        <div id="modal-senha" class="modal-overlay">
-            <div class="modal-content glass-card">
-                <button class="close-modal" onclick="fecharModalSenha()">×</button>
-                <h3>Trocar Senha</h3>
-                <p style="font-size: 0.8rem; opacity: 0.7; margin-bottom: 20px;">Digite sua nova senha abaixo.</p>
-                
-                <form id="form-trocar-senha" class="nebula-form">
-                    <div class="input-modern">
-                        <input type="password" id="nova-senha" required placeholder=" ">
-                        <label>NOVA SENHA</label>
-                    </div>
-                    <div class="input-modern" style="margin-top: 15px;">
-                        <input type="password" id="confirma-senha" required placeholder=" ">
-                        <label>CONFIRMAR SENHA</label>
-                    </div>
-                    
-                    <button type="submit" class="btn-glow-action" style="margin-top: 25px; width: 100%;">
-                        <span>ATUALIZAR SENHA</span>
-                    </button>
-                </form>
-            </div>
+    <nav class="glass-nav">
+        <a href="/" style="text-decoration: none;">
+            <img src="static/img/conect1.png" alt="PULSAMUSICCONECT" class="logo-img">
+        </a>
+        <div class="menu-toggle" id="mobile-menu">
+            <span class="bar"></span><span class="bar"></span><span class="bar"></span>
         </div>
+        <ul class="nav-links" id="nav-links">
+            <li><a href="/" class="btn-nav-link">HOME</a></li>
+            
+            {% if session.get('user_email') %}
+                <li class="desktop-only-menu"><a href="javascript:void(0)" onclick="showSection('aba-perfil')" class="btn-nav-link">PERFIL</a></li>
+                <li class="desktop-only-menu"><a href="javascript:void(0)" onclick="showSection('aba-agenda')" class="btn-nav-link">AGENDA</a></li>
+                <li class="desktop-only-menu"><a href="javascript:void(0)" onclick="showSection('aba-inbox')" class="btn-nav-link">INBOX</a></li>
+                <li class="desktop-only-menu"><a href="javascript:void(0)" onclick="showSection('aba-fas')" class="btn-nav-link">COMUNIDADE</a></li>
 
-    <main class="dash-main">
+                <li><a href="javascript:void(0)" onclick="abrirModalSenha()" class="btn-nav-link">ALTERAR SENHA</a></li>
+                <li><a href="/logout" class="btn-logout">SAIR</a></li>
+            {% endif %}
+        </ul>
+    </nav>
+
+    <div id="modal-senha" class="modal-overlay">
+        <div class="modal-content glass-card">
+            <button class="close-modal" onclick="fecharModalSenha()">×</button>
+            <h3>Trocar Senha</h3>
+            <p style="font-size: 0.8rem; opacity: 0.7; margin-bottom: 20px;">Digite sua nova senha abaixo.</p>
+            
+            <form id="form-trocar-senha" class="nebula-form">
+                <div class="input-modern">
+                    <input type="password" id="nova-senha" required placeholder=" ">
+                    <label>NOVA SENHA</label>
+                </div>
+                <div class="input-modern" style="margin-top: 15px;">
+                    <input type="password" id="confirma-senha" required placeholder=" ">
+                    <label>CONFIRMAR SENHA</label>
+                </div>
+                
+                <button type="submit" class="btn-glow-action" style="margin-top: 25px; width: 100%;">
+                    <span>ATUALIZAR SENHA</span>
+                </button>
+            </form>
+        </div>
+    </div>
+
+
+<main class="dash-main">
     <header class="dash-intro">
         <h1 class="reveal-text">PAINEL</h1>
         <p>Gerencie seus pedidos e sua presença digital.</p>
     </header>
 
+
+    {% if musico.nome %}
     <div class="mobile-tabs">
         <button class="tab-btn active" onclick="showMobileTab(event, 'perfil')">
             <i class="icon-user"></i>
             <span>Perfil</span>
         </button>
+
         <button class="tab-btn" onclick="showMobileTab(event, 'agenda')">
             <i class="icon-calendar"></i>
             <span>Agenda</span>
         </button>
+
         <button class="tab-btn" onclick="showMobileTab(event, 'mensagens')">
             <i class="icon-mail"></i>
             <span>Inbox</span>
         </button>
+
         <button class="tab-btn" onclick="showMobileTab(event, 'fas')">
             <div style="position: relative; display: inline-block;">
                 <i class="icon-star"></i>
@@ -97,8 +98,10 @@
             <span>Fãs</span>
         </button>
     </div>
+{% endif %}
 
-    <section class="config-grid" style="display: grid; grid-template-columns: 350px 1fr; gap: 30px; align-items: start;">
+<!-- SEÇÃO PREVIA DO PERFIL     -->
+<section class="config-grid" style="display: grid; grid-template-columns: 350px 1fr; gap: 30px; align-items: start;">
         
         <aside class="preview-panel" id="preview-col">
             <div class="preview-sticky" style="position: sticky; top: 20px;">
@@ -116,270 +119,338 @@
             </div>
         </aside>
 
-        <div class="main-content-column" style="display: flex; flex-direction: column; gap: 30px;">
-        <div class="stats-container" id="aba-stats">
-            <div class="stat-card">
-                <div class="stat-icon"><i class="icon-trending"></i></div>
-                <div class="stat-info">
-                    <span class="stat-value">{{ total_cliques or '0' }}</span>
-                    <span class="stat-label">Visitas no Mês</span>
-                </div>
-                <div class="stat-chart-mini">
-                    <svg viewBox="0 0 100 30" class="mini-wave">
-                        <path d="M0 20 Q 25 5, 50 20 T 100 20" fill="none" stroke="#00f2ff" stroke-width="2"/>
-                    </svg>
+
+        <!-- VISTAS DO MêS -->
+       <div class="main-content-column" style="display: flex; flex-direction: column; gap: 30px;">
+        <div class="dashboard-top-row">
+            <div class="stats-container" id="aba-stats">
+                <div class="stat-card">
+                    <div class="stat-icon-main"><i class="icon-trending"></i></div>
+                    <div class="stat-info">
+                        <span class="stat-value-large">{{ total_cliques or '0' }}</span>
+                        <span class="stat-label">Visitas no Mês</span>
+                    </div>
+                    <div class="stat-chart-mini">
+                        <svg viewBox="0 0 100 30" class="mini-wave">
+                            <path d="M0 20 Q 25 5, 50 20 T 100 20" fill="none" stroke="#00f2ff" stroke-width="2"/>
+                        </svg>
+                    </div>
                 </div>
             </div>
+
+        <!-- FÂS -->
+        <div class="stats-bar-modern compact mobile-hide-control">
+            <div class="stat-item" onclick="showMobileTab(event, 'fas')" style="cursor: pointer;">
+                <div class="stat-icon-small"><i class="fas fa-users"></i></div>
+                <div class="stat-content">
+                    <span class="stat-value-small">{{ feedbacks|length }}</span>
+                    <span class="stat-label-small">FÃS</span>
+                </div>
+            </div>
+            
+            <div class="stat-divider-small"></div>
+            
+                <div class="stat-item">
+                    <div class="stat-icon-small" style="color: #ffca28;"><i class="fas fa-star"></i></div>
+                    <div class="stat-content">
+                        <span class="stat-value-small">{{ "%.1f"|format(media_estrelas|float) if media_estrelas else '0.0' }}</span>
+                        <span class="stat-label-small">AVALIAÇÃO</span>
+                    </div>
+                </div>
+            </div>
+        </div> 
+
+
+<div id="aba-perfil" class="form-panel glass-card" style="padding: 20px; border-radius: 20px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05);">
+    <form action="{{ url_for('cadastrar_musico') }}" method="POST" enctype="multipart/form-data" class="nebula-form" autocomplete="off">
+        <div class="form-section">
+            <h2 class="section-label">DADOS DO PERFIL</h2>
+
+                        <div class="input-modern-wrapper" style="margin-top: 30px; margin-bottom: 30px; color: #4facfe; font-weight: 700; font-size: 0.7rem;">
+                <label class="label-static">CATEGORIA DO ARTISTA</label>
+                
+                <div class="modern-options">
+                    <label class="option-item">
+                        <input type="radio" name="tipo" value="dj" {% if musico.tipo == 'dj' %}checked{% endif %} required>
+                        <span class="option-button">
+                            <i class="fas fa-compact-disc"></i> DJ
+                        </span>
+                    </label>
+
+                    <label class="option-item">
+                        <input type="radio" name="tipo" value="músico independente" {% if musico.tipo == 'músico independente' %}checked{% endif %}>
+                        <span class="option-button">
+                            <i class="fas fa-user"></i> MÚSICO
+                        </span>
+                    </label>
+
+                    <label class="option-item">
+                        <input type="radio" name="tipo" value="banda" {% if musico.tipo == 'banda' %}checked{% endif %}>
+                        <span class="option-button">
+                            <i class="fas fa-users"></i> BANDA
+                        </span>
+                    </label>
+                </div>
+            </div>
+            
+            <div class="input-modern" style="border: 1px dashed rgba(0, 242, 255, 0.3); padding: 10px; border-radius: 12px; margin-bottom: 20px;">
+                <input type="url" name="vibracao_link" id="input-vibracao" placeholder="https://open.spotify.com/track/..." value="{{ musico.vibracao_link or '' }}" data-lpignore="true">
+                <label><i class="fas fa-play-circle"></i> LINK DA MÚSICA (SPOTIFY, SOUNDCLOUD, ETC)</label>
+                <small style="color: rgba(255,255,255,0.5); font-size: 0.6rem; margin-top: 5px; display: block;">
+                    Cole aqui o link da música que aparecerá no seu "Preview Sonoro".
+                </small>
+            </div>
+
+            <div class="input-modern">
+                <input type="text" name="nome" id="input-name" required placeholder=" " value="{{ musico.nome or '' }}" data-lpignore="true">
+                <label>NOME DA BANDA / ARTISTA</label>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 3fr 1fr; gap: 15px;">
+                <div class="input-modern">
+                    <input type="text" name="cidade" id="input-cidade" required placeholder=" " value="{{ musico.cidade or '' }}" data-lpignore="true">
+                    <label>CIDADE</label>
+                </div>
+                <div class="input-modern">
+                    <input type="text" name="estado" id="input-estado" required placeholder=" " maxlength="2" value="{{ musico.estado or '' }}" style="text-transform: uppercase;" data-lpignore="true">
+                    <label>UF</label>
+                </div>
+            </div>
+
+            <div class="input-modern">
+                <select name="estilo" id="select-style">
+                    {% for estilo in estilos %}
+                        <option value="{{ estilo }}" {% if musico.estilo == estilo %}selected{% endif %}>
+                            {{ estilo }}
+                        </option>
+                    {% endfor %}
+                </select>
+                <label class="label-fixed">GÊNERO MUSICAL</label>
+            </div>
+            <br>
+
+            <div class="image-config-box" style="background: rgba(255,255,255,0.03); padding: 20px; border-radius: 15px; border: 1px solid rgba(255,255,255,0.05); margin-bottom: 25px;">
+                <div style="text-align: center; margin: 10px 0; font-size: 0.7rem; color: #ffffff; letter-spacing: 2px;">FAÇA UPLOAD PARA IMAGEM DA CAPA</div>
+                <div class="input-modern">
+                    <input type="file" name="foto_arquivo" id="input-file" accept="image/*" style="padding-top: 10px;">
+                    <label class="label-fixed">ARQUIVO LOCAL (PASTA IMG)</label>
+                </div>
+            </div>
+
+            <div class="input-modern">
+                <textarea name="bio" rows="4" placeholder=" " data-lpignore="true" style="resize: none;">{{ musico.bio or '' }}</textarea>
+                <label>SUA HISTÓRIA (BIO)</label>
+            </div>
+
+            <h2 class="section-label" style="margin-top: 30px; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 20px;">PRESENÇA DIGITAL</h2>
+            
+            <div class="input-modern">
+                <input type="text" name="instagram" id="input-instagram" placeholder="Ex: @seuusuario" value="{{ musico.instagram or '' }}" data-lpignore="true">
+                <label>INSTAGRAM</label>
+            </div>
+
+            <div class="input-modern">
+                <input type="url" name="facebook" id="input-facebook" placeholder="https://facebook.com/..." value="{{ musico.facebook or '' }}" data-lpignore="true">
+                <label>FACEBOOK (URL)</label>
+            </div>
+
+            <div class="input-modern">
+                <input type="url" name="youtube" id="input-youtube" placeholder="https://youtube.com/..." value="{{ musico.youtube or '' }}" data-lpignore="true">
+                <label>YOUTUBE (CANAL OU VÍDEO)</label>
+            </div>
+        </div>
+
+        <button type="submit" class="btn-glow-action" style="margin-top: 20px; width: 100%;">
+            <span>SALVAR ALTERAÇÕES</span>
+        </button>
+    </form>
+</div>        
+
+
+<section id="aba-agenda" class="agenda-manager-section section-hidden">
+    <div class="agenda-header">
+        <h2 class="section-label">📅 GESTÃO DE AGENDA</h2>
+    </div>
+    
+    <div class="agenda-form-container glass-card">
+        <form action="/adicionar_agenda" method="POST" autocomplete="off" class="agenda-grid-form">
+            <div class="input-group-row">
+                <div class="input-modern">
+                    <label class="label-fixed">DATA</label>
+                    <input type="date" name="data_show" required>
+                </div>
+                <div class="input-modern">
+                    <label class="label-fixed">HORÁRIO</label>
+                    <input type="time" name="horario_show" required> 
+                </div>
+            </div>
+
+            <div class="input-modern">
+                <label class="label-fixed">NOME DA FESTA</label>
+                <input type="text" name="nome_festa" placeholder="Ex: Festival..."> 
+            </div>
+
+            <div class="input-modern">
+                <label class="label-fixed">LOCAL</label>
+                <input type="text" name="local" placeholder="Ex: Praça..." required>
+            </div>
+
+            <div class="input-modern">
+                <label class="label-fixed">CIDADE</label>
+                <input type="text" name="cidade" placeholder="Ex: São Luiz..." required>
+            </div>
+
+            <button type="submit" class="btn-agenda-add">
+                <span>+ ADD SHOW</span>
+            </button>
+        </form>
+    </div>
+
+    <div class="agenda-items-list">
+        {% for show in agenda %}
+        <div class="agenda-item-card">
+            <div class="agenda-item-info">
+                <span class="agenda-date-place">{{ show.data_dia }}/{{ show.data_mes }} - {{ show.local }}</span>
+                <span class="agenda-city">{{ show.cidade }}</span>
+            </div>
+            <form action="/remover_agenda/{{ show.id }}" method="POST">
+                <button type="submit" class="btn-agenda-delete">EXCLUIR</button>
+            </form>
+        </div>
+        {% else %}
+        <div class="agenda-empty">Nenhum show na agenda ainda.</div>
+        {% endfor %}
+    </div>
+</section>
+
+<section id="aba-inbox" class="inbox-section glass-card">
+    <div class="section-header">
+        <div>
+            <h2 class="section-label">📩 CAIXA DE ENTRADA</h2>
+            <span class="count-badge">{{ pedidos|length }} Mensagens</span>
         </div>
         
-            <section id="aba-fas" class="glass-card fan-section-container" style="display: none;">
-                <div class="section-header" style="margin-bottom: 20px;">
-                    <h2 class="section-label">⭐ MURAL DE DEPOIMENTOS</h2>
-                    <p style="font-size: 0.7rem; opacity: 0.6;">Gerencie o que os fãs dizem sobre você.</p>
-                </div>
+        <div id="bulk-actions" style="display: none;">
+            <button onclick="excluirSelecionados()" class="btn-delete-small">
+                🗑️ EXCLUIR SELECIONADOS (<span id="selected-count">0</span>)
+            </button>
+        </div>
+    </div>
 
-                <div class="fan-list">
-                    {% for feedback in feedbacks %}
-                    <div class="fan-row {% if feedback.status == 'pendente' %}status-pendente{% endif %}">
-                        <div class="fan-main-info">
-                            <div class="fan-meta">
-                                <span class="fan-name">{{ feedback.nome_fa }}</span>
-                                <span class="fan-stars">
-                                    {% for i in range(feedback.estrelas|int) %}★{% endfor %}
-                                </span>
-                                <span class="status-badge">{{ feedback.status }}</span>
-                            </div>
-                            <p class="fan-text">"{{ feedback.comentario }}"</p>
-                            <span class="fan-date">{{ feedback.data_postagem }}</span>
-                        </div>
-                        
-                        <div class="fan-actions" style="display: flex; gap: 10px; align-items: center;">
-                            {% if feedback.status == 'pendente' %}
-                            <form action="/aprovar_feedback/{{ feedback.id }}" method="POST">
-                                <button type="submit" class="btn-approve-minimal" title="Aprovar depoimento">
-                                    ✔
-                                </button>
-                            </form>
-                            {% endif %}
+    <div class="messages-list">
+        {% if pedidos|length > 0 %}
+        <div class="select-all-bar">
+            <input type="checkbox" id="select-all-messages" onclick="toggleSelectAll(this)">
+            <label for="select-all-messages">SELECIONAR TUDO</label>
+        </div>
+        {% endif %}
 
-                            <form action="/remover_feedback/{{ feedback.id }}" method="POST">
-                                <button type="submit" class="btn-delete-minimal" onclick="return confirm('Remover comentário permanentemente?')" title="Excluir">
-                                    ✕
-                                </button>
-                            </form>
-                        </div>
-                    </div>
-                    {% else %}
-                    <div class="empty-state">Nenhum depoimento encontrado.</div>
-                    {% endfor %}
-                </div>
-            </section>
+        {% for pedido in pedidos %}
+        <div class="message-item {% if not pedido.lido %}unread{% endif %}">
+            <input type="checkbox" class="msg-checkbox" value="{{ pedido.id }}" onclick="event.stopPropagation(); updateBulkUI()">
             
-            <section id="aba-inbox" class="inbox-section glass-card" style="padding: 20px; border-radius: 20px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05);">
-                <div class="section-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 20px;">
-                    <div>
-                        <h2 class="section-label">📩 CAIXA DE ENTRADA</h2>
-                        <span class="count-badge">{{ pedidos|length }} Mensagens</span>
-                    </div>
-                    
-                    <div id="bulk-actions" style="display: none;">
-                        <button onclick="excluirSelecionados()" class="btn-delete-small" style="background: #ff4444; color: white; border: none; padding: 5px 12px; border-radius: 5px; cursor: pointer; font-size: 0.7rem; font-weight: bold;">
-                            🗑️ EXCLUIR SELECIONADOS (<span id="selected-count">0</span>)
-                        </button>
-                    </div>
+            <div class="msg-clickable-area" 
+                 onclick="abrirMensagem('{{ pedido.id }}', '{{ pedido.nome_contratante }}', '{{ pedido.email_contratante }}', '{{ pedido.telefone_contratante }}', '{{ pedido.data_evento }}', '{{ pedido.local_evento }}', '{{ pedido.tipo_evento }}')">
+                
+                <div class="msg-status"></div>
+                <div class="msg-info">
+                    <span class="msg-sender">{{ pedido.cliente_email }}</span> 
+                    <span class="msg-preview">Evento: {{ pedido.tipo_evento }}</span>
                 </div>
+                <span class="msg-date">{{ pedido.data_evento }}</span>
+            </div>
 
-                <div class="messages-list">
-                    {% if pedidos|length > 0 %}
-                    <div style="padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.05); display: flex; align-items: center; gap: 10px;">
-                        <input type="checkbox" id="select-all-messages" onclick="toggleSelectAll(this)" style="cursor: pointer;">
-                        <label for="select-all-messages" style="font-size: 0.7rem; opacity: 0.6; cursor: pointer;">SELECIONAR TUDO</label>
-                    </div>
-                    {% endif %}
+            <button onclick="event.stopPropagation(); excluirMensagemIndividual('{{ pedido.id }}')" 
+                    class="btn-msg-close"
+                    title="Excluir">
+                ✕
+            </button>
+        </div>
+        {% else %}
+        <div class="empty-inbox">Nenhuma solicitação recebida ainda.</div>
+        {% endfor %}
+    </div>
+</section>
 
-                    {% for pedido in pedidos %}
-                    <div class="message-item {% if not pedido.lido %}unread{% endif %}" style="display: flex; align-items: center; gap: 12px;">
-                        <input type="checkbox" class="msg-checkbox" value="{{ pedido.id }}" onclick="event.stopPropagation(); updateBulkUI()" style="cursor: pointer;">
-                        
-                        <div style="flex: 1; cursor: pointer; display: flex; align-items: center; gap: 10px;" 
-                            onclick="abrirMensagem('{{ pedido.id }}', '{{ pedido.nome_contratante }}', '{{ pedido.email_contratante }}', '{{ pedido.telefone_contratante }}', '{{ pedido.data_evento }}', '{{ pedido.local_evento }}', '{{ pedido.tipo_evento }}')">
-                            <div class="msg-status"></div>
-                            <div class="msg-info">
-                                <span class="msg-sender">{{ pedido.cliente_email }}</span> 
-                                <span class="msg-preview">Evento: {{ pedido.tipo_evento }}</span>
-                            </div>
-                            <span class="msg-date" style="margin-left: auto;">{{ pedido.data_evento }}</span>
-                        </div>
+<section id="aba-fas" class="fan-section-container">
+    <div class="section-header">
+        <h2 class="section-label">⭐ Mural de Depoimentos</h2>
+        <p class="section-subtitle">Gerencie o que os fãs dizem sobre você.</p>
+    </div>
 
-                        <button onclick="event.stopPropagation(); excluirMensagemIndividual('{{ pedido.id }}')" 
-                                style="background: none; border: none; color: #ff4444; cursor: pointer; padding: 5px; opacity: 0.6; transition: 0.3s;" 
-                                title="Excluir">
-                            ✕
-                        </button>
-                    </div>
-                    {% else %}
-                    <div class="empty-inbox">Nenhuma solicitação recebida ainda.</div>
-                    {% endfor %}
+    <div class="fan-list">
+        {% for feedback in feedbacks %}
+        <div class="fan-row {% if feedback.status == 'pendente' %}status-pendente{% endif %}">
+            <div class="fan-main-info">
+                <div class="fan-meta">
+                    <span class="fan-name">{{ feedback.nome_fa }}</span>
+                    <span class="fan-stars">
+                        {% for i in range(feedback.estrelas|int) %}★{% endfor %}
+                    </span>
+                    <span class="status-badge">{{ feedback.status }}</span>
                 </div>
-            </section>
+                <p class="fan-text">"{{ feedback.comentario }}"</p>
+                <span class="fan-date">{{ feedback.data_postagem }}</span>
+            </div>
+            
+            <div class="fan-actions">
+                {% if feedback.status == 'pendente' %}
+                <form action="/aprovar_feedback/{{ feedback.id }}" method="POST">
+                    <button type="submit" class="btn-approve-minimal" title="Aprovar depoimento">
+                        ✔
+                    </button>
+                </form>
+                {% endif %}
 
-            <div id="aba-perfil" class="form-panel glass-card" style="padding: 20px; border-radius: 20px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05);">
-                <form action="{{ url_for('cadastrar_musico') }}" method="POST" enctype="multipart/form-data" class="nebula-form" autocomplete="off">
-                    <div class="form-section">
-                        <h2 class="section-label">DADOS DO PERFIL</h2>
-                        
-                        <div class="input-modern">
-                            <input type="text" name="nome" id="input-name" required placeholder=" " value="{{ musico.nome or '' }}" data-lpignore="true">
-                            <label>NOME DA BANDA / ARTISTA</label>
-                        </div>
-
-                        <div style="display: grid; grid-template-columns: 3fr 1fr; gap: 15px;">
-                            <div class="input-modern">
-                                <input type="text" name="cidade" id="input-cidade" required placeholder=" " value="{{ musico.cidade or '' }}" data-lpignore="true">
-                                <label>CIDADE</label>
-                            </div>
-                            <div class="input-modern">
-                                <input type="text" name="estado" id="input-estado" required placeholder=" " maxlength="2" value="{{ musico.estado or '' }}" style="text-transform: uppercase;" data-lpignore="true">
-                                <label>UF</label>
-                            </div>
-                        </div>
-
-                        <div class="input-modern">
-                            <select name="estilo" id="select-style">
-                                {% for estilo in estilos %}
-                                    <option value="{{ estilo }}" {% if musico.estilo == estilo %}selected{% endif %}>
-                                        {{ estilo }}
-                                    </option>
-                                {% endfor %}
-                            </select>
-                            <label class="label-fixed">GÊNERO MUSICAL</label>
-                        </div>
-                        <br>
-
-                        <div class="image-config-box" style="background: rgba(255,255,255,0.03); padding: 20px; border-radius: 15px; border: 1px solid rgba(255,255,255,0.05); margin-bottom: 25px;">
-                            <div style="text-align: center; margin: 10px 0; font-size: 0.7rem; color: #ffffff; letter-spacing: 2px;">FAÇA UPLOAD PARA IMAGEM DA CAPA</div>
-                            <div class="input-modern">
-                                <input type="file" name="foto_arquivo" id="input-file" accept="image/*" style="padding-top: 10px;">
-                                <label class="label-fixed">ARQUIVO LOCAL (PASTA IMG)</label>
-                            </div>
-                        </div>
-
-                        <div class="input-modern">
-                            <textarea name="bio" rows="4" placeholder=" " data-lpignore="true">{{ musico.bio or '' }}</textarea>
-                            <label>SUA HISTÓRIA (BIO)</label>
-                        </div>
-
-                        <h2 class="section-label" style="margin-top: 30px; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 20px;">PRESENÇA DIGITAL</h2>
-                        
-                        <div class="input-modern">
-                            <input type="text" name="instagram" id="input-instagram" placeholder="Ex: @seuusuario" value="{{ musico.instagram or '' }}" data-lpignore="true">
-                            <label>INSTAGRAM</label>
-                        </div>
-
-                        <div class="input-modern">
-                            <input type="url" name="facebook" id="input-facebook" placeholder="https://facebook.com/..." value="{{ musico.facebook or '' }}" data-lpignore="true">
-                            <label>FACEBOOK (URL)</label>
-                        </div>
-
-                        <div class="input-modern">
-                            <input type="url" name="youtube" id="input-youtube" placeholder="https://youtube.com/..." value="{{ musico.youtube or '' }}" data-lpignore="true">
-                            <label>YOUTUBE (CANAL OU VÍDEO)</label>
-                        </div>
-                    </div>
-
-                    <button type="submit" class="btn-glow-action" style="margin-top: 20px; width: 100%;">
-                        <span>SALVAR ALTERAÇÕES</span>
+                <form action="/remover_feedback/{{ feedback.id }}" method="POST">
+                    <button type="submit" class="btn-delete-minimal" onclick="return confirm('Remover comentário permanentemente?')" title="Excluir">
+                        ✕
                     </button>
                 </form>
             </div>
-
-            <section id="aba-agenda" class="agenda-manager-section glass-card" style="padding: 20px; border-radius: 20px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05);">
-                <div class="section-header" style="margin-bottom: 20px;">
-                    <h2 class="section-label">📅 GESTÃO DE AGENDA</h2>
-                </div>
-                
-                <div class="glass-card" style="padding: 20px; margin-bottom: 20px; background: rgba(255,255,255,0.02);">
-                    <form action="/adicionar_agenda" method="POST" autocomplete="off" aria-autocomplete="none" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; align-items: end;">
-                        <input type="text" name="fake_user" style="display:none" aria-hidden="true">
-                        <input type="password" name="fake_pass" style="display:none" aria-hidden="true">
-
-                        <div class="input-modern">
-                            <input type="date" name="data_show" required data-lpignore="true" data-1p-ignore>
-                            <label class="label-fixed">DATA</label>
-                        </div>
-                        <div class="input-modern">
-                            <input type="time" name="horario_show" required data-lpignore="true" data-1p-ignore> 
-                            <label class="label-fixed">HORÁRIO</label>
-                        </div>
-                        <div class="input-modern">
-                            <input type="text" name="nome_festa" placeholder="Ex: Festival..." autocomplete="new-password" data-lpignore="true"> 
-                            <label class="label-fixed">NOME DA FESTA</label>
-                        </div>
-                        <div class="input-modern">
-                            <input type="text" name="local" placeholder="Ex: Praça..." required autocomplete="new-password" data-lpignore="true">
-                            <label class="label-fixed">LOCAL</label>
-                        </div>
-                        <div class="input-modern">
-                            <input type="text" name="cidade" placeholder="Ex: São Luiz..." required autocomplete="new-password" data-lpignore="true">
-                            <label class="label-fixed">CIDADE</label>
-                        </div>
-                        <button type="submit" class="btn-show-add" style="height: 45px;">
-                            <span>+ ADD SHOW</span>
-                        </button>
-                    </form>
-                </div>
-
-                <div class="messages-list">
-                    {% for show in agenda %}
-                    <div class="message-item">
-                        <div class="msg-info">
-                            <span class="msg-sender">{{ show.data_dia }}/{{ show.data_mes }} - {{ show.local }}</span>
-                            <span class="msg-preview">{{ show.cidade }}</span>
-                        </div>
-                        <form action="/remover_agenda/{{ show.id }}" method="POST">
-                            <button type="submit" style="background: none; border: none; color: #ff4444; cursor: pointer; font-size: 0.8rem;">[EXCLUIR]</button>
-                        </form>
-                    </div>
-                    {% else %}
-                    <div class="empty-inbox">Nenhum show na agenda ainda.</div>
-                    {% endfor %}
-                </div>
-            </section>
-
         </div>
-    </section>
-</main>
-    <div id="modal-leitura" class="modal-overlay">
-        <div class="modal-content glass-card">
-            <button class="close-modal" onclick="fecharModal()">×</button>
-            <h3>Detalhes da Solicitação</h3>
-            <hr class="modal-divider">
-            <div class="modal-body">
-                <p><strong>Solicitante:</strong> <span id="view-nome"></span></p>
-                <p><strong>E-mail:</strong> <span id="view-email"></span></p>
-                <p>
-                    <strong>WhatsApp:</strong> 
-                    <a href="#" id="link-telefone-zap" target="_blank" style="color: #25d366; text-decoration: none; font-weight: bold;">
-                        <span id="view-telefone"></span>
-                    </a>
-                </p>
-                <hr class="modal-divider-vagas">
-                <p><strong>Data do Evento:</strong> <span id="view-data"></span></p>
-                <p><strong>Local:</strong> <span id="view-local"></span></p>
-                <p><strong>Tipo de Evento:</strong> <span id="view-tipo"></span></p>
-                
-                <div class="alert-info">Combine os detalhes e o cachê diretamente com o cliente.</div>
-            </div>
-
-            <a href="" id="btn-whats-action" target="_blank" class="btn-glow-action" style="text-decoration: none; text-align: center; display: block; background: #25d366; margin-bottom: 10px;">
-                <span>RESPONDER PELO WHATSAPP</span>
-            </a>
-
-            <a href="" id="btn-responder" class="btn-glow-action" style="text-decoration: none; text-align: center; display: block; opacity: 0.8;">
-                <span>RESPONDER POR E-MAIL</span>
-            </a>
-        </div>
+        {% else %}
+        <div class="empty-state">Nenhum depoimento encontrado.</div>
+        {% endfor %}
     </div>
+</section>
+        
+    </div> 
+
+</main>
+<div id="modal-leitura" class="modal-overlay">
+    <div class="modal-content glass-card">
+        <button class="close-modal" onclick="fecharModal()">×</button>
+        <h3>Detalhes da Solicitação</h3>
+        <hr class="modal-divider">
+        <div class="modal-body">
+            <p><strong>Solicitante:</strong> <span id="view-nome"></span></p>
+            <p><strong>E-mail:</strong> <span id="view-email"></span></p>
+            <p>
+                <strong>WhatsApp:</strong> 
+                <a href="#" id="link-telefone-zap" target="_blank" style="color: #25d366; text-decoration: none; font-weight: bold;">
+                    <span id="view-telefone"></span>
+                </a>
+            </p>
+            <hr class="modal-divider-vagas">
+            <p><strong>Data do Evento:</strong> <span id="view-data"></span></p>
+            <p><strong>Local:</strong> <span id="view-local"></span></p>
+            <p><strong>Tipo de Evento:</strong> <span id="view-tipo"></span></p>
+            
+            <div class="alert-info">Combine os detalhes e o cachê diretamente com o cliente.</div>
+        </div>
+
+        <a href="" id="btn-whats-action" target="_blank" class="btn-glow-action" style="text-decoration: none; text-align: center; display: block; background: #25d366; margin-bottom: 10px;">
+            <span>RESPONDER PELO WHATSAPP</span>
+        </a>
+
+        <a href="" id="btn-responder" class="btn-glow-action" style="text-decoration: none; text-align: center; display: block; opacity: 0.8;">
+            <span>RESPONDER POR E-MAIL</span>
+        </a>
+    </div>
+</div>
+
+
     <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
 </body>
 </html>
