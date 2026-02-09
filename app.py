@@ -274,7 +274,17 @@ def check_user_type():
 def dashboard():
     email_logado = session.get('user_email')
     
-    # 1. BUSCA O TIPO DE USUÁRIO
+    # --- 🛡️ A ÚNICA MUDANÇA É ESTE BLOCO ---
+    user_doc = db.collection('usuarios').document(email_logado).get()
+    dados_usuario = user_doc.to_dict() if user_doc.exists else {}
+
+    # Se o campo 'acesso_pago' não for True, ele é barrado
+    if not dados_usuario.get('acesso_pago'):
+        # Redireciona para o link de R$ 0,00 que você criou
+        return redirect("https://buy.stripe.com/test_5kQ8wO90m6yWbRl0I5gIo00")
+    # ---------------------------------------
+
+    # DAQUI PARA BAIXO SEGUE O SEU CÓDIGO ORIGINAL...
     user_query = db.collection('usuarios').where('email', '==', email_logado).limit(1).stream()
     user_docs = list(user_query)
     
@@ -892,7 +902,7 @@ def api_excluir_conta_definitiva(): # <--- Mudei o nome da função aqui
 
 
 # ======================================================
-# 💳 WEBHOOK DO STRIPE (FLUXO COMPLETO)
+# 💳 WEBHOOK DO STRIPE (FLUXO COMPLETO) - AJUSTADO
 # ======================================================
 
 @app.route('/webhook-stripe', methods=['POST'])
@@ -903,41 +913,41 @@ def webhook_stripe():
     except Exception as e:
         return jsonify({"status": "error", "message": "Payload inválido"}), 400
 
-    tipo = event['type']
+    tipo_evento = event['type']
     data_object = event['data']['object']
     email_cliente = data_object.get('customer_details', {}).get('email')
 
     if not email_cliente:
         return jsonify({"status": "success", "message": "Sem email no evento"}), 200
 
+    # Referência do usuário no banco
+    user_ref = db.collection('usuarios').document(email_cliente)
+
     # 1. ✅ PAGAMENTO APROVADO
-    if tipo == 'checkout.session.completed':
-        print(f"✅ SUCESSO: Liberando acesso para {email_cliente}")
-        db.collection('usuarios').document(email_cliente).update({
-            'plano': 'ativo',
-            'pago': True,
-            'status_pagamento': 'aprovado',
+    if tipo_evento == 'checkout.session.completed':
+        print(f"✅ SUCESSO: Liberando acesso_pago para {email_cliente}")
+        user_ref.update({
+            'acesso_pago': True,  # NOVO CAMPO: Não mexe no seu 'tipo' original
+            'status_financeiro': 'pago',
             'data_pagamento': firestore.SERVER_TIMESTAMP
         })
 
-    # 2. ❌ PAGAMENTO FALHOU (Cartão recusado, etc)
-    elif tipo == 'checkout.session.async_payment_failed':
+    # 2. ❌ PAGAMENTO FALHOU
+    elif tipo_evento == 'checkout.session.async_payment_failed':
         print(f"❌ FALHA: Pagamento recusado para {email_cliente}")
-        db.collection('usuarios').document(email_cliente).update({
-            'pago': False,
-            'status_pagamento': 'recusado'
+        user_ref.update({
+            'acesso_pago': False,
+            'status_financeiro': 'recusado'
         })
 
-    # 3. ⏳ SESSÃO EXPIROU (Abriu o checkout e fechou sem pagar)
-    elif tipo == 'checkout.session.expired':
+    # 3. ⏳ SESSÃO EXPIROU
+    elif tipo_evento == 'checkout.session.expired':
         print(f"⏳ EXPIRADO: O usuário {email_cliente} abandonou o checkout")
-        # Opcional: Você pode marcar no banco para enviar um e-mail de "volta aqui!"
-        db.collection('usuarios').document(email_cliente).update({
-            'status_pagamento': 'expirado'
+        user_ref.update({
+            'status_financeiro': 'expirado'
         })
 
     return jsonify({"status": "success"}), 200
-
 
 # ======================================================
 # 🚀 START
