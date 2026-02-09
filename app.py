@@ -891,6 +891,52 @@ def api_excluir_conta_definitiva(): # <--- Mudei o nome da função aqui
         return jsonify({"status": "error", "message": str(e)}), 500
 
 
+# ======================================================
+# 💳 WEBHOOK DO STRIPE (FLUXO COMPLETO)
+# ======================================================
+
+@app.route('/webhook-stripe', methods=['POST'])
+def webhook_stripe():
+    payload = request.get_data()
+    try:
+        event = json.loads(payload)
+    except Exception as e:
+        return jsonify({"status": "error", "message": "Payload inválido"}), 400
+
+    tipo = event['type']
+    data_object = event['data']['object']
+    email_cliente = data_object.get('customer_details', {}).get('email')
+
+    if not email_cliente:
+        return jsonify({"status": "success", "message": "Sem email no evento"}), 200
+
+    # 1. ✅ PAGAMENTO APROVADO
+    if tipo == 'checkout.session.completed':
+        print(f"✅ SUCESSO: Liberando acesso para {email_cliente}")
+        db.collection('usuarios').document(email_cliente).update({
+            'plano': 'ativo',
+            'pago': True,
+            'status_pagamento': 'aprovado',
+            'data_pagamento': firestore.SERVER_TIMESTAMP
+        })
+
+    # 2. ❌ PAGAMENTO FALHOU (Cartão recusado, etc)
+    elif tipo == 'checkout.session.async_payment_failed':
+        print(f"❌ FALHA: Pagamento recusado para {email_cliente}")
+        db.collection('usuarios').document(email_cliente).update({
+            'pago': False,
+            'status_pagamento': 'recusado'
+        })
+
+    # 3. ⏳ SESSÃO EXPIROU (Abriu o checkout e fechou sem pagar)
+    elif tipo == 'checkout.session.expired':
+        print(f"⏳ EXPIRADO: O usuário {email_cliente} abandonou o checkout")
+        # Opcional: Você pode marcar no banco para enviar um e-mail de "volta aqui!"
+        db.collection('usuarios').document(email_cliente).update({
+            'status_pagamento': 'expirado'
+        })
+
+    return jsonify({"status": "success"}), 200
 
 
 # ======================================================

@@ -4,10 +4,23 @@
 :root {
     --accent: #00f2ff;
     --accent-2: #ff0054;
-    --bg-dark: #030303;
+    --bg-dark: #0d0b12;
     --glass: rgba(255, 255, 255, 0.03);
     --border: rgba(255, 255, 255, 0.08);
+    --primary-glow: #00f2ff;
+    --secondary-glow: #7000ff;
+    --text-muted: rgba(255, 255, 255, 0.6);
 }
+
+.orb {
+    position: absolute;
+    border-radius: 50%;
+    opacity: 0.3;
+    animation: move 25s infinite alternate;
+}
+
+.orb-1 { width: 300px; height: 600px; background: var(--accent); top: -10%; left: -10%; }
+.orb-2 { width: 300px; height: 500px; background: var(--accent-2); bottom: -10%; right: -5%; animation-delay: -5s; }
 
 /*#################################### GERAIS #################################### */
 * { 
@@ -32,16 +45,7 @@ body {
     filter: blur(100px);
 }
 
-.orb {
-    position: absolute;
-    border-radius: 50%;
-    opacity: 0.3;
-    animation: move 25s infinite alternate;
-}
 
-.orb-1 { width: 600px; height: 600px; background: var(--accent); top: -10%; left: -10%; }
-.orb-2 { width: 500px; height: 500px; background: var(--accent-2); bottom: -10%; right: -5%; animation-delay: -5s; }
-.orb-3 { width: 400px; height: 400px; background: #7000ff; top: 30%; left: 20%; animation-delay: -10s; }
 
 @keyframes move {
     from { transform: translate(0, 0) scale(1); }
@@ -392,13 +396,22 @@ body {
     overflow: hidden;
 }
 
+
+
 .log-bg-mesh {
     position: fixed;
     inset: 0;
     z-index: -1;
-    background: radial-gradient(circle at 50% 50%, rgba(0, 242, 255, 0.1), transparent 70%);
+    /* Removemos o círculo central e usamos um degradê linear muito sutil */
+    /* Isso elimina o efeito de 'lanterna' que estava estragando o visual */
+    background: linear-gradient(
+        135deg, 
+        rgba(255, 157, 0, 0.01) 0%, 
+        #050505 50%, 
+        rgba(255, 157, 0, 0.01) 100%
+    );
+    background-color: #050505; 
 }
-
 /* Ajuste específico para Celulares (Dispositivos Móveis) */
 @media (max-width: 480px) {
     .google-btn-modern {

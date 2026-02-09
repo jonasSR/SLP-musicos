@@ -6,10 +6,23 @@
 :root {
     --accent: #00f2ff;
     --accent-2: #ff0054;
-    --bg-dark: #030303;
+    --bg-dark: #0d0b12;
     --glass: rgba(255, 255, 255, 0.03);
     --border: rgba(255, 255, 255, 0.08);
+    --primary-glow: #00f2ff;
+    --secondary-glow: #7000ff;
+    --text-muted: rgba(255, 255, 255, 0.6);
 }
+
+.orb {
+    position: absolute;
+    border-radius: 50%;
+    opacity: 0.3;
+    animation: move 25s infinite alternate;
+}
+
+.orb-1 { width: 300px; height: 600px; background: var(--accent); top: -10%; left: -10%; }
+.orb-2 { width: 300px; height: 500px; background: var(--accent-2); bottom: -10%; right: -5%; animation-delay: -5s; }
 
 * { 
     margin: 0; 
@@ -36,16 +49,7 @@ body {
     filter: blur(100px);
 }
 
-.orb {
-    position: absolute;
-    border-radius: 50%;
-    opacity: 0.3;
-    animation: move 25s infinite alternate;
-}
 
-.orb-1 { width: 600px; height: 600px; background: var(--accent); top: -10%; left: -10%; }
-.orb-2 { width: 500px; height: 500px; background: var(--accent-2); bottom: -10%; right: -5%; animation-delay: -5s; }
-.orb-3 { width: 400px; height: 400px; background: #7000ff; top: 30%; left: 20%; animation-delay: -10s; }
 
 @keyframes move {
     from { transform: translate(0, 0) scale(1); }
