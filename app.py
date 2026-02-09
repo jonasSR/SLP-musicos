@@ -274,28 +274,24 @@ def check_user_type():
 def dashboard():
     email_logado = session.get('user_email')
     
-    # --- 🛡️ TRAVA INTELIGENTE (ADICIONADO) ---
-    # 1. Primeiro, pegamos os dados do usuário para saber o TIPO e o ACESSO
+    # 🔍 BUSCA OS DADOS DO USUÁRIO PARA VERIFICAR A MODAL E O PAGAMENTO
     user_doc = db.collection('usuarios').document(email_logado).get()
     dados_usuario = user_doc.to_dict() if user_doc.exists else {}
     
-    tipo_usuario_check = dados_usuario.get('tipo')
+    tipo_usuario = dados_usuario.get('tipo')
     pagou = dados_usuario.get('acesso_pago', False)
 
-    # 🚧 REGRA: Se for MÚSICO e NÃO tiver 'acesso_pago', vai pro Stripe.
-    # Se for estabelecimento, ele ignora esse 'if' e passa direto.
-    if tipo_usuario_check == 'musico' and not pagou:
+    # 🛑 REGRA 1: Se o 'tipo' estiver vazio, o usuário acabou de criar a conta.
+    # Não redirecionamos para lugar nenhum para que a sua MODAL apareça no dashboard.html
+    if not tipo_usuario:
+        return render_template('dashboard.html', pedidos=[], musico=None, agenda=[], feedbacks=[], notificacoes_fas=0, total_cliques=0, media_estrelas=0)
+
+    # 🛑 REGRA 2: Se ele já escolheu ser MÚSICO na modal, mas NÃO pagou, trava e manda pro Stripe.
+    if tipo_usuario == 'musico' and not pagou:
         return redirect("https://buy.stripe.com/test_5kQ8wO90m6yWbRl0I5gIo00")
-    # ---------------------------------------
 
-    # DAQUI PARA BAIXO SEGUE O SEU CÓDIGO ORIGINAL (MANTIDO 100%)...
-    user_query = db.collection('usuarios').where('email', '==', email_logado).limit(1).stream()
-    user_docs = list(user_query)
+    # 🟢 SE CHEGOU AQUI: Ou é Estabelecimento (Grátis), ou é Músico que já pagou.
     
-    tipo_usuario = None
-    if user_docs:
-        tipo_usuario = user_docs[0].to_dict().get('tipo')
-
     # 2. SE FOR ESTABELECIMENTO
     if tipo_usuario == 'estabelecimento':
         doc_estab = db.collection('estabelecimentos').document(email_logado).get()
@@ -303,7 +299,7 @@ def dashboard():
             return redirect(url_for('abrir_pagina_estabelecimento'))
         return redirect(url_for('dashboard_estabelecimento'))
 
-    # 3. SE FOR MÚSICO
+    # 3. SE FOR MÚSICO (CÓDIGO ORIGINAL MANTIDO 100%)
     artista_query = db.collection('artistas').where('dono_email', '==', email_logado).limit(1).stream()
     artista_docs = list(artista_query)
 
@@ -317,39 +313,31 @@ def dashboard():
         artista_dados = doc.to_dict()
         artista_dados['id'] = artista_id
         
-        # --- BUSCAR CLICKS ---
         total_cliques = artista_dados.get('cliques', 0)
 
-        # --- BUSCAR PEDIDOS (CAIXA DE ENTRADA) ---
         pedidos_ref = db.collection('pedidos_reserva').where('musico_id', '==', artista_id).stream()
         for p in pedidos_ref:
             p_dados = p.to_dict()
             p_dados['id'] = p.id
             pedidos.append(p_dados)
         
-        # Ordenar pedidos pelo mais recente
         pedidos.sort(key=lambda x: x.get('criado_em') if x.get('criado_em') else 0, reverse=True)
 
-        # --- BUSCAR AGENDA ---
         agenda_ref = db.collection('artistas').document(artista_id).collection('agenda').order_by('data_completa').stream()
         for s in agenda_ref:
             s_dados = s.to_dict()
             s_dados['id'] = s.id
             agenda.append(s_dados)
 
-        # --- BUSCAR FEEDBACKS (MURAL DE FÃS) ---
         feedbacks_ref = db.collection('feedbacks').where('artista_email', '==', email_logado).stream()
         for f in feedbacks_ref:
             f_dados = f.to_dict()
             f_dados['id'] = f.id
             feedbacks.append(f_dados)
-            
             total_estrelas += int(f_dados.get('estrelas', 0))
-            
             if f_dados.get('status') == 'pendente':
                 notificacoes_fas += 1
 
-    # Cálculos finais
     qtd_feedbacks = len(feedbacks)
     media_estrelas = round(total_estrelas / qtd_feedbacks, 1) if qtd_feedbacks > 0 else 0.0
 
@@ -903,7 +891,7 @@ def api_excluir_conta_definitiva(): # <--- Mudei o nome da função aqui
 
 
 # ======================================================
-# 💳 WEBHOOK DO STRIPE (FLUXO COMPLETO) - AJUSTADO
+# 💳 WEBHOOK DO STRIPE (FLUXO COMPLETO) - CORRIGIDO
 # ======================================================
 @app.route('/webhook-stripe', methods=['POST'])
 def webhook_stripe():
@@ -920,14 +908,21 @@ def webhook_stripe():
     if not email_cliente:
         return jsonify({"status": "success", "message": "Sem email no evento"}), 200
 
-    # Referência do usuário no banco
-    user_ref = db.collection('usuarios').document(email_cliente)
+    # 🔍 BUSCA O DOCUMENTO PELO CAMPO EMAIL (Garante que acha mesmo com ID aleatório)
+    user_query = db.collection('usuarios').where('email', '==', email_cliente).limit(1).stream()
+    user_docs = list(user_query)
+
+    if not user_docs:
+        print(f"⚠️ AVISO: Usuário {email_cliente} não encontrado no banco.")
+        return jsonify({"status": "error", "message": "Usuário não encontrado"}), 404
+
+    user_ref = user_docs[0].reference
 
     # 1. ✅ PAGAMENTO APROVADO
     if tipo_evento == 'checkout.session.completed':
         print(f"✅ SUCESSO: Liberando acesso_pago para {email_cliente}")
         user_ref.update({
-            'acesso_pago': True,  # NOVO CAMPO: Não mexe no seu 'tipo' original
+            'acesso_pago': True,
             'status_financeiro': 'pago',
             'data_pagamento': firestore.SERVER_TIMESTAMP
         })
