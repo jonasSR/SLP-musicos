@@ -274,32 +274,36 @@ def check_user_type():
 def dashboard():
     email_logado = session.get('user_email')
     
-    # 🔍 BUSCA OS DADOS DO USUÁRIO PARA VERIFICAR A MODAL E O PAGAMENTO
-    user_doc = db.collection('usuarios').document(email_logado).get()
-    dados_usuario = user_doc.to_dict() if user_doc.exists else {}
+    # 🔍 BUSCA CORRIGIDA: Procura pelo CAMPO 'email' (resolve o problema do ID aleatório)
+    user_query = db.collection('usuarios').where('email', '==', email_logado).limit(1).stream()
+    user_docs = list(user_query)
     
+    # Se o usuário não existe no banco, não deixa nem ver a página
+    if not user_docs:
+        return "Erro: Usuário não encontrado no sistema.", 403
+    
+    # Extrai os dados do documento encontrado
+    dados_usuario = user_docs[0].to_dict()
     tipo_usuario = dados_usuario.get('tipo')
     pagou = dados_usuario.get('acesso_pago', False)
 
-    # 🛑 REGRA 1: Se o 'tipo' estiver vazio, o usuário acabou de criar a conta.
-    # Não redirecionamos para lugar nenhum para que a sua MODAL apareça no dashboard.html
+    # 🛑 REGRA 1: Se ainda não escolheu o tipo (Modal aberta), renderiza o básico
     if not tipo_usuario:
         return render_template('dashboard.html', pedidos=[], musico=None, agenda=[], feedbacks=[], notificacoes_fas=0, total_cliques=0, media_estrelas=0)
 
-    # 🛑 REGRA 2: Se ele já escolheu ser MÚSICO na modal, mas NÃO pagou, trava e manda pro Stripe.
+    # 🛑 REGRA 2: TRAVA DE PAGAMENTO (O que você queria)
+    # Se for músico e NÃO tiver o campo acesso_pago como True, CHUTAR PRO STRIPE
     if tipo_usuario == 'musico' and not pagou:
         return redirect("https://buy.stripe.com/test_5kQ8wO90m6yWbRl0I5gIo00")
 
-    # 🟢 SE CHEGOU AQUI: Ou é Estabelecimento (Grátis), ou é Músico que já pagou.
-    
-    # 2. SE FOR ESTABELECIMENTO
+    # 🟢 SE FOR ESTABELECIMENTO
     if tipo_usuario == 'estabelecimento':
         doc_estab = db.collection('estabelecimentos').document(email_logado).get()
         if not doc_estab.exists:
             return redirect(url_for('abrir_pagina_estabelecimento'))
         return redirect(url_for('dashboard_estabelecimento'))
 
-    # 3. SE FOR MÚSICO (CÓDIGO ORIGINAL MANTIDO 100%)
+    # 🟢 SE FOR MÚSICO E JÁ PAGOU: SEGUE O FLUXO ORIGINAL
     artista_query = db.collection('artistas').where('dono_email', '==', email_logado).limit(1).stream()
     artista_docs = list(artista_query)
 
@@ -315,20 +319,22 @@ def dashboard():
         
         total_cliques = artista_dados.get('cliques', 0)
 
+        # Pedidos
         pedidos_ref = db.collection('pedidos_reserva').where('musico_id', '==', artista_id).stream()
         for p in pedidos_ref:
             p_dados = p.to_dict()
             p_dados['id'] = p.id
             pedidos.append(p_dados)
-        
         pedidos.sort(key=lambda x: x.get('criado_em') if x.get('criado_em') else 0, reverse=True)
 
+        # Agenda
         agenda_ref = db.collection('artistas').document(artista_id).collection('agenda').order_by('data_completa').stream()
         for s in agenda_ref:
             s_dados = s.to_dict()
             s_dados['id'] = s.id
             agenda.append(s_dados)
 
+        # Feedbacks
         feedbacks_ref = db.collection('feedbacks').where('artista_email', '==', email_logado).stream()
         for f in feedbacks_ref:
             f_dados = f.to_dict()
