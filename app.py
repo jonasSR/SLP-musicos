@@ -274,17 +274,21 @@ def check_user_type():
 def dashboard():
     email_logado = session.get('user_email')
     
-    # --- 🛡️ A ÚNICA MUDANÇA É ESTE BLOCO ---
+    # --- 🛡️ TRAVA INTELIGENTE (ADICIONADO) ---
+    # 1. Primeiro, pegamos os dados do usuário para saber o TIPO e o ACESSO
     user_doc = db.collection('usuarios').document(email_logado).get()
     dados_usuario = user_doc.to_dict() if user_doc.exists else {}
+    
+    tipo_usuario_check = dados_usuario.get('tipo')
+    pagou = dados_usuario.get('acesso_pago', False)
 
-    # Se o campo 'acesso_pago' não for True, ele é barrado
-    if not dados_usuario.get('acesso_pago'):
-        # Redireciona para o link de R$ 0,00 que você criou
+    # 🚧 REGRA: Se for MÚSICO e NÃO tiver 'acesso_pago', vai pro Stripe.
+    # Se for estabelecimento, ele ignora esse 'if' e passa direto.
+    if tipo_usuario_check == 'musico' and not pagou:
         return redirect("https://buy.stripe.com/test_5kQ8wO90m6yWbRl0I5gIo00")
     # ---------------------------------------
 
-    # DAQUI PARA BAIXO SEGUE O SEU CÓDIGO ORIGINAL...
+    # DAQUI PARA BAIXO SEGUE O SEU CÓDIGO ORIGINAL (MANTIDO 100%)...
     user_query = db.collection('usuarios').where('email', '==', email_logado).limit(1).stream()
     user_docs = list(user_query)
     
@@ -334,17 +338,14 @@ def dashboard():
             agenda.append(s_dados)
 
         # --- BUSCAR FEEDBACKS (MURAL DE FÃS) ---
-        # Nota: verifique se no seu banco o campo é 'artista_email' ou 'artista_id'
         feedbacks_ref = db.collection('feedbacks').where('artista_email', '==', email_logado).stream()
         for f in feedbacks_ref:
             f_dados = f.to_dict()
             f_dados['id'] = f.id
             feedbacks.append(f_dados)
             
-            # Contagem de estrelas para média
             total_estrelas += int(f_dados.get('estrelas', 0))
             
-            # Lógica do contador de notificações pendentes
             if f_dados.get('status') == 'pendente':
                 notificacoes_fas += 1
 
@@ -904,7 +905,6 @@ def api_excluir_conta_definitiva(): # <--- Mudei o nome da função aqui
 # ======================================================
 # 💳 WEBHOOK DO STRIPE (FLUXO COMPLETO) - AJUSTADO
 # ======================================================
-
 @app.route('/webhook-stripe', methods=['POST'])
 def webhook_stripe():
     payload = request.get_data()
