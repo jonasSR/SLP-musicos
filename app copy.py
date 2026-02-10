@@ -304,15 +304,17 @@ def dashboard():
 
     # 🛑 REGRA 2: LÓGICA DE ACESSO E PAGAMENTO (PÁGINA DE VENDAS + INTERNO)
     if tipo_usuario == 'musico':
-
-        # ✅ PAGOU → acesso normal
+    # ✅ VEIO DA PÁGINA DE VENDAS E JÁ PAGOU
         if pagou:
             bloqueado = False
+            # deixa seguir para criação do perfil
 
-        # ❌ NÃO PAGOU → SEMPRE bloqueia a tela
+        # ❌ NÃO PAGOU
         else:
-            bloqueado = True
-
+            if artista_docs:
+                bloqueado = True
+            else:
+                return redirect("https://buy.stripe.com/test_5kQ8wO90m6yWbRl0I5gIo00")
 
 
     # 🟢 SE FOR ESTABELECIMENTO
