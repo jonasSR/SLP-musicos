@@ -302,19 +302,23 @@ def dashboard():
     if not tipo_usuario:
         return render_template('dashboard.html', pedidos=[], musico=None, agenda=[], feedbacks=[], notificacoes_fas=0, total_cliques=0, media_estrelas=0, bloqueado=False)
 
-    # 🛑 REGRA 2: LÓGICA DE ACESSO INSTANTÂNEO
+    # 🛑 REGRA 2: LÓGICA DE ACESSO (RESTAURADA E CORRIGIDA)
     if tipo_usuario == 'musico':
-        # Verificamos se ele veio com o sinal de 'pago' na URL agora ou se já está no banco
-        veio_do_pagamento = request.args.get('pago') == 'true'
+        # Se o banco diz que pagou, ou se o sinal de 'pago' está na URL, LIBERA GERAL.
+        veio_da_venda = request.args.get('pago') == 'true'
         
-        if not pagou and not veio_do_pagamento:
-            if not artista_docs:
-                # SÓ redireciona se o cara NÃO pagou no banco E NÃO veio da página de vendas agora
-                return redirect("https://buy.stripe.com/test_5kQ8wO90m6yWbRl0I5gIo00")
-            else:
-                # Se já tem perfil mas o banco tá lento, bloqueia só pra garantir
+        if pagou or veio_da_venda:
+            # Se pagou no banco OU veio da página de vendas, entra direto.
+            bloqueado = False
+        else:
+            # Só entra aqui se NÃO pagou no banco E NÃO veio da venda.
+            if artista_docs:
+                # Já tem perfil? Bloqueia a tela, mas não expulsa (evita o loop).
                 bloqueado = True
-                
+            else:
+                # É um usuário novo que não pagou? Aí sim manda pro Stripe.
+                return redirect("https://buy.stripe.com/test_5kQ8wO90m6yWbRl0I5gIo00")
+
     # 🟢 SE FOR ESTABELECIMENTO
     if tipo_usuario == 'estabelecimento':
         doc_estab = db.collection('estabelecimentos').document(email_logado).get()
