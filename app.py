@@ -302,22 +302,20 @@ def dashboard():
     if not tipo_usuario:
         return render_template('dashboard.html', pedidos=[], musico=None, agenda=[], feedbacks=[], notificacoes_fas=0, total_cliques=0, media_estrelas=0, bloqueado=False)
 
-    # 🛑 REGRA 2: LÓGICA DE ACESSO (RESTAURADA E CORRIGIDA)
+    # 🛑 REGRA 2: LÓGICA DE ACESSO E PAGAMENTO (PÁGINA DE VENDAS + INTERNO)
     if tipo_usuario == 'musico':
-        # Se o banco diz que pagou, ou se o sinal de 'pago' está na URL, LIBERA GERAL.
-        veio_da_venda = request.args.get('pago') == 'true'
-        
-        if pagou or veio_da_venda:
-            # Se pagou no banco OU veio da página de vendas, entra direto.
+    # ✅ VEIO DA PÁGINA DE VENDAS E JÁ PAGOU
+        if pagou:
             bloqueado = False
+            # deixa seguir para criação do perfil
+
+        # ❌ NÃO PAGOU
         else:
-            # Só entra aqui se NÃO pagou no banco E NÃO veio da venda.
             if artista_docs:
-                # Já tem perfil? Bloqueia a tela, mas não expulsa (evita o loop).
                 bloqueado = True
             else:
-                # É um usuário novo que não pagou? Aí sim manda pro Stripe.
                 return redirect("https://buy.stripe.com/test_5kQ8wO90m6yWbRl0I5gIo00")
+
 
     # 🟢 SE FOR ESTABELECIMENTO
     if tipo_usuario == 'estabelecimento':
