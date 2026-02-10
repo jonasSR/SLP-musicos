@@ -26,7 +26,7 @@
 
         <form id="auth-form" class="log-form-wrapper">
             <div class="log-field-group">
-                <input type="email" id="email" class="log-input-field" required placeholder=" ">
+                <input type="email" id="email" class="log-input-field" required placeholder=" " value="{{ email_preenchido }}">
                 <label class="log-field-label">E-MAIL CORPORATIVO OU ARTÍSTICO</label>
             </div>
 
@@ -43,11 +43,8 @@
                 CONECTAR
             </button>
 
-            <button type="button" onclick="loginComGoogle()" class="google-btn-modern">
-                <div class="google-icon-wrapper">
-                    <img class="google-icon" src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google">
-                </div>
-                <span class="btn-text">ENTRAR COM GOOGLE</span>
+            <button type="button" id="btn-signup" class="log-btn-main log-btn-outline">
+                CRIAR CONTA
             </button>
 
             <div id="modal-auth" class="modal-overlay">
@@ -59,9 +56,13 @@
                 </div>
             </div>
 
-            <button type="button" id="btn-signup" class="log-btn-main log-btn-outline">
-                CRIAR CONTA
+            <button type="button" onclick="loginComGoogle()" class="google-btn-modern">
+                <div class="google-icon-wrapper">
+                    <img class="google-icon" src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google">
+                </div>
+                <span class="btn-text">ENTRAR COM GOOGLE</span>
             </button>
+
         </form>
     </div>
 
@@ -113,6 +114,27 @@
         
         console.log("🔥 Configuração do Firebase injetada!");
     </script>
+    <script type="module" src="{{ url_for('static', filename='js/auth.js') }}"></script>
+    {% if confirmacao_venda == 'true' %}
+        <script>
+            // Alerta visual para o usuário não se sentir perdido após o pagamento
+            window.addEventListener('load', () => {
+                const modalTitle = document.getElementById('modal-title');
+                const modalText = document.getElementById('modal-text');
+                const modal = document.getElementById('modal-auth');
+
+                if(modalTitle && modalText && modal) {
+                    modalTitle.innerText = "Pagamento Confirmado! ✅";
+                    modalTitle.style.color = "#00ff88";
+                    modalText.innerHTML = "Seu acesso já foi liberado. <br> Agora, basta clicar em <strong>CRIAR CONTA</strong> para definir sua senha de acesso.";
+                    modal.classList.add('active');
+                } else {
+                    alert("Pagamento Confirmado! ✅\nAgora basta clicar em 'CRIAR CONTA' para definir sua senha.");
+                }
+            });
+        </script>
+    {% endif %}
+
     <script type="module" src="{{ url_for('static', filename='js/auth.js') }}"></script>
 </body>
 </html>

@@ -200,7 +200,12 @@ def perfil_musico(musico_id):
 
 @app.route('/login')
 def login_page():
-    """Tela de acesso para músicos com chaves seguras"""
+    """Tela de acesso com preenchimento automático pós-pagamento"""
+    
+    # 📝 1. Captura o email e o status de pagamento da URL
+    email_da_url = request.args.get('email', '')
+    veio_do_pagamento = request.args.get('pago', 'false')
+
     config = {
         "apiKey": os.getenv("FIREBASE_API_KEY"),
         "authDomain": os.getenv("FIREBASE_AUTH_DOMAIN"),
@@ -209,7 +214,14 @@ def login_page():
         "messagingSenderId": os.getenv("FIREBASE_MESSAGING_SENDER_ID"),
         "appId": os.getenv("FIREBASE_APP_ID")
     }
-    return render_template('login.html', firebase_config=config)
+
+    # 📝 2. Envia as novas variáveis para o HTML
+    return render_template(
+        'login.html', 
+        firebase_config=config, 
+        email_preenchido=email_da_url, 
+        confirmacao_venda=veio_do_pagamento
+    )
 
 
 @app.route('/set_session', methods=['POST'])
