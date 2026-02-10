@@ -284,29 +284,26 @@ def check_user_type():
 @login_required
 def dashboard():
     email_logado = session.get('user_email')
-    
-    # 🔍 1. BUSCA DADOS DA CONTA DO USUÁRIO
+
+    # 🔍 1. BUSCA USUÁRIO
     user_query = db.collection('usuarios').where('email', '==', email_logado).limit(1).stream()
     user_docs = list(user_query)
-    
+
     if not user_docs:
         session.clear()
         flash("Sua conta não foi encontrada ou foi desativada.", "danger")
         return redirect(url_for('login'))
-    
+
     dados_usuario = user_docs[0].to_dict()
     tipo_usuario = dados_usuario.get('tipo')
     pagou = dados_usuario.get('acesso_pago', False)
 
-    # 🔍 2. BUSCA DADOS DO PERFIL DO ARTISTA
+    # 🔍 2. BUSCA ARTISTA
     artista_query = db.collection('artistas').where('dono_email', '==', email_logado).limit(1).stream()
     artista_docs = list(artista_query)
     artista_dados = None
 
-    # Variável que controla a exibição da modal no HTML
-    bloqueado = False
-
-    # 🛑 REGRA 1: Se ainda não escolheu o tipo (Músico/Estabelecimento)
+    # 🛑 REGRA 1 — tipo não definido
     if not tipo_usuario:
         return render_template(
             'dashboard.html',
@@ -320,30 +317,21 @@ def dashboard():
             bloqueado=False
         )
 
-    # 🛑 REGRA 2: LÓGICA DE ACESSO E PAGAMENTO (MANTIDA)
-    if tipo_usuario == 'musico':
-
-        # ✅ PAGOU → acesso normal
-        if pagou:
-            bloqueado = False
-
-        # ❌ NÃO PAGOU → bloqueia
-        else:
-            bloqueado = True
-
-    # 🔧 CORREÇÃO DEFINITIVA:
-    # Se pagou, nunca bloqueia (mesmo sem perfil de artista ainda)
-    if tipo_usuario == 'musico' and pagou:
-        bloqueado = False
-
-    # 🟢 SE FOR ESTABELECIMENTO
+    # 🟢 ESTABELECIMENTO (inalterado)
     if tipo_usuario == 'estabelecimento':
         doc_estab = db.collection('estabelecimentos').document(email_logado).get()
         if not doc_estab.exists:
             return redirect(url_for('abrir_pagina_estabelecimento'))
         return redirect(url_for('dashboard_estabelecimento'))
 
-    # 🟢 PROCESSAMENTO DE DADOS DO ARTISTA
+    # 🔥 CORREÇÃO DEFINITIVA
+    # 👉 MÚSICO PAGO NUNCA PASSA POR BLOQUEIO
+    if tipo_usuario == 'musico' and pagou:
+        bloqueado = False
+    else:
+        bloqueado = True
+
+    # 🟢 PROCESSAMENTO NORMAL DO DASHBOARD
     pedidos, agenda, feedbacks = [], [], []
     total_cliques, notificacoes_fas, total_estrelas = 0, 0, 0
 
@@ -352,10 +340,9 @@ def dashboard():
         artista_id = doc.id
         artista_dados = doc.to_dict()
         artista_dados['id'] = artista_id
-        
+
         total_cliques = artista_dados.get('cliques', 0)
 
-        # Pedidos
         pedidos_ref = db.collection('pedidos_reserva').where('musico_id', '==', artista_id).stream()
         for p in pedidos_ref:
             p_dados = p.to_dict()
@@ -367,20 +354,12 @@ def dashboard():
             reverse=True
         )
 
-        # Agenda
-        agenda_ref = (
-            db.collection('artistas')
-            .document(artista_id)
-            .collection('agenda')
-            .order_by('data_completa')
-            .stream()
-        )
+        agenda_ref = db.collection('artistas').document(artista_id).collection('agenda').order_by('data_completa').stream()
         for s in agenda_ref:
             s_dados = s.to_dict()
             s_dados['id'] = s.id
             agenda.append(s_dados)
 
-        # Feedbacks
         feedbacks_ref = db.collection('feedbacks').where('artista_email', '==', email_logado).stream()
         for f in feedbacks_ref:
             f_dados = f.to_dict()
