@@ -469,39 +469,31 @@ def login_google():
     id_token = data.get('idToken')
     
     try:
+        # Valida o token vindo do front-end
         decoded_token = firebase_auth.verify_id_token(id_token)
         email = decoded_token['email']
+        nome = decoded_token.get('name', 'Usuário Google')
+        foto = decoded_token.get('picture', '')
+
+        # Inicia a sessão
         session['user_email'] = email
         
+        # Verifica se o usuário já existe na coleção 'usuarios'
         user_ref = db.collection('usuarios').document(email)
-        user_doc = user_ref.get()
-
-        # URL do seu Checkout Stripe (pode ser o link direto ou link de preço)
-        link_checkout_stripe = "https://buy.stripe.com/test_5kQ8wO90m6yWbRl0I5gIo00"
-
-        if not user_doc.exists:
-            # Novo usuário -> Criar e mandar para o checkout
+        if not user_ref.get().exists:
             user_ref.set({
                 'email': email,
-                'nome': decoded_token.get('name', 'Usuário Google'),
+                'nome': nome,
+                'foto_google': foto,
                 'tipo': 'musico',
-                'acesso_pago': False,
                 'criado_em': firestore.SERVER_TIMESTAMP
             })
-            return jsonify({"status": "success", "redirect_url": link_checkout_stripe}), 200
-
-        else:
-            dados = user_doc.to_dict()
-            # Usuário existe mas não pagou -> Mandar para o checkout
-            if not dados.get('acesso_pago', False):
-                return jsonify({"status": "success", "redirect_url": link_checkout_stripe}), 200
             
-            # Já pagou -> Deixar ir para o Dashboard normalmente
-            return jsonify({"status": "success"}), 200
-
+        return jsonify({"status": "success"}), 200
+        
     except Exception as e:
-        print(f"Erro: {e}")
-        return jsonify({"status": "error", "message": str(e)}), 401
+        print(f"Erro na validação Google: {e}")
+        return jsonify({"status": "error", "message": "Token inválido"}), 401
 
 
 # 🔔 ROTA: Marcar como lido

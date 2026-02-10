@@ -222,29 +222,20 @@ window.loginComGoogle = async function() {
     try {
         const result = await signInWithPopup(auth, provider);
         const idToken = await result.user.getIdToken();
-        
         const response = await fetch('/login_google', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ idToken: idToken })
         });
-        
         const data = await response.json();
-
         if (data.status === 'success') {
-            // Se o Python mandou um link específico (checkout), ele vai pra lá.
-            // Se não, vai para a ação padrão (dashboard).
-            if (data.redirect_url) {
-                window.location.href = data.redirect_url;
-            } else {
-                acaoPosLogin(); // Sua função que leva ao dashboard
-            }
+            acaoPosLogin();
         } else {
             alert("Erro ao sincronizar: " + data.message);
         }
     } catch (error) {
         if (error.code !== 'auth/cancelled-popup-request' && error.code !== 'auth/popup-closed-by-user') {
-            console.error(error);
+            exibirPopup("Erro Google", traduzirErroFirebase(error));
         }
     }
 }
