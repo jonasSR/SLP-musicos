@@ -677,7 +677,6 @@ def remover_agenda(show_id):
 # ======================================================
 # TROCAR SENHA USUARIO
 # ======================================================   
-   
 @app.route('/api_registrar_troca_senha', methods=['POST'])
 @login_required
 def registrar_troca_senha():
