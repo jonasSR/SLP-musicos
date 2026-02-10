@@ -200,11 +200,12 @@ def perfil_musico(musico_id):
 
 @app.route('/login')
 def login_page():
-    """Tela de acesso com preenchimento automático pós-pagamento"""
-    
-    # 📝 1. Captura o email e o status de pagamento da URL
+    # O Flask "pega" o email que o Stripe envia na URL
     email_da_url = request.args.get('email', '')
-    veio_do_pagamento = request.args.get('pago', 'false')
+    
+    # Se o Stripe mandar o código bruto (texto entre chaves), nós limpamos para não ficar feio
+    if "{" in email_da_url:
+        email_da_url = ""
 
     config = {
         "apiKey": os.getenv("FIREBASE_API_KEY"),
@@ -214,14 +215,11 @@ def login_page():
         "messagingSenderId": os.getenv("FIREBASE_MESSAGING_SENDER_ID"),
         "appId": os.getenv("FIREBASE_APP_ID")
     }
-
-    # 📝 2. Envia as novas variáveis para o HTML
-    return render_template(
-        'login.html', 
-        firebase_config=config, 
-        email_preenchido=email_da_url, 
-        confirmacao_venda=veio_do_pagamento
-    )
+    
+    # IMPORTANTE: Você precisa passar o email_preenchido para o template
+    return render_template('login.html', 
+                           firebase_config=config, 
+                           email_preenchido=email_da_url)
 
 
 @app.route('/set_session', methods=['POST'])
