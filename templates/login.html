@@ -127,23 +127,31 @@
     <script type="module" src="{{ url_for('static', filename='js/auth.js') }}"></script>
 
     <script>
-        // Colocamos aspas para o editor achar que é uma String comum.
-        // O Flask vai transformar isso em 'true' ou 'false' antes de chegar no navegador.
-        const veioDaVenda = "{{ 'true' if confirmacao_venda else 'false' }}" === 'true';
+        // Converte o valor do Python para o JS com segurança
+        const confirmacaoVenda = "{{ confirmacao_venda }}";
 
-        if (veioDaVenda) {
-            window.addEventListener('load', function() {
+        if (confirmacaoVenda === 'True' || confirmacaoVenda === 'true') {
+            // Forçamos a execução assim que a janela carregar completamente
+            window.onload = function() {
                 const modal = document.getElementById('modal-auth');
                 const modalTitle = document.getElementById('modal-title');
                 const modalText = document.getElementById('modal-text');
-                
+
                 if (modal) {
-                    modalTitle.innerText = "Próximo Passo";
-                    modalTitle.style.color = "#00ff88"; 
-                    modalText.innerHTML = "Sua assinatura foi identificada! <br> Agora, digite seu e-mail e senha e clique em <strong>CRIAR CONTA</strong> para finalizar.";
+                    // Atualiza o texto
+                    modalTitle.innerText = "✨ Quase lá!";
+                    modalTitle.style.color = "#00efff";
+                    modalText.innerHTML = "Sua conta já está ativa! <br> Defina sua senha abaixo e clique em <strong>CRIAR CONTA</strong> para acessar.";
+
+                    // FORÇA O APARECIMENTO (Sobrescreve qualquer CSS)
+                    modal.style.setProperty('display', 'flex', 'important');
+                    modal.style.setProperty('visibility', 'visible', 'important');
+                    modal.style.setProperty('opacity', '1', 'important');
                     modal.classList.add('active');
+                    
+                    console.log("Modal forçada via Flask + JS");
                 }
-            });
+            };
         }
     </script>
 </body>
