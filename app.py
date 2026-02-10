@@ -199,7 +199,8 @@ def perfil_musico(musico_id):
 # ======================================================
 @app.route('/login')
 def login_page():
-    """Tela de acesso para músicos com chaves seguras"""
+    veio_da_venda = request.args.get('pago') == 'true'
+    
     config = {
         "apiKey": os.getenv("FIREBASE_API_KEY"),
         "authDomain": os.getenv("FIREBASE_AUTH_DOMAIN"),
@@ -208,7 +209,10 @@ def login_page():
         "messagingSenderId": os.getenv("FIREBASE_MESSAGING_SENDER_ID"),
         "appId": os.getenv("FIREBASE_APP_ID")
     }
-    return render_template('login.html', firebase_config=config)
+    
+    return render_template('login.html', 
+                           firebase_config=config, 
+                           confirmacao_venda=veio_da_venda)
 
 
 @app.route('/set_session', methods=['POST'])
