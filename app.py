@@ -274,7 +274,7 @@ def check_user_type():
 def dashboard():
     email_logado = session.get('user_email')
     
-    # 🔍 BUSCA DADOS DA CONTA DO USUÁRIO
+    # 🔍 1. BUSCA DADOS DA CONTA DO USUÁRIO
     user_query = db.collection('usuarios').where('email', '==', email_logado).limit(1).stream()
     user_docs = list(user_query)
     
@@ -285,6 +285,11 @@ def dashboard():
     tipo_usuario = dados_usuario.get('tipo')
     pagou = dados_usuario.get('acesso_pago', False)
 
+    # 🔍 2. BUSCA DADOS DO PERFIL DO ARTISTA (Necessário para a lógica de bloqueio)
+    artista_query = db.collection('artistas').where('dono_email', '==', email_logado).limit(1).stream()
+    artista_docs = list(artista_query)
+    artista_dados = None
+
     # Variável que controla a exibição da modal no HTML
     bloqueado = False
 
@@ -292,23 +297,29 @@ def dashboard():
     if not tipo_usuario:
         return render_template('dashboard.html', pedidos=[], musico=None, agenda=[], feedbacks=[], notificacoes_fas=0, total_cliques=0, media_estrelas=0, bloqueado=False)
 
-    # 🛑 REGRA 2: LÓGICA DO OVERLAY (CORRIGIDA)
-    # Se for músico e NÃO pagou, ativamos o bloqueio, mas deixamos o código seguir para renderizar a página
-    if tipo_usuario == 'musico' and not pagou:
-        bloqueado = True
+    # 🛑 REGRA 2: LÓGICA DE ACESSO E PAGAMENTO (PÁGINA DE VENDAS + INTERNO)
+    if tipo_usuario == 'musico':
+        if not pagou:
+            if artista_docs:
+                # Caso A: Ele já tem um perfil criado, mas o pagamento não consta.
+                # Bloqueamos com o Overlay (modal) para ele não editar nada.
+                bloqueado = True
+            else:
+                # Caso B: Tentou entrar no painel sem perfil e sem pagar.
+                # Redireciona para o checkout do Stripe.
+                return redirect("https://buy.stripe.com/test_5kQ8wO90m6yWbRl0I5gIo00")
+        
+        # Caso C: Se 'pagou' for True (veio da Página de Vendas ou Webhook atualizou),
+        # ele passa direto por aqui, 'bloqueado' continua False e ele acessa o painel.
 
-    # 🟢 SE FOR ESTABELECIMENTO (Mantém seus redirecionamentos originais)
+    # 🟢 SE FOR ESTABELECIMENTO
     if tipo_usuario == 'estabelecimento':
         doc_estab = db.collection('estabelecimentos').document(email_logado).get()
         if not doc_estab.exists:
             return redirect(url_for('abrir_pagina_estabelecimento'))
         return redirect(url_for('dashboard_estabelecimento'))
 
-    # 🟢 BUSCA DADOS DO PERFIL DO ARTISTA NO FIRESTORE
-    artista_query = db.collection('artistas').where('dono_email', '==', email_logado).limit(1).stream()
-    artista_docs = list(artista_query)
-
-    artista_dados = None
+    # 🟢 PROCESSAMENTO DE DADOS DO ARTISTA (Para o Dashboard)
     pedidos, agenda, feedbacks = [], [], []
     total_cliques, notificacoes_fas, total_estrelas = 0, 0, 0
 
@@ -335,7 +346,7 @@ def dashboard():
             s_dados['id'] = s.id
             agenda.append(s_dados)
 
-        # Carregar Feedbacks e Notificações
+        # Carregar Feedbacks
         feedbacks_ref = db.collection('feedbacks').where('artista_email', '==', email_logado).stream()
         for f in feedbacks_ref:
             f_dados = f.to_dict()
@@ -348,7 +359,6 @@ def dashboard():
     qtd_feedbacks = len(feedbacks)
     media_estrelas = round(total_estrelas / qtd_feedbacks, 1) if qtd_feedbacks > 0 else 0.0
 
-    # 🟢 RENDERIZAÇÃO FINAL: A variável 'bloqueado' decide se o HTML mostra a modal
     return render_template(
         'dashboard.html', 
         pedidos=pedidos, 
@@ -360,7 +370,8 @@ def dashboard():
         media_estrelas=media_estrelas,
         bloqueado=bloqueado
     )
-# NOVA ROTA: Para marcar como lida via JavaScript quando você clicar
+
+# 🔔 ROTA: Marcar como lido
 @app.route('/marcar_lido/<pedido_id>', methods=['POST'])
 @login_required
 def marcar_lido(pedido_id):
@@ -899,9 +910,6 @@ def api_excluir_conta_definitiva(): # <--- Mudei o nome da função aqui
         return jsonify({"status": "error", "message": str(e)}), 500
 
 
-# ======================================================
-# 💳 WEBHOOK DO STRIPE (FLUXO COMPLETO) - CORRIGIDO
-# ======================================================
 @app.route('/webhook-stripe', methods=['POST'])
 def webhook_stripe():
     payload = request.get_data()
@@ -917,39 +925,41 @@ def webhook_stripe():
     if not email_cliente:
         return jsonify({"status": "success", "message": "Sem email no evento"}), 200
 
-    # 🔍 BUSCA O DOCUMENTO PELO CAMPO EMAIL (Garante que acha mesmo com ID aleatório)
+    # 🔍 BUSCA O DOCUMENTO
     user_query = db.collection('usuarios').where('email', '==', email_cliente).limit(1).stream()
     user_docs = list(user_query)
 
-    if not user_docs:
-        print(f"⚠️ AVISO: Usuário {email_cliente} não encontrado no banco.")
-        return jsonify({"status": "error", "message": "Usuário não encontrado"}), 404
-
-    user_ref = user_docs[0].reference
-
     # 1. ✅ PAGAMENTO APROVADO
     if tipo_evento == 'checkout.session.completed':
-        print(f"✅ SUCESSO: Liberando acesso_pago para {email_cliente}")
-        user_ref.update({
-            'acesso_pago': True,
-            'status_financeiro': 'pago',
-            'data_pagamento': firestore.SERVER_TIMESTAMP
-        })
+        if user_docs:
+            # USUÁRIO JÁ EXISTE: Apenas atualiza
+            user_ref = user_docs[0].reference
+            user_ref.update({
+                'acesso_pago': True,
+                'status_financeiro': 'pago',
+                'data_pagamento': firestore.SERVER_TIMESTAMP
+            })
+            print(f"✅ SUCESSO: Cadastro existente de {email_cliente} atualizado para PAGO.")
+        else:
+            # USUÁRIO NÃO EXISTE (Vindo da página de vendas): Cria o documento prévio
+            db.collection('usuarios').document(email_cliente).set({
+                'email': email_cliente,
+                'acesso_pago': True,
+                'status_financeiro': 'pago',
+                'tipo': 'musico', # Já pré-define como músico
+                'data_pagamento': firestore.SERVER_TIMESTAMP,
+                'criado_via': 'pagina_vendas'
+            })
+            print(f"✨ NOVO: Usuário {email_cliente} pagou na LP e teve documento criado.")
 
-    # 2. ❌ PAGAMENTO FALHOU
-    elif tipo_evento == 'checkout.session.async_payment_failed':
-        print(f"❌ FALHA: Pagamento recusado para {email_cliente}")
-        user_ref.update({
-            'acesso_pago': False,
-            'status_financeiro': 'recusado'
-        })
-
-    # 3. ⏳ SESSÃO EXPIROU
-    elif tipo_evento == 'checkout.session.expired':
-        print(f"⏳ EXPIRADO: O usuário {email_cliente} abandonou o checkout")
-        user_ref.update({
-            'status_financeiro': 'expirado'
-        })
+    # 2. ❌ PAGAMENTO FALHOU / EXPIROU
+    elif tipo_evento in ['checkout.session.async_payment_failed', 'checkout.session.expired']:
+        if user_docs:
+            user_ref = user_docs[0].reference
+            user_ref.update({
+                'acesso_pago': False,
+                'status_financeiro': 'falha/expirado'
+            })
 
     return jsonify({"status": "success"}), 200
 
