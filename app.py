@@ -298,7 +298,7 @@ def dashboard():
     tipo_usuario = dados_usuario.get('tipo')
     pagou = dados_usuario.get('acesso_pago', False)
 
-    # 🔍 2. BUSCA DADOS DO PERFIL DO ARTISTA (Necessário para a lógica de bloqueio)
+    # 🔍 2. BUSCA DADOS DO PERFIL DO ARTISTA
     artista_query = db.collection('artistas').where('dono_email', '==', email_logado).limit(1).stream()
     artista_docs = list(artista_query)
     artista_dados = None
@@ -308,20 +308,33 @@ def dashboard():
 
     # 🛑 REGRA 1: Se ainda não escolheu o tipo (Músico/Estabelecimento)
     if not tipo_usuario:
-        return render_template('dashboard.html', pedidos=[], musico=None, agenda=[], feedbacks=[], notificacoes_fas=0, total_cliques=0, media_estrelas=0, bloqueado=False)
+        return render_template(
+            'dashboard.html',
+            pedidos=[],
+            musico=None,
+            agenda=[],
+            feedbacks=[],
+            notificacoes_fas=0,
+            total_cliques=0,
+            media_estrelas=0,
+            bloqueado=False
+        )
 
-    # 🛑 REGRA 2: LÓGICA DE ACESSO E PAGAMENTO (PÁGINA DE VENDAS + INTERNO)
+    # 🛑 REGRA 2: LÓGICA DE ACESSO E PAGAMENTO (MANTIDA)
     if tipo_usuario == 'musico':
 
         # ✅ PAGOU → acesso normal
         if pagou:
             bloqueado = False
 
-        # ❌ NÃO PAGOU → SEMPRE bloqueia a tela
+        # ❌ NÃO PAGOU → bloqueia
         else:
             bloqueado = True
 
-
+    # 🔧 CORREÇÃO DEFINITIVA:
+    # Se pagou, nunca bloqueia (mesmo sem perfil de artista ainda)
+    if tipo_usuario == 'musico' and pagou:
+        bloqueado = False
 
     # 🟢 SE FOR ESTABELECIMENTO
     if tipo_usuario == 'estabelecimento':
@@ -330,7 +343,7 @@ def dashboard():
             return redirect(url_for('abrir_pagina_estabelecimento'))
         return redirect(url_for('dashboard_estabelecimento'))
 
-    # 🟢 PROCESSAMENTO DE DADOS DO ARTISTA (Para o Dashboard)
+    # 🟢 PROCESSAMENTO DE DADOS DO ARTISTA
     pedidos, agenda, feedbacks = [], [], []
     total_cliques, notificacoes_fas, total_estrelas = 0, 0, 0
 
@@ -342,22 +355,32 @@ def dashboard():
         
         total_cliques = artista_dados.get('cliques', 0)
 
-        # Carregar Pedidos de Reserva
+        # Pedidos
         pedidos_ref = db.collection('pedidos_reserva').where('musico_id', '==', artista_id).stream()
         for p in pedidos_ref:
             p_dados = p.to_dict()
             p_dados['id'] = p.id
             pedidos.append(p_dados)
-        pedidos.sort(key=lambda x: x.get('criado_em') if x.get('criado_em') else 0, reverse=True)
 
-        # Carregar Agenda
-        agenda_ref = db.collection('artistas').document(artista_id).collection('agenda').order_by('data_completa').stream()
+        pedidos.sort(
+            key=lambda x: x.get('criado_em') if x.get('criado_em') else 0,
+            reverse=True
+        )
+
+        # Agenda
+        agenda_ref = (
+            db.collection('artistas')
+            .document(artista_id)
+            .collection('agenda')
+            .order_by('data_completa')
+            .stream()
+        )
         for s in agenda_ref:
             s_dados = s.to_dict()
             s_dados['id'] = s.id
             agenda.append(s_dados)
 
-        # Carregar Feedbacks
+        # Feedbacks
         feedbacks_ref = db.collection('feedbacks').where('artista_email', '==', email_logado).stream()
         for f in feedbacks_ref:
             f_dados = f.to_dict()
@@ -371,16 +394,17 @@ def dashboard():
     media_estrelas = round(total_estrelas / qtd_feedbacks, 1) if qtd_feedbacks > 0 else 0.0
 
     return render_template(
-        'dashboard.html', 
-        pedidos=pedidos, 
-        musico=artista_dados, 
+        'dashboard.html',
+        pedidos=pedidos,
+        musico=artista_dados,
         agenda=agenda,
-        feedbacks=feedbacks, 
+        feedbacks=feedbacks,
         notificacoes_fas=notificacoes_fas,
         total_cliques=total_cliques,
         media_estrelas=media_estrelas,
         bloqueado=bloqueado
     )
+
 
 @app.route('/webhook-stripe', methods=['POST'])
 def webhook_stripe():
