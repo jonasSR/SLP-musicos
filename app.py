@@ -274,22 +274,35 @@ def check_user_type():
 def dashboard():
     email_logado = session.get('user_email')
     
-    # 🔍 BUSCA CORRIGIDA: Procura pelo CAMPO 'email' (resolve o problema do ID aleatório)
+    # 🔍 BUSCA USUÁRIO
     user_query = db.collection('usuarios').where('email', '==', email_logado).limit(1).stream()
     user_docs = list(user_query)
     
-    # Se o usuário não existe no banco, não deixa nem ver a página
     if not user_docs:
-        return "Erro: Usuário não encontrado no sistema.", 403
+        return "Erro: Usuário não encontrado.", 403
     
-    # Extrai os dados do documento encontrado
     dados_usuario = user_docs[0].to_dict()
     tipo_usuario = dados_usuario.get('tipo')
     pagou = dados_usuario.get('acesso_pago', False)
 
-    # 🛑 REGRA 1: Se ainda não escolheu o tipo (Modal aberta), renderiza o básico
+    # 🛑 REGRA 1: Se ainda não escolheu o tipo
     if not tipo_usuario:
         return render_template('dashboard.html', pedidos=[], musico=None, agenda=[], feedbacks=[], notificacoes_fas=0, total_cliques=0, media_estrelas=0, bloqueado=False)
+
+    # 🟢 BUSCA DADOS DO ARTISTA (Saber se ele já tem cadastro)
+    artista_query = db.collection('artistas').where('dono_email', '==', email_logado).limit(1).stream()
+    artista_docs = list(artista_query)
+    artista_dados = artista_docs[0].to_dict() if artista_docs else None
+
+    # 🛑 REGRA 2: TRAVA DE PAGAMENTO (O GATILHO)
+    bloqueado = False
+    if tipo_usuario == 'musico' and not pagou:
+        if artista_docs:
+            # Se já tem documento de artista, no próximo refresh/clique ele recebe a MODAL
+            bloqueado = True
+        else:
+            # Se é a primeiríssima vez (sem cadastro), CHUTA PRO STRIPE
+            return redirect("https://buy.stripe.com/test_5kQ8wO90m6yWbRl0I5gIo00")
 
     # 🟢 SE FOR ESTABELECIMENTO
     if tipo_usuario == 'estabelecimento':
@@ -298,20 +311,13 @@ def dashboard():
             return redirect(url_for('abrir_pagina_estabelecimento'))
         return redirect(url_for('dashboard_estabelecimento'))
 
-    # 🟢 SE FOR MÚSICO: SEGUE O FLUXO ORIGINAL
-    artista_query = db.collection('artistas').where('dono_email', '==', email_logado).limit(1).stream()
-    artista_docs = list(artista_query)
-
-    artista_dados = None
+    # 🟢 CARREGA DADOS PARA O DASHBOARD (Pedidos, Agenda, etc.)
     pedidos, agenda, feedbacks = [], [], []
     total_cliques, notificacoes_fas, total_estrelas = 0, 0, 0
 
     if artista_docs:
-        doc = artista_docs[0]
-        artista_id = doc.id
-        artista_dados = doc.to_dict()
+        artista_id = artista_docs[0].id
         artista_dados['id'] = artista_id
-        
         total_cliques = artista_dados.get('cliques', 0)
 
         # Pedidos
@@ -338,12 +344,6 @@ def dashboard():
             total_estrelas += int(f_dados.get('estrelas', 0))
             if f_dados.get('status') == 'pendente':
                 notificacoes_fas += 1
-
-    # 🛑 REGRA DE BLOQUEIO: Só bloqueia se já tiver preenchido o nome e não pagou
-    bloqueado = False
-    if tipo_usuario == 'musico':
-        if artista_dados and artista_dados.get('nome') and not pagou:
-            bloqueado = True
 
     qtd_feedbacks = len(feedbacks)
     media_estrelas = round(total_estrelas / qtd_feedbacks, 1) if qtd_feedbacks > 0 else 0.0
