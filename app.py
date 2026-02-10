@@ -274,23 +274,27 @@ def check_user_type():
 def dashboard():
     email_logado = session.get('user_email')
     
-    # 1. Busca o status de pagamento e tipo do usuário
+    # 🔍 BUSCA USUÁRIO
     user_query = db.collection('usuarios').where('email', '==', email_logado).limit(1).stream()
     user_docs = list(user_query)
     
     if not user_docs:
-        return "Erro: Usuário não encontrado.", 403
+        return "Erro: Usuário não encontrado no sistema.", 403
     
     dados_usuario = user_docs[0].to_dict()
     tipo_usuario = dados_usuario.get('tipo')
     pagou = dados_usuario.get('acesso_pago', False)
 
-    # 2. Busca se o músico já tem perfil criado
+    # 🛑 REGRA 1: Se ainda não escolheu o tipo
+    if not tipo_usuario:
+        return render_template('dashboard.html', pedidos=[], musico=None, agenda=[], feedbacks=[], notificacoes_fas=0, total_cliques=0, media_estrelas=0, bloqueado=False)
+
+    # 🟢 BUSCA DADOS DO MÚSICO (Para saber se já existe)
     artista_query = db.collection('artistas').where('dono_email', '==', email_logado).limit(1).stream()
     artista_docs = list(artista_query)
     artista_dados = artista_docs[0].to_dict() if artista_docs else None
 
-    # --- LÓGICA DE TRAVA ---
+    # 🛑 REGRA 2: TRAVA DE PAGAMENTO (A sua lógica)
     bloqueado = False
     if tipo_usuario == 'musico' and not pagou:
         if not artista_dados:
@@ -299,27 +303,45 @@ def dashboard():
         else:
             # USUÁRIO JÁ CADASTRADO: ATIVA OVERLAY
             bloqueado = True
-    # -----------------------
 
-    # Se for estabelecimento, segue o fluxo normal dele
+    # 🟢 SE FOR ESTABELECIMENTO
     if tipo_usuario == 'estabelecimento':
         doc_estab = db.collection('estabelecimentos').document(email_logado).get()
         if not doc_estab.exists:
             return redirect(url_for('abrir_pagina_estabelecimento'))
         return redirect(url_for('dashboard_estabelecimento'))
 
-    # Carrega os dados do dashboard (pedidos, agenda, etc) apenas se houver artista
+    # 🟢 CARREGA DADOS ORIGINAIS
     pedidos, agenda, feedbacks = [], [], []
     total_cliques, notificacoes_fas, total_estrelas = 0, 0, 0
 
-    if artista_dados:
-        artista_id = artista_docs[0].id
+    if artista_docs:
+        doc = artista_docs[0]
+        artista_id = doc.id
         artista_dados['id'] = artista_id
-        
-        # [Mantenha aqui todo o seu código original de busca de pedidos/agenda/feedbacks]
-        # (Omitido para brevidade, mas você mantém igual ao seu original)
         total_cliques = artista_dados.get('cliques', 0)
-        # ... buscas no firestore ...
+
+        pedidos_ref = db.collection('pedidos_reserva').where('musico_id', '==', artista_id).stream()
+        for p in pedidos_ref:
+            p_dados = p.to_dict()
+            p_dados['id'] = p.id
+            pedidos.append(p_dados)
+        pedidos.sort(key=lambda x: x.get('criado_em') if x.get('criado_em') else 0, reverse=True)
+
+        agenda_ref = db.collection('artistas').document(artista_id).collection('agenda').order_by('data_completa').stream()
+        for s in agenda_ref:
+            s_dados = s.to_dict()
+            s_dados['id'] = s.id
+            agenda.append(s_dados)
+
+        feedbacks_ref = db.collection('feedbacks').where('artista_email', '==', email_logado).stream()
+        for f in feedbacks_ref:
+            f_dados = f.to_dict()
+            f_dados['id'] = f.id
+            feedbacks.append(f_dados)
+            total_estrelas += int(f_dados.get('estrelas', 0))
+            if f_dados.get('status') == 'pendente':
+                notificacoes_fas += 1
 
     qtd_feedbacks = len(feedbacks)
     media_estrelas = round(total_estrelas / qtd_feedbacks, 1) if qtd_feedbacks > 0 else 0.0
@@ -333,7 +355,7 @@ def dashboard():
         notificacoes_fas=notificacoes_fas,
         total_cliques=total_cliques,
         media_estrelas=media_estrelas,
-        bloqueado=bloqueado  # Envia o comando pro HTML mostrar o overlay
+        bloqueado=bloqueado
     )
 # NOVA ROTA: Para marcar como lida via JavaScript quando você clicar
 @app.route('/marcar_lido/<pedido_id>', methods=['POST'])
