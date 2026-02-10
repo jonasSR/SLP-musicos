@@ -28,7 +28,7 @@
 }
 
 .modal-header h2 {
-    font-family: 'Syne', sans-serif;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     font-size: 2rem;
     color: #fff;
     letter-spacing: 2px;

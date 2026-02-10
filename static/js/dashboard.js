@@ -14,45 +14,62 @@ function showMobileTab(evt, tabName) {
     window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-    // Inicializa a aba perfil no mobile
-    document.addEventListener("DOMContentLoaded", function() {
-        if (window.innerWidth <= 768) {
-            document.body.classList.add('tab-perfil');
-        }
-    });
-
-    // --- ELEMENTOS DE PREVIEW ---
-    const inputName = document.getElementById('input-name');
-    const inputFile = document.getElementById('input-file');
-    const selectStyle = document.getElementById('select-style');
-    const inputCidade = document.getElementById('input-cidade');
-    const inputEstado = document.getElementById('input-estado');
-
-    const previewName = document.getElementById('preview-name');
-    const previewTag = document.getElementById('preview-tag');
-    const previewImg = document.getElementById('preview-img');
-    const previewCidade = document.getElementById('preview-cidade');
-    const previewEstado = document.getElementById('preview-estado');
-    
-    // Fallback de imagem caso não exista uma foto salva
-    const imagemDoBanco = "{{ musico.foto or 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?q=80&w=1000' }}";
-
-    // Função para atualizar a prévia do card em tempo real
-    function atualizarCard() {
-        if (previewName && inputName) previewName.innerText = inputName.value.trim() || "Nome do Artista";
-        if (previewTag && selectStyle) previewTag.innerText = selectStyle.value || "Estilo";
-        if (previewCidade && inputCidade) previewCidade.innerText = inputCidade.value.trim() || "Cidade";
-        if (previewEstado && inputEstado) previewEstado.innerText = inputEstado.value.trim().toUpperCase() || "UF";
-
-        // Lógica de upload de imagem local
-        if (inputFile && inputFile.files && inputFile.files[0]) {
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                if (previewImg) previewImg.style.backgroundImage = `url('${e.target.result}')`;
-            };
-            reader.readAsDataURL(inputFile.files[0]);
-        }
+// Inicializa a aba perfil no mobile
+document.addEventListener("DOMContentLoaded", function() {
+    if (window.innerWidth <= 768) {
+        document.body.classList.add('tab-perfil');
     }
+});
+
+// --- ELEMENTOS DE PREVIEW ---
+const inputName = document.getElementById('input-name');
+const inputFile = document.getElementById('input-file');
+const selectStyle = document.getElementById('select-style');
+const inputCidade = document.getElementById('input-cidade');
+const inputEstado = document.getElementById('input-estado');
+
+const previewName = document.getElementById('preview-name');
+const previewTag = document.getElementById('preview-tag');
+const previewImg = document.getElementById('preview-img');
+const previewCidade = document.getElementById('preview-cidade');
+const previewEstado = document.getElementById('preview-estado');
+
+// --- NOVOS ELEMENTOS PARA O HEADER (ACRÉSCIMO) ---
+const headerName = document.getElementById('header-user-name');
+const userEmailPrefix = "{{ session.get('user_email').split('@')[0]|upper }}";
+
+// Fallback de imagem caso não exista uma foto salva
+const imagemDoBanco = "{{ musico.foto or 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?q=80&w=1000' }}";
+
+// Função para atualizar a prévia do card em tempo real
+function atualizarCard() {
+    // Mantendo seu original
+    if (previewName && inputName) previewName.innerText = inputName.value.trim() || "Nome do Artista";
+    if (previewTag && selectStyle) previewTag.innerText = selectStyle.value || "Estilo";
+    if (previewCidade && inputCidade) previewCidade.innerText = inputCidade.value.trim() || "Cidade";
+    if (previewEstado && inputEstado) previewEstado.innerText = inputEstado.value.trim().toUpperCase() || "UF";
+
+    // Lógica de upload de imagem local
+    if (inputFile && inputFile.files && inputFile.files[0]) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            if (previewImg) previewImg.style.backgroundImage = `url('${e.target.result}')`;
+        };
+        reader.readAsDataURL(inputFile.files[0]);
+    }
+
+    // --- NOVO: Atualiza o nome lá no topo (Painel) enquanto digita ---
+    if (headerName && inputName) {
+        headerName.innerText = inputName.value.trim().toUpperCase() || "LOGADO";
+    }
+}
+
+// Listeners para garantir que a função dispare
+if (inputName) inputName.addEventListener('input', atualizarCard);
+if (selectStyle) selectStyle.addEventListener('change', atualizarCard);
+if (inputCidade) inputCidade.addEventListener('input', atualizarCard);
+if (inputEstado) inputEstado.addEventListener('input', atualizarCard);
+if (inputFile) inputFile.addEventListener('change', atualizarCard);
 
     // --- LÓGICA DO MENU HAMBÚRGUER ---
     function setupMenu() {
@@ -244,7 +261,3 @@ document.addEventListener('DOMContentLoaded', () => {
         showSection('aba-perfil');
     }
 });
-
-
-
-

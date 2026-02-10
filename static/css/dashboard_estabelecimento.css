@@ -33,7 +33,7 @@
 body {
     background-color: var(--bg-dark);
     color: white;
-    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     overflow-x: hidden;
     line-height: 1.6;
 }
@@ -86,7 +86,7 @@ body {
     display: flex;
     align-items: center;
     height: 100%;
-    font-family: 'Syne', sans-serif;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     font-weight: 800;
     letter-spacing: 4px;
 }
@@ -172,7 +172,7 @@ body {
 
 .btn-logout {
     text-decoration: none;
-    font-family: 'Outfit', sans-serif;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     font-size: 0.7rem;
     font-weight: 800;
     letter-spacing: 2px;
@@ -236,7 +236,7 @@ body {
 }
 
 .info-title {
-    font-family: 'Syne', sans-serif;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     font-size: 1.5rem;
     margin-bottom: 10px;
 }

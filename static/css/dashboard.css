@@ -34,7 +34,7 @@
 body {
     background-color: var(--bg-dark);
     color: white;
-    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     overflow-x: hidden;
 }
 
@@ -97,7 +97,7 @@ body {
     display: flex;
     align-items: center;
     height: 100%;
-    font-family: 'Syne', sans-serif;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     font-weight: 800;
     letter-spacing: 4px;
 }
@@ -175,7 +175,7 @@ body {
 .dash-intro { margin-bottom: 60px; }
 
 .reveal-text {
-    font-family: 'Syne', sans-serif;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     font-size: 3rem;
     text-transform: uppercase;
 }
@@ -376,7 +376,7 @@ option {
     color: #000;
     border: none;
     border-radius: 8px;
-    font-family: 'Syne', sans-serif;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     font-weight: 700;
     font-size: 0.75rem;
     text-transform: uppercase;
@@ -440,7 +440,7 @@ option {
 }
 
 .card-overlay h3 {
-    font-family: 'Syne', sans-serif;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     font-size: 1.2rem;
     text-transform: uppercase;
     margin-bottom: 4px;
@@ -1272,7 +1272,7 @@ option {
 .input-modern input[type="date"], 
 .input-modern input[type="time"] {
     cursor: pointer;
-    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     color-scheme: dark; /* Força o calendário do sistema a ser dark mode */
 }
 
@@ -1321,7 +1321,7 @@ input::-webkit-clear-button {
     color: #000;
     border: none;
     border-radius: 10px;
-    font-family: 'Syne', sans-serif;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     font-weight: 800;
     font-size: 0.8rem;
     cursor: pointer;
@@ -1501,7 +1501,7 @@ input::-webkit-clear-button {
     font-weight: 800;
     color: #fff;
     font-size: 0.95rem;
-    font-family: 'Syne', sans-serif;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
 .fan-stars {
@@ -1580,13 +1580,13 @@ input::-webkit-clear-button {
 
 .btn-logout {
     text-decoration: none;
-    font-family: 'Outfit', sans-serif;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     font-size: 0.7rem;
     font-weight: 800;
     letter-spacing: 2px;
     text-transform: uppercase;
     padding: 10px 22px;
-    border-radius: 50px;
+    border-radius: 10px;
     border: 1px solid var(--accent-2) !important;
     color: var(--accent-2) !important;
     transition: var(--transition);
@@ -1597,13 +1597,6 @@ input::-webkit-clear-button {
     color: white !important;
     box-shadow: 0 0 20px rgba(255, 0, 84, 0.4);
 }
-
-
-
-
-
-
-
 
 
 
@@ -1631,7 +1624,7 @@ input::-webkit-clear-button {
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 12px;
     color: rgba(255, 255, 255, 0.6);
-    font-family: 'Syne', sans-serif;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     font-size: 0.8rem;
     font-weight: 700;
     cursor: pointer;
@@ -1662,14 +1655,61 @@ input::-webkit-clear-button {
 
 
 
+/* Container Principal - Estilo Pílula */
+.network-presence-pill {
+    margin-bottom: 25px;
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    background: rgba(255, 255, 255, 0.03);
+    padding: 8px 18px;
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
 
+/* Bolinha de Status */
+.presence-indicator {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+}
+.presence-indicator.active { background: #00ff88; box-shadow: 0 0 8px rgba(0, 255, 136, 0.4); }
+.presence-indicator.warning { background: #ffca28; box-shadow: 0 0 8px rgba(255, 202, 40, 0.4); }
+.presence-indicator.offline { background: #ff4444; }
 
+/* Textos */
+.presence-status { font-size: 0.75rem; font-weight: 500; letter-spacing: 0.5px; }
+.active-text { color: #00ff88; }
+.warning-text { color: #ffca28; }
+.offline-text { color: #ff4444; }
 
+.presence-pipe {
+    width: 1px;
+    height: 12px;
+    background: rgba(255, 255, 255, 0.1);
+}
 
+.presence-info { color: rgba(255, 255, 255, 0.5); font-size: 0.75rem; }
+.presence-info strong { color: #fff; font-weight: 400; }
 
+/* --- AJUSTE PARA DISPOSITIVOS MÓVEIS --- */
+@media (max-width: 480px) {
+    .network-presence-pill {
+        margin-top: -20px; /* PUXA O ELEMENTO PARA CIMA */
+        margin-bottom: 80px;
+        padding: 6px 12px;
+        gap: 8px;
+        border-radius: 8px;
+        display: flex;
+        width: 100%;
+        justify-content: center;
+    }
 
+    .presence-pipe {
+        display: none; /* Remove a barra para não apertar o texto no celular */
+    }
 
-
-
-
-
+    .presence-status, .presence-info {
+        font-size: 0.68rem;
+    }
+}

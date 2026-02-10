@@ -13,12 +13,12 @@ import json
 from firebase_admin import credentials, initialize_app
 from dotenv import load_dotenv
 load_dotenv()
+from datetime import datetime, timedelta
 
 
 # ======================================================
 # 🔧 CONFIGURAÇÃO INICIAL
 # ======================================================
-
 base_path = os.path.dirname(os.path.abspath(__file__))
 
 # Tenta pegar as credenciais do Firebase da variável de ambiente
@@ -59,7 +59,6 @@ def allowed_file(filename):
 # ======================================================
 # 🔐 DECORATOR DE PROTEÇÃO (SEM MUDAR LÓGICA)
 # ======================================================
-
 def login_required(f):
     @wraps(f)
     def decorated(*args, **kwargs):
@@ -69,10 +68,10 @@ def login_required(f):
     return decorated
 from config import ESTILOS
 
+
 @app.context_processor
 def inject_estilos():
     return dict(estilos=ESTILOS)
-
 
 
 @app.context_processor
@@ -90,7 +89,6 @@ def inject_firebase():
 # ======================================================
 # 🌎 ROTAS PÚBLICAS
 # ======================================================
-
 @app.route('/')
 def index():
     musicos_ref = db.collection('artistas')
@@ -194,6 +192,7 @@ def perfil_musico(musico_id):
         id=musico_id
     )
 
+
 # ======================================================
 # 🔐 AUTENTICAÇÃOdef login_page():
 # ======================================================
@@ -222,7 +221,6 @@ def login_page():
     )
 
 
-
 @app.route('/set_session', methods=['POST'])
 def set_session():
     data = request.get_json()
@@ -239,7 +237,6 @@ def set_session():
     return jsonify({"status": "success"}), 200
 
 
-
 @app.route('/logout')
 def logout():
     session.clear()
@@ -249,8 +246,6 @@ def logout():
 # ======================================================
 # 🔒 ÁREA PRIVADA
 # ======================================================
-
-# --- NOVA ROTA DE VERIFICAÇÃO (ESSENCIAL PARA A MODAL) ---
 @app.route('/check_user_type')
 def check_user_type():
     email = request.args.get('email')
@@ -279,6 +274,7 @@ def check_user_type():
 
     # 3. Se chegou aqui, ele nunca escolheu nada (abrir modal)
     return jsonify({"status": "novo"})
+
 
 @app.route('/dashboard')
 @login_required
@@ -372,6 +368,27 @@ def dashboard():
     qtd_feedbacks = len(feedbacks)
     media_estrelas = round(total_estrelas / qtd_feedbacks, 1) if qtd_feedbacks > 0 else 0.0
 
+    data_ativacao = None
+    data_vencimento = None
+    dias_restantes = None
+
+    if dados_usuario.get('data_pagamento'):
+        from datetime import datetime, timedelta
+        
+        # Converte o timestamp do Firestore para objeto datetime do Python
+        dt_pagamento = dados_usuario['data_pagamento']
+        data_ativacao = dt_pagamento.strftime('%d/%m/%Y')
+        
+        # Calcula vencimento (30 dias depois)
+        dt_vencimento = dt_pagamento + timedelta(days=30)
+        data_vencimento = dt_vencimento.strftime('%d/%m/%Y')
+
+        # Calcula a diferença de dias para o alerta de cor
+        hoje = datetime.now()
+        # Garante que dt_vencimento não tenha timezone se 'hoje' não tiver, ou vice-versa
+        diff = dt_vencimento.replace(tzinfo=None) - hoje.replace(tzinfo=None)
+        dias_restantes = diff.days
+
     return render_template(
         'dashboard.html',
         pedidos=pedidos,
@@ -381,9 +398,12 @@ def dashboard():
         notificacoes_fas=notificacoes_fas,
         total_cliques=total_cliques,
         media_estrelas=media_estrelas,
-        bloqueado=bloqueado
+        bloqueado=bloqueado,
+        data_ativacao=data_ativacao,
+        data_vencimento=data_vencimento,
+        dias_restantes=dias_restantes,
+        pagou=pagou
     )
-
 
 @app.route('/webhook-stripe', methods=['POST'])
 def webhook_stripe():
@@ -440,6 +460,50 @@ def webhook_stripe():
 
 
 
+# ======================================================
+# LOGIN GOOGLE
+# ======================================================
+@app.route('/login_google', methods=['POST'])
+def login_google():
+    data = request.get_json()
+    id_token = data.get('idToken')
+    
+    try:
+        decoded_token = firebase_auth.verify_id_token(id_token)
+        email = decoded_token['email']
+        session['user_email'] = email
+        
+        user_ref = db.collection('usuarios').document(email)
+        user_doc = user_ref.get()
+
+        # URL do seu Checkout Stripe (pode ser o link direto ou link de preço)
+        link_checkout_stripe = "https://buy.stripe.com/test_5kQ8wO90m6yWbRl0I5gIo00"
+
+        if not user_doc.exists:
+            # Novo usuário -> Criar e mandar para o checkout
+            user_ref.set({
+                'email': email,
+                'nome': decoded_token.get('name', 'Usuário Google'),
+                'tipo': 'musico',
+                'acesso_pago': False,
+                'criado_em': firestore.SERVER_TIMESTAMP
+            })
+            return jsonify({"status": "success", "redirect_url": link_checkout_stripe}), 200
+
+        else:
+            dados = user_doc.to_dict()
+            # Usuário existe mas não pagou -> Mandar para o checkout
+            if not dados.get('acesso_pago', False):
+                return jsonify({"status": "success", "redirect_url": link_checkout_stripe}), 200
+            
+            # Já pagou -> Deixar ir para o Dashboard normalmente
+            return jsonify({"status": "success"}), 200
+
+    except Exception as e:
+        print(f"Erro: {e}")
+        return jsonify({"status": "error", "message": str(e)}), 401
+
+
 # 🔔 ROTA: Marcar como lido
 @app.route('/marcar_lido/<pedido_id>', methods=['POST'])
 @login_required
@@ -467,6 +531,7 @@ def aprovar_feedback(id):
         print(f"Erro ao aprovar: {e}")
         return redirect('/dashboard')
 
+
 @app.route('/remover_feedback/<string:id>', methods=['POST'])
 def remover_feedback(id):
     try:
@@ -477,6 +542,7 @@ def remover_feedback(id):
     except Exception as e:
         print(f"Erro ao remover: {e}")
         return redirect('/dashboard')
+
 
 # ======================================================
 # ENVIAR FEEDBACK-PERFIL USUARIO
@@ -494,6 +560,8 @@ def api_enviar_feedback():
     }
     db.collection('feedbacks').add(dados)
     return jsonify({'status': 'success'})
+
+
 # ======================================================
 # CADASTRAR MÚSICO-DASHBOARD (ATUALIZADO COM TIPO)
 # ======================================================
@@ -578,6 +646,7 @@ def cadastrar_musico():
 
     return redirect(url_for('dashboard'))
 
+
 # ======================================================
 # 🎵 CONTRATAR BANDA
 # ======================================================
@@ -631,7 +700,6 @@ def reservar():
         return jsonify({"status": "error", "message": "Erro interno no servidor"}), 500
     
 
-
 @app.route('/adicionar_agenda', methods=['POST'])
 @login_required
 def adicionar_agenda():
@@ -663,6 +731,8 @@ def adicionar_agenda():
     
     return redirect(url_for('dashboard'))
 
+
+
 @app.route('/remover_agenda/<show_id>', methods=['POST'])
 @login_required
 def remover_agenda(show_id):
@@ -678,7 +748,6 @@ def remover_agenda(show_id):
 # ======================================================
 # TROCAR SENHA USUARIO
 # ======================================================   
-   
 @app.route('/api_registrar_troca_senha', methods=['POST'])
 @login_required
 def registrar_troca_senha():
@@ -727,10 +796,10 @@ def login_interno():
     else:
         return jsonify({"status": "error", "message": "Senha incorreta"}), 401
  
+
 # ======================================================
 # EXCLUIR MENSAGENS
 # ======================================================
-
 @app.route('/excluir_pedidos', methods=['POST'])
 @login_required
 def excluir_pedidos():
@@ -753,41 +822,6 @@ def excluir_pedidos():
         print(f"Erro ao excluir: {e}")
         return jsonify({'status': 'error', 'message': str(e)}), 500
 
-
-# ======================================================
-# LOGIN GOOGLE
-# ======================================================
-@app.route('/login_google', methods=['POST'])
-def login_google():
-    data = request.get_json()
-    id_token = data.get('idToken')
-    
-    try:
-        # Valida o token vindo do front-end
-        decoded_token = firebase_auth.verify_id_token(id_token)
-        email = decoded_token['email']
-        nome = decoded_token.get('name', 'Usuário Google')
-        foto = decoded_token.get('picture', '')
-
-        # Inicia a sessão
-        session['user_email'] = email
-        
-        # Verifica se o usuário já existe na coleção 'usuarios'
-        user_ref = db.collection('usuarios').document(email)
-        if not user_ref.get().exists:
-            user_ref.set({
-                'email': email,
-                'nome': nome,
-                'foto_google': foto,
-                'tipo': 'musico',
-                'criado_em': firestore.SERVER_TIMESTAMP
-            })
-            
-        return jsonify({"status": "success"}), 200
-        
-    except Exception as e:
-        print(f"Erro na validação Google: {e}")
-        return jsonify({"status": "error", "message": "Token inválido"}), 401
 
 
 @app.route('/api/artistas_vitrine')
@@ -822,6 +856,7 @@ def api_artistas_vitrine():
 @login_required
 def abrir_pagina_estabelecimento():
     return render_template('cadastro_estabelecimento.html')
+
 
 # 2. ROTA QUE PROCESSA O CADASTRO (API)
 @app.route('/api_cadastrar_estabelecimento', methods=['POST'])
@@ -861,6 +896,7 @@ def api_cadastrar_estabelecimento():
 
     doc_ref.set(dados)
     return redirect(url_for('dashboard_estabelecimento'))
+
 
 # 3. ROTA DO DASHBOARD EXCLUSIVO DO ESTABELECIMENTO
 @app.route('/dashboard-estabelecimento')
@@ -932,7 +968,6 @@ def lista_artistas():
         return f"Erro: Arquivo lista_{tipo_limpo}.html não encontrado", 404
     
     
-
 @app.route('/api_deletar_dados_usuario', methods=['POST'])
 def api_deletar_dados_usuario():
     try:
@@ -961,7 +996,6 @@ def api_deletar_dados_usuario():
         return jsonify({"status": "error", "message": str(e)}), 500
 
 
-
 @app.route('/api_deletar_dados_usuario', methods=['POST'])
 def api_excluir_conta_definitiva(): # <--- Mudei o nome da função aqui
     try:
@@ -978,7 +1012,6 @@ def api_excluir_conta_definitiva(): # <--- Mudei o nome da função aqui
         return jsonify({"status": "success"}), 200
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
-
 
 
 # ======================================================

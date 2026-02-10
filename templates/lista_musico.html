@@ -26,14 +26,23 @@
             <div class="line3"></div>
         </div>
 
-        <ul class="menu-links" id="nav-links">
-            <li><a href="/" class="btn-nav-flat">HOME</a></li>
-            <li><a href="/artistas?tipo=dj" class="btn-nav-flat">DJs</a></li>
-            <li><a href="/artistas?tipo=musico" class="btn-nav-flat">MÚSICOS</a></li>
-            <li><a href="/artistas?tipo=banda" class="btn-nav-flat">BANDAS</a></li>
-            <li><a href="/palco" class="btn-nav-flat">PALCOS</a></li>
-            <li><a href="/dashboard" class="btn-plasma-small">MEMBRO</a></li>
-        </ul>
+        <div class="nav-actions" id="nav-links">
+            {% if session.get('user_email') %}
+                <a href="/artistas?tipo=dj" class="btn-nav-flat">DJs</a>
+                <a href="/artistas?tipo=músico independente" class="btn-nav-flat">MÚSICOS</a>
+                <a href="/artistas?tipo=banda" class="btn-nav-flat">BANDAS</a>
+                <a href="/palco" class="btn-plasma-small">Estabelecimentos</a>
+                <a href="/dashboard" class="btn-user-status">PAINEL</a>
+                <a href="/logout" class="btn-logout-index">SAIR</a>
+            {% else %}
+                <a href="/" class="btn-nav-flat">HOME</a>
+                <a href="/artistas?tipo=dj" class="btn-nav-flat">DJs</a>
+                <a href="/artistas?tipo=músico independente" class="btn-nav-flat">MÚSICOS</a>
+                <a href="/artistas?tipo=banda" class="btn-nav-flat">BANDAS</a>
+                <a href="/palco" class="btn-nav-flat">PALCOS</a>
+                <a href="/dashboard" class="btn-plasma-small">MEMBRO</a>
+            {% endif %}
+        </div>
     </nav>
 
     <main class="profile-container">
@@ -63,6 +72,10 @@
                             </div>
                         </div> </div>
                 </a>
+            {% else %}
+                <div style="grid-column: 1 / -1; text-align: center; padding: 100px 20px; opacity: 0.5;">
+                    <h2>Nenhum artista encontrado.</h2>
+                </div>
             {% endfor %}
         </div>
     </main> <footer class="main-footer">

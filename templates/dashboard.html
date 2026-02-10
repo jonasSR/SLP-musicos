@@ -89,11 +89,35 @@
 
 
 <main class="dash-main">
-    <header class="dash-intro">
-        <h1 class="reveal-text">PAINEL</h1>
-        <p>Gerencie seus pedidos e sua presença digital.</p>
+    <header class="dash-intro" style="margin-bottom: 40px;">
+        <h1 class="reveal-text" style="font-family: 'Orbitron', sans-serif; letter-spacing: 4px; display: flex; align-items: center; gap: 15px;">
+            PAINEL 
+            <span style="width: 2px; height: 30px; background: rgba(255,255,255,0.2);"></span> 
+            <span id="header-user-name" style="font-size: 1.2rem; color: #00f2ff; text-shadow: 0 0 10px rgba(0,242,255,0.5); font-weight: 300;">
+                {% if musico.nome %}{{ musico.nome|upper }}{% else %}LOGADO{% endif %}
+            </span>
+        </h1>
+        <p style="opacity: 0.6; font-size: 0.9rem; margin-top: 5px;">Bem-vindo de volta! Gerencie seus pedidos e sua presença digital.</p>
     </header>
 
+    <div class="network-presence-pill">
+        {% if pagou %}
+            {% if dias_restantes is not none and dias_restantes <= 7 %}
+                <div class="presence-indicator warning"></div>
+                <span class="presence-status warning-text">Ciclo de visibilidade termina em breve</span>
+                <span class="presence-pipe"></span>
+                <span class="presence-info">Próxima atualização: <strong>{{ data_vencimento }}</strong></span>
+            {% else %}
+                <div class="presence-indicator active"></div>
+                <span class="presence-status active-text">Perfil Ativo na Rede</span>
+                <span class="presence-pipe"></span>
+                <span class="presence-info">Renovação: <strong>{{ data_vencimento }}</strong></span>
+            {% endif %}
+        {% else %}
+            <div class="presence-indicator offline"></div>
+            <span class="presence-status offline-text">Perfil Offline</span>
+        {% endif %}
+    </div>
 
     {% if musico.nome %}
     <div class="mobile-tabs">
@@ -253,11 +277,36 @@
             </div>
             <br>
 
-            <div class="image-config-box" style="background: rgba(255,255,255,0.03); padding: 20px; border-radius: 15px; border: 1px solid rgba(255,255,255,0.05); margin-bottom: 25px;">
+            <div class="image-config-box" style="background: rgba(255,255,255,0.03); padding: 20px; border-radius: 15px; border: 1px solid rgba(255,255,255,0.05); margin-bottom: 25px; font-family: 'Orbitron', sans-serif;">
                 <div style="text-align: center; margin: 10px 0; font-size: 0.7rem; color: #ffffff; letter-spacing: 2px;">FAÇA UPLOAD PARA IMAGEM DA CAPA</div>
                 <div class="input-modern">
-                    <input type="file" name="foto_arquivo" id="input-file" accept="image/*" style="padding-top: 10px;">
-                    <label class="label-fixed">ARQUIVO LOCAL (PASTA IMG)</label>
+                    <input type="file" name="foto_arquivo" id="input-file" accept="image/*" 
+                        style="
+                            padding-top: 10px;
+                            color: #888;
+                            font-size: 0.8rem;
+                        ">
+                    
+                    <style>
+                        #input-file::file-selector-button {
+                            background: rgba(255,255,255,0.1);
+                            color: white;
+                            border: 1px solid rgba(255,255,255,0.2);
+                            padding: 8px 15px;
+                            border-radius: 8px;
+                            cursor: pointer;
+                            margin-right: 15px;
+                            transition: 0.3s;
+                            font-family: inherit;
+                        }
+
+                        #input-file::file-selector-button:hover {
+                            background: rgba(255,255,255,0.2);
+                            border-color: rgba(255,255,255,0.5);
+                        }
+                    </style>
+
+                    <label class="label-fixed" style="display: block; margin-top: 5px; font-size: 0.7rem; color: rgba(255,255,255,0.4);">ARQUIVO LOCAL (PASTA IMG)</label>
                 </div>
             </div>
 

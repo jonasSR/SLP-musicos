@@ -32,7 +32,7 @@
 body {
     background-color: var(--bg-dark);
     color: white;
-    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     overflow-x: hidden;
 }
 
@@ -200,7 +200,7 @@ body {
     border: none;
     border-radius: 4px; /* Estilo mais moderno que o arredondado total */
     font-weight: 900;
-    font-family: 'Syne', sans-serif;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     text-transform: uppercase;
     letter-spacing: 2px;
     cursor: pointer;
@@ -293,7 +293,7 @@ body {
 }
 
 .artist-main-name {
-    font-family: 'Syne', sans-serif;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     font-size: clamp(2.5rem, 5vw, 4rem);
     line-height: 0.9;
     text-transform: uppercase;
@@ -383,7 +383,7 @@ body {
     letter-spacing: 1px;
     color: #fff;
     margin-bottom: 4px;
-    font-family: 'Syne', sans-serif;
+    font-family: ''Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif';
 }
 
 .feedback-form-card p {
@@ -459,7 +459,7 @@ body {
     width: 320px;
     max-width: 100%;
     padding: 10px;
-    font-family: 'Syne', sans-serif;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     font-weight: 800;
     font-size: 0.7rem;
     letter-spacing: 2px;
@@ -486,7 +486,7 @@ body {
 }
 
 .mural-title {
-    font-family: 'Syne', sans-serif;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     font-size: 1.5rem;
     font-weight: 900;
     color: #fff;
@@ -729,7 +729,7 @@ body {
 ========================================================= */
 .btn-mural {
     /* Mantendo suas propriedades exatas */
-    font-family: 'Syne', sans-serif;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     font-weight: 800;
     letter-spacing: 2px;
     text-transform: uppercase;
