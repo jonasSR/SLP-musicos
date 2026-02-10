@@ -279,7 +279,9 @@ def dashboard():
     user_docs = list(user_query)
     
     if not user_docs:
-        return "Erro: Usuário não encontrado no sistema.", 403
+        session.clear()
+        flash("Sua conta não foi encontrada ou foi desativada.", "danger")
+        return redirect(url_for('login'))
     
     dados_usuario = user_docs[0].to_dict()
     tipo_usuario = dados_usuario.get('tipo')
