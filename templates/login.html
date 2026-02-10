@@ -24,16 +24,6 @@
         <h1 class="log-glitch-title">Acesso ao <span>Painel</span></h1>
         <p class="log-subtitle">Gestão de Perfil | Pulsa Music Conect.</p>
 
-        {% if confirmacao_venda %}
-        <div id="welcome-msg" class="glass-card" style="border-left: 4px solid #00efff; margin-bottom: 25px; padding: 20px; background: rgba(255, 255, 255, 0.03); border-radius: 8px;">
-            <h2 style="color: #00efff; font-family: 'Syne', sans-serif; font-size: 1.3rem; margin: 0;">Falta pouco para o seu show! 🎸</h2>
-            <p style="color: #eee; font-size: 0.95rem; margin-top: 8px; line-height: 1.5;">
-                Seja bem-vindo ao <strong>Pulsa São Luiz</strong>. <br>
-                Para liberar seu painel, basta criar sua senha de acesso abaixo usando o e-mail da sua inscrição.
-            </p>
-        </div>
-        {% endif %}
-
         <form id="auth-form" class="log-form-wrapper">
             <div class="log-field-group">
                 <input type="email" id="email" class="log-input-field" required placeholder=" ">
@@ -125,34 +115,5 @@
         console.log("🔥 Configuração do Firebase injetada!");
     </script>
     <script type="module" src="{{ url_for('static', filename='js/auth.js') }}"></script>
-
-    <script>
-        // Converte o valor do Python para o JS com segurança
-        const confirmacaoVenda = "{{ confirmacao_venda }}";
-
-        if (confirmacaoVenda === 'True' || confirmacaoVenda === 'true') {
-            // Forçamos a execução assim que a janela carregar completamente
-            window.onload = function() {
-                const modal = document.getElementById('modal-auth');
-                const modalTitle = document.getElementById('modal-title');
-                const modalText = document.getElementById('modal-text');
-
-                if (modal) {
-                    // Atualiza o texto
-                    modalTitle.innerText = "✨ Quase lá!";
-                    modalTitle.style.color = "#00efff";
-                    modalText.innerHTML = "Sua conta já está ativa! <br> Defina sua senha abaixo e clique em <strong>CRIAR CONTA</strong> para acessar.";
-
-                    // FORÇA O APARECIMENTO (Sobrescreve qualquer CSS)
-                    modal.style.setProperty('display', 'flex', 'important');
-                    modal.style.setProperty('visibility', 'visible', 'important');
-                    modal.style.setProperty('opacity', '1', 'important');
-                    modal.classList.add('active');
-                    
-                    console.log("Modal forçada via Flask + JS");
-                }
-            };
-        }
-    </script>
 </body>
 </html>

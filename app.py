@@ -199,9 +199,7 @@ def perfil_musico(musico_id):
 # ======================================================
 @app.route('/login')
 def login_page():
-    # Verifica se o link contém "?pago=true"
-    veio_da_venda = request.args.get('pago') == 'true'
-    
+    """Tela de acesso para músicos com chaves seguras"""
     config = {
         "apiKey": os.getenv("FIREBASE_API_KEY"),
         "authDomain": os.getenv("FIREBASE_AUTH_DOMAIN"),
@@ -210,11 +208,7 @@ def login_page():
         "messagingSenderId": os.getenv("FIREBASE_MESSAGING_SENDER_ID"),
         "appId": os.getenv("FIREBASE_APP_ID")
     }
-    
-    # IMPORTANTE: Passar 'confirmacao_venda' para o HTML
-    return render_template('login.html', 
-                           firebase_config=config, 
-                           confirmacao_venda=veio_da_venda)
+    return render_template('login.html', firebase_config=config)
 
 
 @app.route('/set_session', methods=['POST'])
