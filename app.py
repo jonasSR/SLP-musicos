@@ -279,30 +279,23 @@ def dashboard():
     user_docs = list(user_query)
     
     if not user_docs:
-        return "Erro: Usuário não encontrado.", 403
+        return "Erro: Usuário não encontrado no sistema.", 403
     
     dados_usuario = user_docs[0].to_dict()
     tipo_usuario = dados_usuario.get('tipo')
     pagou = dados_usuario.get('acesso_pago', False)
 
+    # Variável que controla se a modal aparece ou não
+    bloqueado = False
+
     # 🛑 REGRA 1: Se ainda não escolheu o tipo
     if not tipo_usuario:
         return render_template('dashboard.html', pedidos=[], musico=None, agenda=[], feedbacks=[], notificacoes_fas=0, total_cliques=0, media_estrelas=0, bloqueado=False)
 
-    # 🟢 BUSCA DADOS DO ARTISTA (Saber se ele já tem cadastro)
-    artista_query = db.collection('artistas').where('dono_email', '==', email_logado).limit(1).stream()
-    artista_docs = list(artista_query)
-    artista_dados = artista_docs[0].to_dict() if artista_docs else None
-
-    # 🛑 REGRA 2: TRAVA DE PAGAMENTO (O GATILHO)
-    bloqueado = False
+    # 🛑 REGRA 2: LÓGICA DO OVERLAY (SEM EXPULSÃO)
+    # Se for músico e NÃO pagou (FALSO no banco), ativamos o bloqueio mas NÃO damos redirect
     if tipo_usuario == 'musico' and not pagou:
-        if artista_docs:
-            # Se já tem documento de artista, no próximo refresh/clique ele recebe a MODAL
-            bloqueado = True
-        else:
-            # Se é a primeiríssima vez (sem cadastro), CHUTA PRO STRIPE
-            return redirect("https://buy.stripe.com/test_5kQ8wO90m6yWbRl0I5gIo00")
+        bloqueado = True
 
     # 🟢 SE FOR ESTABELECIMENTO
     if tipo_usuario == 'estabelecimento':
@@ -311,16 +304,23 @@ def dashboard():
             return redirect(url_for('abrir_pagina_estabelecimento'))
         return redirect(url_for('dashboard_estabelecimento'))
 
-    # 🟢 CARREGA DADOS PARA O DASHBOARD (Pedidos, Agenda, etc.)
+    # 🟢 BUSCA DADOS DO MÚSICO
+    artista_query = db.collection('artistas').where('dono_email', '==', email_logado).limit(1).stream()
+    artista_docs = list(artista_query)
+
+    artista_dados = None
     pedidos, agenda, feedbacks = [], [], []
     total_cliques, notificacoes_fas, total_estrelas = 0, 0, 0
 
     if artista_docs:
-        artista_id = artista_docs[0].id
+        doc = artista_docs[0]
+        artista_id = doc.id
+        artista_dados = doc.to_dict()
         artista_dados['id'] = artista_id
+        
         total_cliques = artista_dados.get('cliques', 0)
 
-        # Pedidos
+        # Carregar Pedidos, Agenda e Feedbacks (Seu código original)
         pedidos_ref = db.collection('pedidos_reserva').where('musico_id', '==', artista_id).stream()
         for p in pedidos_ref:
             p_dados = p.to_dict()
@@ -328,14 +328,12 @@ def dashboard():
             pedidos.append(p_dados)
         pedidos.sort(key=lambda x: x.get('criado_em') if x.get('criado_em') else 0, reverse=True)
 
-        # Agenda
         agenda_ref = db.collection('artistas').document(artista_id).collection('agenda').order_by('data_completa').stream()
         for s in agenda_ref:
             s_dados = s.to_dict()
             s_dados['id'] = s.id
             agenda.append(s_dados)
 
-        # Feedbacks
         feedbacks_ref = db.collection('feedbacks').where('artista_email', '==', email_logado).stream()
         for f in feedbacks_ref:
             f_dados = f.to_dict()
@@ -348,6 +346,7 @@ def dashboard():
     qtd_feedbacks = len(feedbacks)
     media_estrelas = round(total_estrelas / qtd_feedbacks, 1) if qtd_feedbacks > 0 else 0.0
 
+    # 🟢 RENDERIZAÇÃO FINAL: Passando a variável bloqueado para o HTML
     return render_template(
         'dashboard.html', 
         pedidos=pedidos, 
