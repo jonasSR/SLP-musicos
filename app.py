@@ -200,7 +200,12 @@ def perfil_musico(musico_id):
 @app.route('/login')
 def login_page():
     veio_da_venda = request.args.get('pago') == 'true'
-    
+
+    if veio_da_venda:
+        session['mostrar_boas_vindas'] = True
+
+    mostrar_modal = session.pop('mostrar_boas_vindas', False)
+
     config = {
         "apiKey": os.getenv("FIREBASE_API_KEY"),
         "authDomain": os.getenv("FIREBASE_AUTH_DOMAIN"),
@@ -209,10 +214,13 @@ def login_page():
         "messagingSenderId": os.getenv("FIREBASE_MESSAGING_SENDER_ID"),
         "appId": os.getenv("FIREBASE_APP_ID")
     }
-    
-    return render_template('login.html', 
-                           firebase_config=config, 
-                           confirmacao_venda=veio_da_venda)
+
+    return render_template(
+        'login.html',
+        firebase_config=config,
+        confirmacao_venda=mostrar_modal
+    )
+
 
 
 @app.route('/set_session', methods=['POST'])
