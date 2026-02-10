@@ -295,7 +295,7 @@ def dashboard():
         flash("Sua conta não foi encontrada ou foi desativada.", "danger")
         return redirect(url_for('login'))
 
-    dados_usuario = user_doc.to_dict()
+    dados_usuario = user_docs[0].to_dict()
     tipo_usuario = dados_usuario.get('tipo')
     pagou = dados_usuario.get('acesso_pago', False)
 
