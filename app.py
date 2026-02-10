@@ -302,21 +302,19 @@ def dashboard():
     if not tipo_usuario:
         return render_template('dashboard.html', pedidos=[], musico=None, agenda=[], feedbacks=[], notificacoes_fas=0, total_cliques=0, media_estrelas=0, bloqueado=False)
 
-    # 🛑 REGRA 2: LÓGICA DE ACESSO E PAGAMENTO (PÁGINA DE VENDAS + INTERNO)
+    # 🛑 REGRA 2: LÓGICA DE ACESSO INSTANTÂNEO
     if tipo_usuario == 'musico':
-        if not pagou:
-            if artista_docs:
-                # CAMINHO A: O cara já tem perfil, mas o acesso_pago está False no banco.
-                # Apenas bloqueia a tela (Overlay), não redireciona.
-                bloqueado = True
-            else:
-                # CAMINHO B: O cara acabou de cadastrar e NÃO veio da página de vendas (pagou=False).
-                # Aqui sim, ele vai para o Checkout.
-                return redirect("https://buy.stripe.com/test_5kQ8wO90m6yWbRl0I5gIo00")
+        # Verificamos se ele veio com o sinal de 'pago' na URL agora ou se já está no banco
+        veio_do_pagamento = request.args.get('pago') == 'true'
         
-        # Caso C: Se 'pagou' for True (veio da Página de Vendas ou Webhook atualizou),
-        # ele passa direto por aqui, 'bloqueado' continua False e ele acessa o painel.
-
+        if not pagou and not veio_do_pagamento:
+            if not artista_docs:
+                # SÓ redireciona se o cara NÃO pagou no banco E NÃO veio da página de vendas agora
+                return redirect("https://buy.stripe.com/test_5kQ8wO90m6yWbRl0I5gIo00")
+            else:
+                # Se já tem perfil mas o banco tá lento, bloqueia só pra garantir
+                bloqueado = True
+                
     # 🟢 SE FOR ESTABELECIMENTO
     if tipo_usuario == 'estabelecimento':
         doc_estab = db.collection('estabelecimentos').document(email_logado).get()
@@ -375,6 +373,59 @@ def dashboard():
         media_estrelas=media_estrelas,
         bloqueado=bloqueado
     )
+
+@app.route('/webhook-stripe', methods=['POST'])
+def webhook_stripe():
+    payload = request.get_data()
+    try:
+        event = json.loads(payload)
+    except Exception as e:
+        return jsonify({"status": "error", "message": "Payload inválido"}), 400
+
+    tipo_evento = event['type']
+    data_object = event['data']['object']
+    email_cliente = data_object.get('customer_details', {}).get('email')
+
+    if not email_cliente:
+        return jsonify({"status": "success", "message": "Sem email no evento"}), 200
+
+    # 🔍 BUSCA O DOCUMENTO
+    user_query = db.collection('usuarios').where('email', '==', email_cliente).limit(1).stream()
+    user_docs = list(user_query)
+
+    # 1. ✅ PAGAMENTO APROVADO
+    if tipo_evento == 'checkout.session.completed':
+        if user_docs:
+            # USUÁRIO JÁ EXISTE: Apenas atualiza
+            user_ref = user_docs[0].reference
+            user_ref.update({
+                'acesso_pago': True,
+                'status_financeiro': 'pago',
+                'data_pagamento': firestore.SERVER_TIMESTAMP
+            })
+            print(f"✅ SUCESSO: Cadastro existente de {email_cliente} atualizado para PAGO.")
+        else:
+            # USUÁRIO NÃO EXISTE (Vindo da página de vendas): Cria o documento prévio
+            db.collection('usuarios').document(email_cliente).set({
+                'email': email_cliente,
+                'acesso_pago': True,
+                'status_financeiro': 'pago',
+                'tipo': 'musico', # Já pré-define como músico
+                'data_pagamento': firestore.SERVER_TIMESTAMP,
+                'criado_via': 'pagina_vendas'
+            })
+            print(f"✨ NOVO: Usuário {email_cliente} pagou na LP e teve documento criado.")
+
+    # 2. ❌ PAGAMENTO FALHOU / EXPIROU
+    elif tipo_evento in ['checkout.session.async_payment_failed', 'checkout.session.expired']:
+        if user_docs:
+            user_ref = user_docs[0].reference
+            user_ref.update({
+                'acesso_pago': False,
+                'status_financeiro': 'falha/expirado'
+            })
+
+    return jsonify({"status": "success"}), 200    
 
 # 🔔 ROTA: Marcar como lido
 @app.route('/marcar_lido/<pedido_id>', methods=['POST'])
@@ -915,58 +966,6 @@ def api_excluir_conta_definitiva(): # <--- Mudei o nome da função aqui
         return jsonify({"status": "error", "message": str(e)}), 500
 
 
-@app.route('/webhook-stripe', methods=['POST'])
-def webhook_stripe():
-    payload = request.get_data()
-    try:
-        event = json.loads(payload)
-    except Exception as e:
-        return jsonify({"status": "error", "message": "Payload inválido"}), 400
-
-    tipo_evento = event['type']
-    data_object = event['data']['object']
-    email_cliente = data_object.get('customer_details', {}).get('email')
-
-    if not email_cliente:
-        return jsonify({"status": "success", "message": "Sem email no evento"}), 200
-
-    # 🔍 BUSCA O DOCUMENTO
-    user_query = db.collection('usuarios').where('email', '==', email_cliente).limit(1).stream()
-    user_docs = list(user_query)
-
-    # 1. ✅ PAGAMENTO APROVADO
-    if tipo_evento == 'checkout.session.completed':
-        if user_docs:
-            # USUÁRIO JÁ EXISTE: Apenas atualiza
-            user_ref = user_docs[0].reference
-            user_ref.update({
-                'acesso_pago': True,
-                'status_financeiro': 'pago',
-                'data_pagamento': firestore.SERVER_TIMESTAMP
-            })
-            print(f"✅ SUCESSO: Cadastro existente de {email_cliente} atualizado para PAGO.")
-        else:
-            # USUÁRIO NÃO EXISTE (Vindo da página de vendas): Cria o documento prévio
-            db.collection('usuarios').document(email_cliente).set({
-                'email': email_cliente,
-                'acesso_pago': True,
-                'status_financeiro': 'pago',
-                'tipo': 'musico', # Já pré-define como músico
-                'data_pagamento': firestore.SERVER_TIMESTAMP,
-                'criado_via': 'pagina_vendas'
-            })
-            print(f"✨ NOVO: Usuário {email_cliente} pagou na LP e teve documento criado.")
-
-    # 2. ❌ PAGAMENTO FALHOU / EXPIROU
-    elif tipo_evento in ['checkout.session.async_payment_failed', 'checkout.session.expired']:
-        if user_docs:
-            user_ref = user_docs[0].reference
-            user_ref.update({
-                'acesso_pago': False,
-                'status_financeiro': 'falha/expirado'
-            })
-
-    return jsonify({"status": "success"}), 200
 
 # ======================================================
 # 🚀 START
