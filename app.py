@@ -197,16 +197,12 @@ def perfil_musico(musico_id):
 # ======================================================
 # 🔐 AUTENTICAÇÃOdef login_page():
 # ======================================================
-
 @app.route('/login')
 def login_page():
-    # O Flask "pega" o email que o Stripe envia na URL
-    email_da_url = request.args.get('email', '')
+    """Tela de acesso com lógica de boas-vindas pós-venda"""
+    # Verifica se o parâmetro 'pago' está na URL
+    veio_da_venda = request.args.get('pago') == 'true'
     
-    # Se o Stripe mandar o código bruto (texto entre chaves), nós limpamos para não ficar feio
-    if "{" in email_da_url:
-        email_da_url = ""
-
     config = {
         "apiKey": os.getenv("FIREBASE_API_KEY"),
         "authDomain": os.getenv("FIREBASE_AUTH_DOMAIN"),
@@ -216,10 +212,9 @@ def login_page():
         "appId": os.getenv("FIREBASE_APP_ID")
     }
     
-    # IMPORTANTE: Você precisa passar o email_preenchido para o template
     return render_template('login.html', 
                            firebase_config=config, 
-                           email_preenchido=email_da_url)
+                           confirmacao_venda=veio_da_venda)
 
 
 @app.route('/set_session', methods=['POST'])

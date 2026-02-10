@@ -24,9 +24,19 @@
         <h1 class="log-glitch-title">Acesso ao <span>Painel</span></h1>
         <p class="log-subtitle">Gestão de Perfil | Pulsa Music Conect.</p>
 
+        {% if confirmacao_venda %}
+        <div id="welcome-msg" class="glass-card" style="border-left: 4px solid #00efff; margin-bottom: 25px; padding: 20px; background: rgba(255, 255, 255, 0.03); border-radius: 8px;">
+            <h2 style="color: #00efff; font-family: 'Syne', sans-serif; font-size: 1.3rem; margin: 0;">Falta pouco para o seu show! 🎸</h2>
+            <p style="color: #eee; font-size: 0.95rem; margin-top: 8px; line-height: 1.5;">
+                Seja bem-vindo ao <strong>Pulsa São Luiz</strong>. <br>
+                Para liberar seu painel, basta criar sua senha de acesso abaixo usando o e-mail da sua inscrição.
+            </p>
+        </div>
+        {% endif %}
+
         <form id="auth-form" class="log-form-wrapper">
             <div class="log-field-group">
-                <input type="email" id="email" class="log-input-field" required placeholder=" " value="{{ email_preenchido }}">
+                <input type="email" id="email" class="log-input-field" required placeholder=" ">
                 <label class="log-field-label">E-MAIL CORPORATIVO OU ARTÍSTICO</label>
             </div>
 
@@ -115,26 +125,26 @@
         console.log("🔥 Configuração do Firebase injetada!");
     </script>
     <script type="module" src="{{ url_for('static', filename='js/auth.js') }}"></script>
-    {% if confirmacao_venda == 'true' %}
-        <script>
-            // Alerta visual para o usuário não se sentir perdido após o pagamento
-            window.addEventListener('load', () => {
+
+    <script>
+        // Colocamos aspas para o editor achar que é uma String comum.
+        // O Flask vai transformar isso em 'true' ou 'false' antes de chegar no navegador.
+        const veioDaVenda = "{{ 'true' if confirmacao_venda else 'false' }}" === 'true';
+
+        if (veioDaVenda) {
+            window.addEventListener('load', function() {
+                const modal = document.getElementById('modal-auth');
                 const modalTitle = document.getElementById('modal-title');
                 const modalText = document.getElementById('modal-text');
-                const modal = document.getElementById('modal-auth');
-
-                if(modalTitle && modalText && modal) {
-                    modalTitle.innerText = "Pagamento Confirmado! ✅";
-                    modalTitle.style.color = "#00ff88";
-                    modalText.innerHTML = "Seu acesso já foi liberado. <br> Agora, basta clicar em <strong>CRIAR CONTA</strong> para definir sua senha de acesso.";
+                
+                if (modal) {
+                    modalTitle.innerText = "Próximo Passo";
+                    modalTitle.style.color = "#00ff88"; 
+                    modalText.innerHTML = "Sua assinatura foi identificada! <br> Agora, digite seu e-mail e senha e clique em <strong>CRIAR CONTA</strong> para finalizar.";
                     modal.classList.add('active');
-                } else {
-                    alert("Pagamento Confirmado! ✅\nAgora basta clicar em 'CRIAR CONTA' para definir sua senha.");
                 }
             });
-        </script>
-    {% endif %}
-
-    <script type="module" src="{{ url_for('static', filename='js/auth.js') }}"></script>
+        }
+    </script>
 </body>
 </html>
