@@ -306,12 +306,12 @@ def dashboard():
     if tipo_usuario == 'musico':
         if not pagou:
             if artista_docs:
-                # Caso A: Ele já tem um perfil criado, mas o pagamento não consta.
-                # Bloqueamos com o Overlay (modal) para ele não editar nada.
+                # CAMINHO A: O cara já tem perfil, mas o acesso_pago está False no banco.
+                # Apenas bloqueia a tela (Overlay), não redireciona.
                 bloqueado = True
             else:
-                # Caso B: Tentou entrar no painel sem perfil e sem pagar.
-                # Redireciona para o checkout do Stripe.
+                # CAMINHO B: O cara acabou de cadastrar e NÃO veio da página de vendas (pagou=False).
+                # Aqui sim, ele vai para o Checkout.
                 return redirect("https://buy.stripe.com/test_5kQ8wO90m6yWbRl0I5gIo00")
         
         # Caso C: Se 'pagou' for True (veio da Página de Vendas ou Webhook atualizou),
