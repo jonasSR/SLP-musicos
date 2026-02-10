@@ -274,27 +274,28 @@ def check_user_type():
 def dashboard():
     email_logado = session.get('user_email')
     
-    # 🔍 BUSCA CORRIGIDA: Procura pelo CAMPO 'email' (resolve o problema do ID aleatório)
+    # 🔍 BUSCA CORRIGIDA: Resolve o problema do ID aleatório
     user_query = db.collection('usuarios').where('email', '==', email_logado).limit(1).stream()
     user_docs = list(user_query)
     
-    # Se o usuário não existe no banco, não deixa nem ver a página
     if not user_docs:
-        return "Erro: Usuário não encontrado no sistema.", 403
+        return redirect(url_for('logout'))
     
-    # Extrai os dados do documento encontrado
     dados_usuario = user_docs[0].to_dict()
     tipo_usuario = dados_usuario.get('tipo')
     pagou = dados_usuario.get('acesso_pago', False)
 
-    # 🛑 REGRA 1: Se ainda não escolheu o tipo (Modal aberta), renderiza o básico
-    if not tipo_usuario:
-        return render_template('dashboard.html', pedidos=[], musico=None, agenda=[], feedbacks=[], notificacoes_fas=0, total_cliques=0, media_estrelas=0)
+    # Inicializamos a variável de bloqueio como Falsa
+    bloqueado = False
 
-    # 🛑 REGRA 2: TRAVA DE PAGAMENTO (O que você queria)
-    # Se for músico e NÃO tiver o campo acesso_pago como True, CHUTAR PRO STRIPE
+    # 🛑 REGRA 1: Modal aberta (ainda não escolheu o tipo)
+    if not tipo_usuario:
+        return render_template('dashboard.html', pedidos=[], musico=None, agenda=[], feedbacks=[], notificacoes_fas=0, total_cliques=0, media_estrelas=0, bloqueado=False)
+
+    # 🛑 REGRA 2: TRAVA DE PAGAMENTO (BLOQUEIO SUAVE)
+    # Se for músico e NÃO pagou, ativamos o overlay em vez de expulsar
     if tipo_usuario == 'musico' and not pagou:
-        return redirect("https://buy.stripe.com/test_5kQ8wO90m6yWbRl0I5gIo00")
+        bloqueado = True
 
     # 🟢 SE FOR ESTABELECIMENTO
     if tipo_usuario == 'estabelecimento':
@@ -303,7 +304,8 @@ def dashboard():
             return redirect(url_for('abrir_pagina_estabelecimento'))
         return redirect(url_for('dashboard_estabelecimento'))
 
-    # 🟢 SE FOR MÚSICO E JÁ PAGOU: SEGUE O FLUXO ORIGINAL
+    # 🟢 FLUXO DE CARREGAMENTO (Músico pago ou Músico bloqueado)
+    # Buscamos os dados mesmo se estiver bloqueado para ele ver o fundo do painel
     artista_query = db.collection('artistas').where('dono_email', '==', email_logado).limit(1).stream()
     artista_docs = list(artista_query)
 
@@ -316,10 +318,9 @@ def dashboard():
         artista_id = doc.id
         artista_dados = doc.to_dict()
         artista_dados['id'] = artista_id
-        
         total_cliques = artista_dados.get('cliques', 0)
 
-        # Pedidos
+        # Carrega Pedidos
         pedidos_ref = db.collection('pedidos_reserva').where('musico_id', '==', artista_id).stream()
         for p in pedidos_ref:
             p_dados = p.to_dict()
@@ -327,14 +328,14 @@ def dashboard():
             pedidos.append(p_dados)
         pedidos.sort(key=lambda x: x.get('criado_em') if x.get('criado_em') else 0, reverse=True)
 
-        # Agenda
+        # Carrega Agenda
         agenda_ref = db.collection('artistas').document(artista_id).collection('agenda').order_by('data_completa').stream()
         for s in agenda_ref:
             s_dados = s.to_dict()
             s_dados['id'] = s.id
             agenda.append(s_dados)
 
-        # Feedbacks
+        # Carrega Feedbacks
         feedbacks_ref = db.collection('feedbacks').where('artista_email', '==', email_logado).stream()
         for f in feedbacks_ref:
             f_dados = f.to_dict()
@@ -347,6 +348,7 @@ def dashboard():
     qtd_feedbacks = len(feedbacks)
     media_estrelas = round(total_estrelas / qtd_feedbacks, 1) if qtd_feedbacks > 0 else 0.0
 
+    # 🚀 RENDERIZA PASSANDO A VARIÁVEL 'bloqueado'
     return render_template(
         'dashboard.html', 
         pedidos=pedidos, 
@@ -355,7 +357,8 @@ def dashboard():
         feedbacks=feedbacks, 
         notificacoes_fas=notificacoes_fas,
         total_cliques=total_cliques,
-        media_estrelas=media_estrelas
+        media_estrelas=media_estrelas,
+        bloqueado=bloqueado  # O HTML usará isso para mostrar ou não o overlay
     )
 # NOVA ROTA: Para marcar como lida via JavaScript quando você clicar
 @app.route('/marcar_lido/<pedido_id>', methods=['POST'])
