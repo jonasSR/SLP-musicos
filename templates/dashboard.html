@@ -12,7 +12,7 @@
     {% if bloqueado %}
         <div id="lock-screen" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 10000; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(10px); padding: 20px;">
             <div class="glass-card" style="max-width: 500px; text-align: center; padding: 40px; border: 2px solid #00f2ff; box-shadow: 0 0 30px rgba(0, 242, 255, 0.2);">
-                <div style="font-size: 50px; color: #00f2ff; margin-bottom: 20px;">
+                <div style="font-size: 50px; color: #ff0000; margin-bottom: 20px;">
                     <i class="fas fa-lock"></i>
                 </div>
                 <h2 style="color: #fff; margin-bottom: 15px; font-family: 'Orbitron', sans-serif;">ACESSO RESTRITO</h2>
@@ -21,12 +21,14 @@
                     Para continuar acessando seus pedidos, agenda e estatísticas, regularize seu acesso.
                 </p>
                 
-                <a href="https://buy.stripe.com/test_5kQ8wO90m6yWbRl0I5gIo00" class="btn-glow-action" style="text-decoration: none; display: block; width: 100%;">
+                <a href="https://buy.stripe.com/test_5kQ8wO90m6yWbRl0I5gIo00" class="btn-glow-action" style="text-decoration: none; font-size: 0.9rem; display: block; width: 100%;">
                     <span>REATIVAR MEU PAINEL AGORA</span>
                 </a>
                 
                 <p style="margin-top: 20px; font-size: 0.8rem;">
-                    <a href="/logout" style="color: rgba(255,255,255,0.5); text-decoration: none;">Sair da conta</a>
+                    <a href="/logout" style="color: white; background-color: red; padding: 5px 10px; text-decoration: none; border-radius: 4px;">
+                        Sair da conta
+                    </a>
                 </p>
             </div>
         </div>
