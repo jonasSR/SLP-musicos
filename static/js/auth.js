@@ -190,7 +190,7 @@ document.addEventListener("DOMContentLoaded", () => {
             );
 
             // SÓ AGORA salvamos no Firestore
-            await setDoc(doc(db, "usuarios", dadosTemporarios.email), {
+            await setDoc(doc(db, "usuarios", userCredential.user.uid), {
                 email: dadosTemporarios.email,
                 tipo: tipoPerfil,
                 data_cadastro: serverTimestamp()
@@ -410,3 +410,6 @@ document.getElementById('btn-retomar-nao').onclick = async () => {
         }
     }
 };
+
+
+

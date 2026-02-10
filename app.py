@@ -287,9 +287,10 @@ def dashboard():
     
     # 🔍 1. BUSCA DADOS DA CONTA DO USUÁRIO
     # 🔍 1. BUSCA DADOS DA CONTA DO USUÁRIO (FORMA CORRETA)
-    user_doc = db.collection('usuarios').document(email_logado).get()
+    user_query = db.collection('usuarios').where('email', '==', email_logado).limit(1).stream()
+    user_docs = list(user_query)
 
-    if not user_doc.exists:
+    if not user_docs:
         session.clear()
         flash("Sua conta não foi encontrada ou foi desativada.", "danger")
         return redirect(url_for('login'))
@@ -677,6 +678,7 @@ def remover_agenda(show_id):
 # ======================================================
 # TROCAR SENHA USUARIO
 # ======================================================   
+   
 @app.route('/api_registrar_troca_senha', methods=['POST'])
 @login_required
 def registrar_troca_senha():
