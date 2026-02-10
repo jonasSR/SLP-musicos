@@ -286,17 +286,18 @@ def dashboard():
     email_logado = session.get('user_email')
     
     # 🔍 1. BUSCA DADOS DA CONTA DO USUÁRIO
-    user_query = db.collection('usuarios').where('email', '==', email_logado).limit(1).stream()
-    user_docs = list(user_query)
-    
-    if not user_docs:
+    # 🔍 1. BUSCA DADOS DA CONTA DO USUÁRIO (FORMA CORRETA)
+    user_doc = db.collection('usuarios').document(email_logado).get()
+
+    if not user_doc.exists:
         session.clear()
         flash("Sua conta não foi encontrada ou foi desativada.", "danger")
         return redirect(url_for('login'))
-    
-    dados_usuario = user_docs[0].to_dict()
+
+    dados_usuario = user_doc.to_dict()
     tipo_usuario = dados_usuario.get('tipo')
     pagou = dados_usuario.get('acesso_pago', False)
+
 
     # 🔍 2. BUSCA DADOS DO PERFIL DO ARTISTA (Necessário para a lógica de bloqueio)
     artista_query = db.collection('artistas').where('dono_email', '==', email_logado).limit(1).stream()
@@ -941,7 +942,7 @@ def api_deletar_dados_usuario():
             return jsonify({"status": "error", "message": "E-mail não fornecido"}), 400
 
         # 1. Deleta da coleção 'usuarios' (onde você viu na imagem)
-        users_ref = db.collection('usuarios').where('email', '==', email).stream()
+        users_ref = db.collection('usuarios').document(email)
         for doc in users_ref:
             doc.reference.delete()
 
@@ -968,7 +969,8 @@ def api_excluir_conta_definitiva(): # <--- Mudei o nome da função aqui
         # ... resto do seu código de deletar ...
         db.collection('estabelecimentos').document(email).delete()
         
-        user_query = db.collection('usuarios').where('email', '==', email).stream()
+        user_query = db.collection('usuarios').document(email)
+
         for doc in user_query:
             doc.reference.delete()
 
