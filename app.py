@@ -373,7 +373,7 @@ def dashboard():
     return render_template(
         'dashboard.html',
         pedidos=pedidos,
-        musico=artista_dados if artista_dados else {},
+        musico=artista_dados,
         agenda=agenda,
         feedbacks=feedbacks,
         notificacoes_fas=notificacoes_fas,
