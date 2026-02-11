@@ -208,52 +208,71 @@ if (btnSignup) {
     });
 }
 
-
-// 3. OS BOTÕES DENTRO DA MODAL (Aqui é onde a mágica acontece)
+// 3. OS BOTÕES DENTRO DA MODAL
 document.addEventListener("DOMContentLoaded", () => {
+
     const btnMusico = document.getElementById('btn-escolha-musico');
     const btnEmpresa = document.getElementById('btn-escolha-empresa');
 
-    // Esta função é a única que realmente toca no Banco de Dados
     async function executarCadastroFinal(tipoPerfil) {
-    try {
-        // 1️⃣ Cria usuário no Firebase Auth
-        const userCredential = await createUserWithEmailAndPassword(
-            auth,
-            dadosTemporarios.email,
-            dadosTemporarios.senha
-        );
+        try {
 
-        // 2️⃣ SALVA NO FIRESTORE USANDO O EMAIL COMO ID (PADRÃO ÚNICO)
-        await setDoc(
-            doc(db, "usuarios", dadosTemporarios.email),
-            {
-                email: dadosTemporarios.email,
-                tipo: tipoPerfil,
-                data_cadastro: serverTimestamp()
-            },
-            { merge: true } // NÃO APAGA acesso_pago do webhook
-        );
+            // 1️⃣ Cria usuário no Firebase Auth
+            const userCredential = await createUserWithEmailAndPassword(
+                auth,
+                dadosTemporarios.email,
+                dadosTemporarios.senha
+            );
 
-        // 3️⃣ Inicia sessão Python
-        await iniciarSessao(dadosTemporarios.email);
+            // 2️⃣ Salva/atualiza no Firestore usando EMAIL como ID
+            await setDoc(
+                doc(db, "usuarios", dadosTemporarios.email),
+                {
+                    email: dadosTemporarios.email,
+                    tipo: tipoPerfil,
+                    data_cadastro: serverTimestamp()
+                },
+                { merge: true }
+            );
 
-        // 4️⃣ Redirecionamento
-        if (tipoPerfil === "estabelecimento") {
-            window.location.href = "/cadastro-estabelecimento";
-        } else {
-            window.location.href = "/dashboard";
+            // 3️⃣ Inicia sessão no backend
+            await iniciarSessao(dadosTemporarios.email);
+
+            // 4️⃣ VERIFICA PAGAMENTO ANTES DE REDIRECIONAR
+            if (tipoPerfil === "estabelecimento") {
+
+                window.location.href = "/cadastro-estabelecimento";
+
+            } else {
+
+                const userSnap = await getDoc(
+                    doc(db, "usuarios", dadosTemporarios.email)
+                );
+
+                const dadosUsuario = userSnap.data();
+
+                if (dadosUsuario?.acesso_pago === true) {
+                    window.location.href = "/dashboard";
+                } else {
+                    window.location.href = "/checkout"; // coloque aqui sua rota real do Stripe
+                }
+            }
+
+        } catch (error) {
+            exibirPopup("Erro", traduzirErroFirebase(error));
         }
-
-    } catch (error) {
-        exibirPopup("Erro", traduzirErroFirebase(error));
     }
-}
 
+    if (btnMusico) {
+        btnMusico.onclick = () => executarCadastroFinal('musico');
+    }
 
-    if (btnMusico) btnMusico.onclick = () => executarCadastroFinal('musico');
-    if (btnEmpresa) btnEmpresa.onclick = () => executarCadastroFinal('estabelecimento');
+    if (btnEmpresa) {
+        btnEmpresa.onclick = () => executarCadastroFinal('estabelecimento');
+    }
+
 });
+
 
 
 
