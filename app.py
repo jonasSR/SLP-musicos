@@ -469,30 +469,44 @@ def login_google():
     id_token = data.get('idToken')
     
     try:
+        # 🔹 Valida o token vindo do front-end
         decoded_token = firebase_auth.verify_id_token(id_token)
         email = decoded_token['email']
-        session['user_email'] = email # Salva na sessão para o Stripe saber quem é
-        
-        user_ref = db.collection('usuarios').document(email)
-        user_doc = user_ref.get()
+        nome = decoded_token.get('name', 'Usuário Google')
+        foto = decoded_token.get('picture', '')
 
-        # Se é novo, salva com tipo músico por padrão (como você pediu)
-        if not user_doc.exists:
+        # 🔹 Inicia a sessão
+        session['user_email'] = email
+
+        # 🔹 Referência do usuário no Firestore
+        user_ref = db.collection('usuarios').document(email)
+        doc = user_ref.get()
+
+        if not doc.exists:
+            # ⚡ Usuário novo → cria sem tipo definido
             user_ref.set({
                 'email': email,
-                'nome': decoded_token.get('name', 'Usuário Google'),
-                'tipo': 'musico',
-                'acesso_pago': False,
-                'status_financeiro': 'pendente',
+                'nome': nome,
+                'foto_google': foto,
+                'tipo': None,  # deixa vazio para abrir a modal de escolha
                 'criado_em': firestore.SERVER_TIMESTAMP
             })
-            return jsonify({"status": "success", "new_user": True}), 200
-        
-        # Se já existe e já pagou, avisa o JS para ir pro Dashboard
-        return jsonify({"status": "success", "new_user": False}), 200
-        
+            precisa_escolher_tipo = True
+        else:
+            # 🔹 Usuário existente → verifica se já escolheu tipo
+            dados = doc.to_dict()
+            precisa_escolher_tipo = dados.get('tipo') is None
+
+        # 🔹 Retorna status e se precisa mostrar a modal
+        return jsonify({
+            "status": "success",
+            "precisa_escolher_tipo": precisa_escolher_tipo
+        }), 200
+
     except Exception as e:
-        return jsonify({"status": "error", "message": str(e)}), 401
+        print(f"Erro na validação Google: {e}")
+        return jsonify({"status": "error", "message": "Token inválido"}), 401
+
 
 
 # 🔔 ROTA: Marcar como lido
