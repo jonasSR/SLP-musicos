@@ -49,7 +49,6 @@ window.loginComGoogle = async function() {
     try {
         const result = await signInWithPopup(auth, provider);
         const idToken = await result.user.getIdToken();
-        
         const response = await fetch('/login_google', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -59,11 +58,16 @@ window.loginComGoogle = async function() {
         const data = await response.json();
         
         if (data.status === 'success') {
-            // Manda pro dashboard. Como o tipo é None, a modal VAI abrir.
-            window.location.href = '/dashboard';
+            // ✅ AQUI ESTÁ A MUDANÇA:
+            // Em vez de acaoPosLogin(), usamos o redirecionamento que vem do Python
+            window.location.href = data.redirect || '/dashboard';
+        } else {
+            alert("Erro ao sincronizar: " + data.message);
         }
     } catch (error) {
-        console.error("Erro:", error);
+        if (error.code !== 'auth/cancelled-popup-request' && error.code !== 'auth/popup-closed-by-user') {
+            console.error("Erro Google:", error);
+        }
     }
 }
 

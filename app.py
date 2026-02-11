@@ -469,27 +469,67 @@ def login_google():
     id_token = data.get('idToken')
     
     try:
+        # Valida o token vindo do front-end
         decoded_token = firebase_auth.verify_id_token(id_token)
-        email = decoded_token['email']
+        email_logado = decoded_token['email']
+        nome = decoded_token.get('name', 'Usuário Google')
+        foto = decoded_token.get('picture', '')
+
+        # Inicia a sessão
+        session['user_email'] = email_logado
         
-        session['user_email'] = email
-        
-        user_ref = db.collection('usuarios').document(email)
+        # 🔍 1. BUSCA DADOS DA CONTA DO USUÁRIO
+        user_ref = db.collection('usuarios').document(email_logado)
         user_doc = user_ref.get()
 
         if not user_doc.exists:
-            # 🛑 NÃO COLOQUE 'TIPO': 'MUSICO' AQUI!
+            # Cria o usuário novo SEM o tipo definido para disparar a REGRA 1
             user_ref.set({
-                'email': email,
-                'nome': decoded_token.get('name', 'Usuário Google'),
-                'tipo': None,  # Isso obriga a modal a abrir no dashboard
+                'email': email_logado,
+                'nome': nome,
+                'foto_google': foto,
+                'tipo': None, # Deixa nulo para cair na REGRA 1
                 'acesso_pago': False,
                 'criado_em': firestore.SERVER_TIMESTAMP
             })
-            
-        return jsonify({"status": "success"}), 200
+            # Força o redirecionamento para o dashboard para processar a REGRA 1
+            return jsonify({"status": "success", "redirect": url_for('dashboard')}), 200
+
+        dados_usuario = user_doc.to_dict()
+        tipo_usuario = dados_usuario.get('tipo')
+        pagou = dados_usuario.get('acesso_pago', False)
+
+        # 🔍 2. BUSCA DADOS DO PERFIL DO ARTISTA
+        artista_query = db.collection('artistas').where('dono_email', '==', email_logado).limit(1).stream()
+        artista_docs = list(artista_query)
+        artista_dados = None
+        bloqueado = False
+
+        # 🛑 REGRA 1: Se ainda não escolheu o tipo
+        if not tipo_usuario:
+            return jsonify({"status": "success", "redirect": url_for('dashboard')}), 200
+
+        # 🛑 REGRA 2: LÓGICA DE ACESSO E PAGAMENTO
+        if tipo_usuario == 'musico':
+            if pagou:
+                bloqueado = False
+            else:
+                bloqueado = True
+
+        # 🟢 SE FOR ESTABELECIMENTO
+        if tipo_usuario == 'estabelecimento':
+            doc_estab = db.collection('estabelecimentos').document(email_logado).get()
+            if not doc_estab.exists:
+                return jsonify({"status": "success", "redirect": url_for('abrir_pagina_estabelecimento')}), 200
+            return jsonify({"status": "success", "redirect": url_for('dashboard_estabelecimento')}), 200
+
+        # 🟢 PROCESSAMENTO DE DADOS DO ARTISTA (DASHBOARD)
+        # (Lógica idêntica para quando o usuário já tem perfil completo)
+        return jsonify({"status": "success", "redirect": url_for('dashboard')}), 200
+        
     except Exception as e:
-        return jsonify({"status": "error", "message": str(e)}), 401
+        print(f"Erro na validação Google: {e}")
+        return jsonify({"status": "error", "message": "Token inválido"}), 401
 
 
 # 🔔 ROTA: Marcar como lido
