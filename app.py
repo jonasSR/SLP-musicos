@@ -475,7 +475,6 @@ def login_google():
         nome = decoded_token.get('name', 'Usuário Google')
         foto = decoded_token.get('picture', '')
 
-        # 🔹 Verifica se o e-mail existe
         if not email:
             return jsonify({"status": "error", "message": "Google não retornou e-mail"}), 400
 
@@ -487,29 +486,27 @@ def login_google():
         doc = user_ref.get()
 
         if not doc.exists:
-            # ⚡ Usuário novo → cria sem tipo definido para abrir modal
+            # Usuário novo → tipo null → modal abre
             user_ref.set({
                 'email': email,
                 'nome': nome,
                 'foto_google': foto,
-                'tipo': None,  # modal vai abrir
-                'acesso_pago': False,
+                'tipo': None,          # tipo ainda não escolhido
+                'acesso_pago': False,  # ainda não pagou
                 'criado_em': firestore.SERVER_TIMESTAMP
             })
             precisa_escolher_tipo = True
         else:
-            # 🔹 Usuário existente
             dados = doc.to_dict()
 
-            # ⚡ Se já pagou, mas tipo ainda é null → assume músico
+            # Usuário já pagou mas tipo ainda é null → assume músico
             if dados.get('acesso_pago') and not dados.get('tipo'):
                 user_ref.update({'tipo': 'musico'})
                 dados['tipo'] = 'musico'
 
-            # 🔹 Precisa escolher tipo só se tipo ainda for null
+            # Precisa escolher tipo só se tipo ainda for null
             precisa_escolher_tipo = dados.get('tipo') is None
 
-        # 🔹 Retorna status e se precisa mostrar a modal
         return jsonify({
             "status": "success",
             "precisa_escolher_tipo": precisa_escolher_tipo
