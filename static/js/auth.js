@@ -54,11 +54,9 @@ window.loginComGoogle = async function() {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ idToken: idToken })
         });
-        
         const data = await response.json();
         if (data.status === 'success') {
-            // Redireciona para o dashboard, onde a lógica do Flask vai detectar que não tem 'tipo'
-            window.location.href = "/dashboard"; 
+            acaoPosLogin();
         } else {
             alert("Erro ao sincronizar: " + data.message);
         }

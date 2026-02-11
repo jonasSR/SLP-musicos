@@ -276,29 +276,216 @@ def check_user_type():
     return jsonify({"status": "novo"})
 
 
+@app.route('/dashboard')
+@login_required
+def dashboard():
+    email_logado = session.get('user_email')
+    
+    # 🔍 1. BUSCA DADOS DA CONTA DO USUÁRIO
+    # 🔍 1. BUSCA DADOS DA CONTA DO USUÁRIO (FORMA CORRETA)
+    user_query = db.collection('usuarios').where('email', '==', email_logado).limit(1).stream()
+    user_docs = list(user_query)
+
+    if not user_docs:
+        session.clear()
+        flash("Sua conta não foi encontrada ou foi desativada.", "danger")
+        return redirect(url_for('login'))
+
+    dados_usuario = user_docs[0].to_dict()
+    tipo_usuario = dados_usuario.get('tipo')
+    pagou = dados_usuario.get('acesso_pago', False)
+
+
+    # 🔍 2. BUSCA DADOS DO PERFIL DO ARTISTA (Necessário para a lógica de bloqueio)
+    artista_query = db.collection('artistas').where('dono_email', '==', email_logado).limit(1).stream()
+    artista_docs = list(artista_query)
+    artista_dados = None
+
+    # Variável que controla a exibição da modal no HTML
+    bloqueado = False
+
+    # 🛑 REGRA 1: Se ainda não escolheu o tipo (Músico/Estabelecimento)
+    if not tipo_usuario:
+        return render_template('dashboard.html', pedidos=[], musico=None, agenda=[], feedbacks=[], notificacoes_fas=0, total_cliques=0, media_estrelas=0, bloqueado=False)
+
+    # 🛑 REGRA 2: LÓGICA DE ACESSO E PAGAMENTO (PÁGINA DE VENDAS + INTERNO)
+    if tipo_usuario == 'musico':
+
+        # ✅ PAGOU → acesso normal
+        if pagou:
+            bloqueado = False
+
+        # ❌ NÃO PAGOU → SEMPRE bloqueia a tela
+        else:
+            bloqueado = True
+
+
+
+    # 🟢 SE FOR ESTABELECIMENTO
+    if tipo_usuario == 'estabelecimento':
+        doc_estab = db.collection('estabelecimentos').document(email_logado).get()
+        if not doc_estab.exists:
+            return redirect(url_for('abrir_pagina_estabelecimento'))
+        return redirect(url_for('dashboard_estabelecimento'))
+
+    # 🟢 PROCESSAMENTO DE DADOS DO ARTISTA (Para o Dashboard)
+    pedidos, agenda, feedbacks = [], [], []
+    total_cliques, notificacoes_fas, total_estrelas = 0, 0, 0
+
+    if artista_docs:
+        doc = artista_docs[0]
+        artista_id = doc.id
+        artista_dados = doc.to_dict()
+        artista_dados['id'] = artista_id
+        
+        total_cliques = artista_dados.get('cliques', 0)
+
+        # Carregar Pedidos de Reserva
+        pedidos_ref = db.collection('pedidos_reserva').where('musico_id', '==', artista_id).stream()
+        for p in pedidos_ref:
+            p_dados = p.to_dict()
+            p_dados['id'] = p.id
+            pedidos.append(p_dados)
+        pedidos.sort(key=lambda x: x.get('criado_em') if x.get('criado_em') else 0, reverse=True)
+
+        # Carregar Agenda
+        agenda_ref = db.collection('artistas').document(artista_id).collection('agenda').order_by('data_completa').stream()
+        for s in agenda_ref:
+            s_dados = s.to_dict()
+            s_dados['id'] = s.id
+            agenda.append(s_dados)
+
+        # Carregar Feedbacks
+        feedbacks_ref = db.collection('feedbacks').where('artista_email', '==', email_logado).stream()
+        for f in feedbacks_ref:
+            f_dados = f.to_dict()
+            f_dados['id'] = f.id
+            feedbacks.append(f_dados)
+            total_estrelas += int(f_dados.get('estrelas', 0))
+            if f_dados.get('status') == 'pendente':
+                notificacoes_fas += 1
+
+    qtd_feedbacks = len(feedbacks)
+    media_estrelas = round(total_estrelas / qtd_feedbacks, 1) if qtd_feedbacks > 0 else 0.0
+
+    data_ativacao = None
+    data_vencimento = None
+    dias_restantes = None
+
+    if dados_usuario.get('data_pagamento'):
+        from datetime import datetime, timedelta
+        
+        # Converte o timestamp do Firestore para objeto datetime do Python
+        dt_pagamento = dados_usuario['data_pagamento']
+        data_ativacao = dt_pagamento.strftime('%d/%m/%Y')
+        
+        # Calcula vencimento (30 dias depois)
+        dt_vencimento = dt_pagamento + timedelta(days=30)
+        data_vencimento = dt_vencimento.strftime('%d/%m/%Y')
+
+        # Calcula a diferença de dias para o alerta de cor
+        hoje = datetime.now()
+        # Garante que dt_vencimento não tenha timezone se 'hoje' não tiver, ou vice-versa
+        diff = dt_vencimento.replace(tzinfo=None) - hoje.replace(tzinfo=None)
+        dias_restantes = diff.days
+
+    return render_template(
+        'dashboard.html',
+        pedidos=pedidos,
+        musico=artista_dados,
+        agenda=agenda,
+        feedbacks=feedbacks,
+        notificacoes_fas=notificacoes_fas,
+        total_cliques=total_cliques,
+        media_estrelas=media_estrelas,
+        bloqueado=bloqueado,
+        data_ativacao=data_ativacao,
+        data_vencimento=data_vencimento,
+        dias_restantes=dias_restantes,
+        pagou=pagou
+    )
+
+@app.route('/webhook-stripe', methods=['POST'])
+def webhook_stripe():
+    payload = request.get_data()
+    try:
+        event = json.loads(payload)
+    except Exception as e:
+        return jsonify({"status": "error", "message": "Payload inválido"}), 400
+
+    tipo_evento = event['type']
+    data_object = event['data']['object']
+    email_cliente = data_object.get('customer_details', {}).get('email')
+
+    if not email_cliente:
+        return jsonify({"status": "success", "message": "Sem email no evento"}), 200
+
+    # 🔍 BUSCA O DOCUMENTO
+    user_query = db.collection('usuarios').where('email', '==', email_cliente).limit(1).stream()
+    user_docs = list(user_query)
+
+    # 1. ✅ PAGAMENTO APROVADO
+    if tipo_evento == 'checkout.session.completed':
+        if user_docs:
+            # USUÁRIO JÁ EXISTE: Apenas atualiza
+            user_ref = user_docs[0].reference
+            user_ref.update({
+                'acesso_pago': True,
+                'status_financeiro': 'pago',
+                'data_pagamento': firestore.SERVER_TIMESTAMP
+            })
+            print(f"✅ SUCESSO: Cadastro existente de {email_cliente} atualizado para PAGO.")
+        else:
+            # USUÁRIO NÃO EXISTE (Vindo da página de vendas): Cria o documento prévio
+            db.collection('usuarios').document(email_cliente).set({
+                'email': email_cliente,
+                'acesso_pago': True,
+                'status_financeiro': 'pago',
+                'tipo': 'musico', # Já pré-define como músico
+                'data_pagamento': firestore.SERVER_TIMESTAMP,
+                'criado_via': 'pagina_vendas'
+            })
+            print(f"✨ NOVO: Usuário {email_cliente} pagou na LP e teve documento criado.")
+
+    # 2. ❌ PAGAMENTO FALHOU / EXPIROU
+    elif tipo_evento in ['checkout.session.async_payment_failed', 'checkout.session.expired']:
+        if user_docs:
+            user_ref = user_docs[0].reference
+            user_ref.update({
+                'acesso_pago': False,
+                'status_financeiro': 'falha/expirado'
+            })
+
+    return jsonify({"status": "success"}), 200    
+
+
+
+# ======================================================
+# LOGIN GOOGLE
+# ======================================================
 @app.route('/login_google', methods=['POST'])
 def login_google():
     data = request.get_json()
     id_token = data.get('idToken')
     
     try:
+        # Valida o token vindo do front-end
         decoded_token = firebase_auth.verify_id_token(id_token)
         email = decoded_token['email']
         nome = decoded_token.get('name', 'Usuário Google')
         foto = decoded_token.get('picture', '')
 
+        # Inicia a sessão
         session['user_email'] = email
         
+        # Verifica se o usuário já existe na coleção 'usuarios'
         user_ref = db.collection('usuarios').document(email)
-        user_doc = user_ref.get()
-
-        if not user_doc.exists:
-            # Criamos o usuário SEM o campo 'tipo' para forçar a escolha
+        if not user_ref.get().exists:
             user_ref.set({
                 'email': email,
                 'nome': nome,
                 'foto_google': foto,
-                'acesso_pago': False, # Garante que comece como não pago
+                'tipo': 'musico',
                 'criado_em': firestore.SERVER_TIMESTAMP
             })
             
