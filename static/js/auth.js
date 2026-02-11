@@ -40,6 +40,59 @@ const btnSignup = document.getElementById("btn-signup");
 const emailInput = document.getElementById("email");
 const passwordInput = document.getElementById("password");
 
+
+// 🌐 GOOGLE
+const provider = new GoogleAuthProvider();
+provider.setCustomParameters({ prompt: 'select_account' });
+
+window.loginComGoogle = async function() {
+    try {
+        const result = await signInWithPopup(auth, provider);
+        const email = result.user.email;
+        
+        if (!email) {
+            alert("Não conseguimos obter seu e-mail do Google.");
+            return;
+        }
+
+        const idToken = await result.user.getIdToken();
+
+        const response = await fetch('/login_google', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ idToken: idToken })
+        });
+
+        const data = await response.json();
+
+        if (data.status === 'success') {
+            // EXATAMENTE O SEU FLUXO:
+            // Abre a modal para escolher o caminho
+            const modalEscolha = document.getElementById('modal-escolha-perfil');
+            modalEscolha.style.display = 'flex';
+
+            // Configura o botão Músico -> Vai direto para o Checkout
+            document.getElementById('btn-escolha-musico').onclick = function() {
+                // Link do Stripe com o email já preenchido
+                window.location.href = `https://buy.stripe.com/test_5kQ8wO90m6yWbRl0I5gIo00?prefilled_email=${email}`;
+            };
+
+            // Configura o botão Empresa -> Vai para o Dashboard
+            document.getElementById('btn-escolha-empresa').onclick = function() {
+                window.location.href = "/dashboard";
+            };
+
+        } else {
+            alert("Erro ao sincronizar: " + data.message);
+        }
+
+    } catch (error) {
+        if (error.code !== 'auth/popup-closed-by-user') {
+            console.error("Erro Google:", error);
+        }
+    }
+};
+
 // --- FUNÇÕES AUXILIARES ---
 function traduzirErroFirebase(error) {
     console.log("Código do erro:", error.code); // Útil para debug
@@ -213,45 +266,6 @@ document.addEventListener("DOMContentLoaded", () => {
     if (btnMusico) btnMusico.onclick = () => executarCadastroFinal('musico');
     if (btnEmpresa) btnEmpresa.onclick = () => executarCadastroFinal('estabelecimento');
 });
-
-// 🌐 GOOGLE
-const provider = new GoogleAuthProvider();
-provider.setCustomParameters({ prompt: 'select_account' });
-
-window.loginComGoogle = async function() {
-    try {
-        const result = await signInWithPopup(auth, provider);
-        const idToken = await result.user.getIdToken();
-
-        const response = await fetch('/login_google', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ idToken: idToken })
-        });
-
-        const data = await response.json();
-
-        if (data.status === 'success') {
-            // 🔹 Se precisar escolher tipo, abre a modal que você já tem
-            if (data.precisa_escolher_tipo) {
-                document.getElementById('modal-escolha-perfil').style.display = 'flex';
-                
-                // ✅ A modal já tem seus botões com handlers existentes,
-                // então não precisamos fazer mais nada aqui
-            } else {
-                // 🔹 Usuário já tem tipo definido → entra direto no dashboard
-                acaoPosLogin(); // função que você já usa para login bem-sucedido
-            }
-        } else {
-            alert("Erro ao sincronizar: " + data.message);
-        }
-    } catch (error) {
-        // 🔹 Erros do popup do Google
-        if (error.code !== 'auth/cancelled-popup-request' && error.code !== 'auth/popup-closed-by-user') {
-            exibirPopup("Erro Google", traduzirErroFirebase(error));
-        }
-    }
-};
 
 
 // 👁️ MOSTRAR / ESCONDER SENHA
