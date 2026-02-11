@@ -279,21 +279,33 @@ def check_user_type():
 from flask import request # Certifique-se de importar o request no topo
 
 @app.route('/dashboard')
-@login_required
+# 🛑 REMOVIDO @login_required para evitar o chute automático para o login
 def dashboard():
+    from flask import session, request, redirect, url_for, flash, render_template
+    
     email_logado = session.get('user_email')
     
-    # 🟢 NOVO: Detecta se o usuário está voltando do checkout interno
-    # Isso serve para pular o bloqueio e mostrar a modal de boas-vindas
+    # 🟢 Detecta se está voltando do checkout interno agora
     veio_do_checkout_interno = request.args.get('sucesso_pagamento') == 'true'
-    
+    email_url = request.args.get('email') # Pega o email da URL caso a sessão tenha caído
+
+    # 🚨 VALIDAÇÃO MANUAL DE ACESSO
+    # Se não está logado E não veio do checkout, tchau: vai pro login.
+    if not email_logado and not veio_do_checkout_interno:
+        return redirect(url_for('login'))
+
+    # Se a sessão caiu mas ele veio do checkout com o email na URL, a gente restaura a sessão
+    if not email_logado and veio_do_checkout_interno and email_url:
+        session['user_email'] = email_url
+        email_logado = email_url
+
     # 🔍 1. BUSCA DADOS DA CONTA DO USUÁRIO
     user_query = db.collection('usuarios').where('email', '==', email_logado).limit(1).stream()
     user_docs = list(user_query)
 
     if not user_docs:
         session.clear()
-        flash("Sua conta não foi encontrada ou foi desativada.", "danger")
+        flash("Sua conta não foi encontrada.", "danger")
         return redirect(url_for('login'))
 
     dados_usuario = user_docs[0].to_dict()
@@ -307,27 +319,25 @@ def dashboard():
 
     bloqueado = False
 
-    # 🛑 REGRA 1: Se ainda não escolheu o tipo (Músico/Estabelecimento)
+    # 🛑 REGRA 1: Sem tipo definido
     if not tipo_usuario:
         return render_template('dashboard.html', pedidos=[], musico=None, agenda=[], feedbacks=[], notificacoes_fas=0, total_cliques=0, media_estrelas=0, bloqueado=False)
 
-    # 🛑 REGRA 2: LÓGICA DE ACESSO PARA MÚSICO
+    # 🛑 REGRA 2: Lógica para Músico
     if tipo_usuario == 'musico':
-        # ✅ Liberamos se pagou OU se acabou de voltar do checkout (evita delay do Webhook)
         if pagou or veio_do_checkout_interno:
             bloqueado = False
         else:
-            # ❌ Não pagou e não está voltando do checkout -> Redireciona
             return redirect(url_for('checkout'))
             
-    # 🟢 SE FOR ESTABELECIMENTO
+    # 🟢 Estabelecimento
     if tipo_usuario == 'estabelecimento':
         doc_estab = db.collection('estabelecimentos').document(email_logado).get()
         if not doc_estab.exists:
             return redirect(url_for('abrir_pagina_estabelecimento'))
         return redirect(url_for('dashboard_estabelecimento'))
 
-    # 🟢 PROCESSAMENTO DE DADOS DO ARTISTA (Agenda, Pedidos, Feedbacks)
+    # 🟢 PROCESSAMENTO DE DADOS (Agenda, Pedidos, etc.)
     pedidos, agenda, feedbacks = [], [], []
     total_cliques, notificacoes_fas, total_estrelas = 0, 0, 0
 
@@ -338,7 +348,6 @@ def dashboard():
         artista_dados['id'] = artista_id
         total_cliques = artista_dados.get('cliques', 0)
 
-        # Pedidos
         pedidos_ref = db.collection('pedidos_reserva').where('musico_id', '==', artista_id).stream()
         for p in pedidos_ref:
             p_dados = p.to_dict()
@@ -346,14 +355,12 @@ def dashboard():
             pedidos.append(p_dados)
         pedidos.sort(key=lambda x: x.get('criado_em') if x.get('criado_em') else 0, reverse=True)
 
-        # Agenda
         agenda_ref = db.collection('artistas').document(artista_id).collection('agenda').order_by('data_completa').stream()
         for s in agenda_ref:
             s_dados = s.to_dict()
             s_dados['id'] = s.id
             agenda.append(s_dados)
 
-        # Feedbacks
         feedbacks_ref = db.collection('feedbacks').where('artista_email', '==', email_logado).stream()
         for f in feedbacks_ref:
             f_dados = f.to_dict()
@@ -366,7 +373,7 @@ def dashboard():
     qtd_feedbacks = len(feedbacks)
     media_estrelas = round(total_estrelas / qtd_feedbacks, 1) if qtd_feedbacks > 0 else 0.0
 
-    # Lógica de datas (Ativação e Vencimento)
+    # Datas
     data_ativacao, data_vencimento, dias_restantes = None, None, None
     if dados_usuario.get('data_pagamento'):
         from datetime import datetime, timedelta
@@ -388,7 +395,7 @@ def dashboard():
         total_cliques=total_cliques,
         media_estrelas=media_estrelas,
         bloqueado=bloqueado,
-        exibir_boas_vindas_interno=veio_do_checkout_interno, # 🟢 NOVO
+        exibir_boas_vindas_interno=veio_do_checkout_interno,
         data_ativacao=data_ativacao,
         data_vencimento=data_vencimento,
         dias_restantes=dias_restantes,
@@ -401,16 +408,13 @@ def checkout():
     email_usuario = session.get('user_email')
     dominio = "https://slp-musicos-1.onrender.com"
     
-    # 🟢 A mágica está aqui:
-    # Para o usuário do SISTEMA, nós injetamos a success_url dinamicamente.
-    # O Stripe vai priorizar essa URL que estamos enviando agora.
-    
-    url_final = f"{dominio}/dashboard?sucesso_pagamento=true"
+    # 🟢 Enviamos o email como parâmetro de segurança na volta
+    url_final = f"{dominio}/dashboard?sucesso_pagamento=true&email={email_usuario}"
     
     link_stripe = (
         f"https://buy.stripe.com/test_5kQ8wO90m6yWbRl0I5gIo00"
         f"?prefilled_email={email_usuario}"
-        f"&success_url={url_final}" # Isso sobrescreve a configuração do painel só para este usuário
+        f"&success_url={url_final}"
     )
     
     return redirect(link_stripe)
