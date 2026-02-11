@@ -467,42 +467,21 @@ def webhook_stripe():
 def login_google():
     data = request.get_json()
     id_token = data.get('idToken')
-    
     try:
         decoded_token = firebase_auth.verify_id_token(id_token)
         email = decoded_token['email']
         session['user_email'] = email
         
         user_ref = db.collection('usuarios').document(email)
-        user_doc = user_ref.get()
-
-        # Se o usuário já existe (como na sua imagem do Firebase)
-        if user_doc.exists:
-            dados = user_doc.to_dict()
-            
-            # Se já escolheu o tipo e já pagou -> DASHBOARD
-            if dados.get('tipo') and dados.get('acesso_pago'):
-                return jsonify({"status": "redirect", "url": "/dashboard"}), 200
-            
-            # Se é músico mas NÃO pagou -> CHECKOUT
-            if dados.get('tipo') == 'musico' and not dados.get('acesso_pago'):
-                link = f"https://buy.stripe.com/test_5kQ8wO90m6yWbRl0I5gIo00?prefilled_email={email}"
-                return jsonify({"status": "redirect", "url": link}), 200
-
-            # Se existe mas não tem tipo -> MODAL DE ESCOLHA
-            if not dados.get('tipo'):
-                return jsonify({"status": "abrir_modal_perfil"}), 200
-
-        # Se for um usuário totalmente novo
-        else:
+        if not user_ref.get().exists:
             user_ref.set({
                 'email': email,
                 'nome': decoded_token.get('name', 'Usuário Google'),
+                'tipo': 'musico', # Já deixa como músico
                 'acesso_pago': False,
                 'criado_em': firestore.SERVER_TIMESTAMP
             })
-            return jsonify({"status": "abrir_modal_perfil"}), 200
-
+        return jsonify({"status": "success"}), 200
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 401
 
