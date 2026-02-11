@@ -469,34 +469,26 @@ def login_google():
     id_token = data.get('idToken')
     
     try:
-        # Valida o token vindo do front-end
         decoded_token = firebase_auth.verify_id_token(id_token)
         email = decoded_token['email']
-        nome = decoded_token.get('name', 'Usuário Google')
-        foto = decoded_token.get('picture', '')
-
-        # Inicia a sessão IMEDIATAMENTE
+        
         session['user_email'] = email
         
-        # Verifica se o usuário já existe na coleção 'usuarios'
         user_ref = db.collection('usuarios').document(email)
         user_doc = user_ref.get()
 
         if not user_doc.exists:
-            # CRIAMOS SEM TIPO PARA FORÇAR A ESCOLHA NA MODAL DO DASHBOARD
+            # 🛑 NÃO COLOQUE 'TIPO': 'MUSICO' AQUI!
             user_ref.set({
                 'email': email,
-                'nome': nome,
-                'foto_google': foto,
-                'tipo': None,           # Essencial para disparar a modal no dashboard
-                'acesso_pago': False,   # Começa bloqueado até pagar
+                'nome': decoded_token.get('name', 'Usuário Google'),
+                'tipo': None,  # Isso obriga a modal a abrir no dashboard
+                'acesso_pago': False,
                 'criado_em': firestore.SERVER_TIMESTAMP
             })
             
         return jsonify({"status": "success"}), 200
-        
     except Exception as e:
-        print(f"Erro na validação Google: {e}")
         return jsonify({"status": "error", "message": str(e)}), 401
 
 

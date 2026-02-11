@@ -42,7 +42,6 @@ const passwordInput = document.getElementById("password");
 
 
 // 🌐 GOOGLE
-// 🌐 LOGIN GOOGLE FINALIZADO
 const provider = new GoogleAuthProvider();
 provider.setCustomParameters({ prompt: 'select_account' });
 
@@ -60,21 +59,13 @@ window.loginComGoogle = async function() {
         const data = await response.json();
         
         if (data.status === 'success') {
-            // Redirecionamento forçado para o dashboard
-            // Como o 'tipo' no banco é None, a modal de escolha vai abrir sozinha
-            window.location.assign('/dashboard');
-        } else {
-            alert("Erro ao sincronizar com o servidor: " + data.message);
+            // Manda pro dashboard. Como o tipo é None, a modal VAI abrir.
+            window.location.href = '/dashboard';
         }
     } catch (error) {
-        // Ignora se o usuário apenas fechar o popup do Google
-        if (error.code !== 'auth/cancelled-popup-request' && error.code !== 'auth/popup-closed-by-user') {
-            console.error("Erro Google:", error);
-            alert("Erro ao entrar com Google. Tente novamente.");
-        }
+        console.error("Erro:", error);
     }
 }
-
 
 // --- FUNÇÕES AUXILIARES ---
 function traduzirErroFirebase(error) {
