@@ -276,13 +276,18 @@ def check_user_type():
     return jsonify({"status": "novo"})
 
 
+from flask import request # Certifique-se de importar o request no topo
+
 @app.route('/dashboard')
 @login_required
 def dashboard():
     email_logado = session.get('user_email')
     
+    # 🟢 NOVO: Detecta se o usuário está voltando do checkout interno
+    # Isso serve para pular o bloqueio e mostrar a modal de boas-vindas
+    veio_do_checkout_interno = request.args.get('sucesso_pagamento') == 'true'
+    
     # 🔍 1. BUSCA DADOS DA CONTA DO USUÁRIO
-    # 🔍 1. BUSCA DADOS DA CONTA DO USUÁRIO (FORMA CORRETA)
     user_query = db.collection('usuarios').where('email', '==', email_logado).limit(1).stream()
     user_docs = list(user_query)
 
@@ -295,31 +300,24 @@ def dashboard():
     tipo_usuario = dados_usuario.get('tipo')
     pagou = dados_usuario.get('acesso_pago', False)
 
-
-    # 🔍 2. BUSCA DADOS DO PERFIL DO ARTISTA (Necessário para a lógica de bloqueio)
+    # 🔍 2. BUSCA DADOS DO PERFIL DO ARTISTA
     artista_query = db.collection('artistas').where('dono_email', '==', email_logado).limit(1).stream()
     artista_docs = list(artista_query)
     artista_dados = None
 
-    # Variável que controla a exibição da modal no HTML
     bloqueado = False
 
     # 🛑 REGRA 1: Se ainda não escolheu o tipo (Músico/Estabelecimento)
     if not tipo_usuario:
         return render_template('dashboard.html', pedidos=[], musico=None, agenda=[], feedbacks=[], notificacoes_fas=0, total_cliques=0, media_estrelas=0, bloqueado=False)
 
-    # 🛑 REGRA 2: LÓGICA DE ACESSO E PAGAMENTO (PÁGINA DE VENDAS + INTERNO)
-    # 🛑 REGRA 2: LÓGICA DE ACESSO E PAGAMENTO
+    # 🛑 REGRA 2: LÓGICA DE ACESSO PARA MÚSICO
     if tipo_usuario == 'musico':
-
-        # ✅ PAGOU → acesso normal ao Dashboard
-        if pagou:
+        # ✅ Liberamos se pagou OU se acabou de voltar do checkout (evita delay do Webhook)
+        if pagou or veio_do_checkout_interno:
             bloqueado = False
-
-        # ❌ NÃO PAGOU → REDIRECIONA IMEDIATAMENTE PARA O CHECKOUT
         else:
-            # Em vez de apenas definir 'bloqueado = True' e carregar a página,
-            # nós forçamos o navegador a ir para a rota de pagamento.
+            # ❌ Não pagou e não está voltando do checkout -> Redireciona
             return redirect(url_for('checkout'))
             
     # 🟢 SE FOR ESTABELECIMENTO
@@ -329,7 +327,7 @@ def dashboard():
             return redirect(url_for('abrir_pagina_estabelecimento'))
         return redirect(url_for('dashboard_estabelecimento'))
 
-    # 🟢 PROCESSAMENTO DE DADOS DO ARTISTA (Para o Dashboard)
+    # 🟢 PROCESSAMENTO DE DADOS DO ARTISTA (Agenda, Pedidos, Feedbacks)
     pedidos, agenda, feedbacks = [], [], []
     total_cliques, notificacoes_fas, total_estrelas = 0, 0, 0
 
@@ -338,10 +336,9 @@ def dashboard():
         artista_id = doc.id
         artista_dados = doc.to_dict()
         artista_dados['id'] = artista_id
-        
         total_cliques = artista_dados.get('cliques', 0)
 
-        # Carregar Pedidos de Reserva
+        # Pedidos
         pedidos_ref = db.collection('pedidos_reserva').where('musico_id', '==', artista_id).stream()
         for p in pedidos_ref:
             p_dados = p.to_dict()
@@ -349,14 +346,14 @@ def dashboard():
             pedidos.append(p_dados)
         pedidos.sort(key=lambda x: x.get('criado_em') if x.get('criado_em') else 0, reverse=True)
 
-        # Carregar Agenda
+        # Agenda
         agenda_ref = db.collection('artistas').document(artista_id).collection('agenda').order_by('data_completa').stream()
         for s in agenda_ref:
             s_dados = s.to_dict()
             s_dados['id'] = s.id
             agenda.append(s_dados)
 
-        # Carregar Feedbacks
+        # Feedbacks
         feedbacks_ref = db.collection('feedbacks').where('artista_email', '==', email_logado).stream()
         for f in feedbacks_ref:
             f_dados = f.to_dict()
@@ -369,24 +366,15 @@ def dashboard():
     qtd_feedbacks = len(feedbacks)
     media_estrelas = round(total_estrelas / qtd_feedbacks, 1) if qtd_feedbacks > 0 else 0.0
 
-    data_ativacao = None
-    data_vencimento = None
-    dias_restantes = None
-
+    # Lógica de datas (Ativação e Vencimento)
+    data_ativacao, data_vencimento, dias_restantes = None, None, None
     if dados_usuario.get('data_pagamento'):
         from datetime import datetime, timedelta
-        
-        # Converte o timestamp do Firestore para objeto datetime do Python
         dt_pagamento = dados_usuario['data_pagamento']
         data_ativacao = dt_pagamento.strftime('%d/%m/%Y')
-        
-        # Calcula vencimento (30 dias depois)
         dt_vencimento = dt_pagamento + timedelta(days=30)
         data_vencimento = dt_vencimento.strftime('%d/%m/%Y')
-
-        # Calcula a diferença de dias para o alerta de cor
         hoje = datetime.now()
-        # Garante que dt_vencimento não tenha timezone se 'hoje' não tiver, ou vice-versa
         diff = dt_vencimento.replace(tzinfo=None) - hoje.replace(tzinfo=None)
         dias_restantes = diff.days
 
@@ -400,6 +388,7 @@ def dashboard():
         total_cliques=total_cliques,
         media_estrelas=media_estrelas,
         bloqueado=bloqueado,
+        exibir_boas_vindas_interno=veio_do_checkout_interno, # 🟢 NOVO
         data_ativacao=data_ativacao,
         data_vencimento=data_vencimento,
         dias_restantes=dias_restantes,
@@ -407,12 +396,17 @@ def dashboard():
     )
 
 @app.route('/checkout')
-@login_required # Garante que só quem logou chega aqui
+@login_required
 def checkout():
     email_usuario = session.get('user_email')
+    dominio = "https://slp-musicos-1.onrender.com"
     
-    # Adicionamos o e-mail do cliente ao link para o Stripe pré-preencher
-    link_stripe = f"https://buy.stripe.com/test_5kQ8wO90m6yWbRl0I5gIo00?prefilled_email={email_usuario}"
+    # 🟢 Incluímos o success_url com o parâmetro especial
+    link_stripe = (
+        f"https://buy.stripe.com/test_5kQ8wO90m6yWbRl0I5gIo00"
+        f"?prefilled_email={email_usuario}"
+        f"&success_url={dominio}/dashboard?sucesso_pagamento=true"
+    )
     
     return redirect(link_stripe)
 
