@@ -59,10 +59,9 @@ window.loginComGoogle = async function() {
         const data = await response.json();
         
         if (data.status === 'success') {
-            // Redireciona para o dashboard. 
-            // Como o 'tipo' no banco agora é None, a sua lógica de dashboard 
-            // vai exibir a modal automaticamente para ele escolher ser músico.
-            window.location.href = '/dashboard';
+            // Forçamos o recarregamento total para o /dashboard
+            // Isso obriga o Python a ler o 'tipo': None e disparar a sua modal
+            window.location.assign('/dashboard');
         } else {
             alert("Erro ao sincronizar: " + data.message);
         }

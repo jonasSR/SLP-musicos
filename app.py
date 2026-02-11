@@ -479,21 +479,19 @@ def login_google():
         user_ref = db.collection('usuarios').document(email)
         doc = user_ref.get()
 
-        # Só criamos se não existir. Se já existir (ex: ele pagou antes), não mexemos no tipo/pagamento.
         if not doc.exists:
             user_ref.set({
                 'email': email,
                 'nome': nome,
                 'foto_google': foto,
-                'tipo': None,           # MUDANÇA: Deixamos None para forçar a modal
-                'acesso_pago': False,   # Começa bloqueado
+                'tipo': None,           # Mantendo None para cair na sua REGRA 1
+                'acesso_pago': False,
                 'criado_em': firestore.SERVER_TIMESTAMP
             })
             
         return jsonify({"status": "success"}), 200
         
     except Exception as e:
-        print(f"Erro na validação Google: {e}")
         return jsonify({"status": "error", "message": str(e)}), 401
 
 
