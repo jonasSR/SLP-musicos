@@ -220,9 +220,16 @@ provider.setCustomParameters({ prompt: 'select_account' });
 
 window.loginComGoogle = async function() {
     try {
-        const result = await signInWithPopup(auth, new GoogleAuthProvider().setCustomParameters({ prompt: 'select_account' }));
+        const result = await signInWithPopup(auth, provider);
 
-        const idToken = await result.user.getIdToken();
+        if (!result.user || !result.user.email) {
+            console.error("Usuário inválido retornado pelo Google:", result.user);
+            alert("Erro no login Google. Tente novamente.");
+            return;
+        }
+
+        const idToken = await result.user.getIdToken(true); // força refresh
+
         const response = await fetch('/login_google', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -230,24 +237,32 @@ window.loginComGoogle = async function() {
         });
 
         const data = await response.json();
-        console.log("Resposta do backend login_google:", data);
+        console.log("Resposta backend:", data);
 
-        if (data.status === 'success') {
-            if (data.precisa_escolher_tipo) {
-                // 🔹 Modal abrirá apenas para quem realmente precisa escolher tipo
-                document.getElementById('modal-escolha-perfil').style.display = 'flex';
-            } else {
-                // 🔹 Usuário já tem tipo → dashboard direto
-                acaoPosLogin();
-            }
+        if (data.status !== 'success') {
+            alert("Erro backend: " + data.message);
+            return;
+        }
+
+        if (data.precisa_escolher_tipo) {
+            document.getElementById('modal-escolha-perfil').style.display = 'flex';
         } else {
-            alert("Erro ao sincronizar: " + data.message);
+            acaoPosLogin();
         }
 
     } catch (error) {
-        console.error("Erro loginComGoogle:", error);
-        if (error.code !== 'auth/cancelled-popup-request' && error.code !== 'auth/popup-closed-by-user') {
-            exibirPopup("Erro Google", traduzirErroFirebase(error));
+        console.error("ERRO REAL DO GOOGLE:", error);
+
+        if (error.code === 'auth/invalid-email') {
+            alert("Erro de autenticação Google. Verifique se o domínio está autorizado no Firebase.");
+            return;
+        }
+
+        if (
+            error.code !== 'auth/cancelled-popup-request' &&
+            error.code !== 'auth/popup-closed-by-user'
+        ) {
+            alert("Erro no login Google.");
         }
     }
 };
