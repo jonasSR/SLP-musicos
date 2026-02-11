@@ -463,9 +463,6 @@ def webhook_stripe():
 # ======================================================
 # LOGIN GOOGLE
 # ======================================================
-# ======================================================
-# LOGIN GOOGLE (AJUSTADO)
-# ======================================================
 @app.route('/login_google', methods=['POST'])
 def login_google():
     data = request.get_json()
@@ -477,20 +474,19 @@ def login_google():
         nome = decoded_token.get('name', 'Usuário Google')
         foto = decoded_token.get('picture', '')
 
-        session['user_email'] = email
+        session['user_email'] = email # Define a sessão antes de qualquer coisa
         
         user_ref = db.collection('usuarios').document(email)
-        user_doc = user_ref.get()
+        doc = user_ref.get()
 
-        if not user_doc.exists:
-            # Criamos o usuário SEM o tipo e SEM pagamento.
-            # Isso força o Dashboard a mostrar a modal de escolha.
+        if not doc.exists:
             user_ref.set({
                 'email': email,
                 'nome': nome,
                 'foto_google': foto,
-                'tipo': None,           # IMPORTANTE: Sem tipo para disparar a modal
-                'acesso_pago': False,   # Começa bloqueado
+                'tipo': 'musico', # Mantemos musico para evitar erros de validação
+                'acesso_pago': False,
+                'status_financeiro': 'pendente',
                 'criado_em': firestore.SERVER_TIMESTAMP
             })
             
@@ -498,7 +494,7 @@ def login_google():
         
     except Exception as e:
         print(f"Erro na validação Google: {e}")
-        return jsonify({"status": "error", "message": "Token inválido"}), 401
+        return jsonify({"status": "error", "message": str(e)}), 401
 
 
 # 🔔 ROTA: Marcar como lido

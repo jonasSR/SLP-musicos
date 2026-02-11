@@ -41,14 +41,18 @@ const emailInput = document.getElementById("email");
 const passwordInput = document.getElementById("password");
 
 
-// 🌐 GOOGLE (AJUSTADO)
+// 🌐 GOOGLE
 const provider = new GoogleAuthProvider();
 provider.setCustomParameters({ prompt: 'select_account' });
 
 window.loginComGoogle = async function() {
     try {
+        // Força o Firebase a lembrar que este usuário está logado
+        await setPersistence(auth, browserSessionPersistence);
+        
         const result = await signInWithPopup(auth, provider);
         const idToken = await result.user.getIdToken();
+        
         const response = await fetch('/login_google', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -58,17 +62,15 @@ window.loginComGoogle = async function() {
         const data = await response.json();
         
         if (data.status === 'success') {
-            // Como o Python não definiu o 'tipo', ao redirecionar para o dashboard,
-            // a sua função acaoPosLogin() levará o usuário para a tela onde a 
-            // modal de escolha (🎸 Músico / 🏢 Empresa) estará ativa.
-            acaoPosLogin();
+            // Recarrega a página ou limpa caches de auth para garantir 
+            // que o clique no botão da modal leia o email do Google, não do input
+            window.location.reload(); 
         } else {
-            alert("Erro ao sincronizar: " + data.message);
+            alert("Erro: " + data.message);
         }
     } catch (error) {
-        if (error.code !== 'auth/cancelled-popup-request' && error.code !== 'auth/popup-closed-by-user') {
-            exibirPopup("Erro Google", traduzirErroFirebase(error));
-        }
+        console.error("Erro Google:", error.code);
+        exibirPopup("Erro Google", traduzirErroFirebase(error));
     }
 }
 
