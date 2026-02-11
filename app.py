@@ -405,6 +405,43 @@ def dashboard():
         pagou=pagou
     )
 
+
+# ======================================================
+# LOGIN GOOGLE
+# ======================================================
+@app.route('/login_google', methods=['POST'])
+def login_google():
+    data = request.get_json()
+    id_token = data.get('idToken')
+    
+    try:
+        # Valida o token vindo do front-end
+        decoded_token = firebase_auth.verify_id_token(id_token)
+        email = decoded_token['email']
+        nome = decoded_token.get('name', 'Usuário Google')
+        foto = decoded_token.get('picture', '')
+
+        # Inicia a sessão
+        session['user_email'] = email
+        
+        # Verifica se o usuário já existe na coleção 'usuarios'
+        user_ref = db.collection('usuarios').document(email)
+        if not user_ref.get().exists:
+            user_ref.set({
+                'email': email,
+                'nome': nome,
+                'foto_google': foto,
+                'tipo': 'musico',
+                'criado_em': firestore.SERVER_TIMESTAMP
+            })
+            
+        return jsonify({"status": "success"}), 200
+        
+    except Exception as e:
+        print(f"Erro na validação Google: {e}")
+        return jsonify({"status": "error", "message": "Token inválido"}), 401
+
+
 @app.route('/webhook-stripe', methods=['POST'])
 def webhook_stripe():
     payload = request.get_data()
@@ -458,117 +495,6 @@ def webhook_stripe():
 
     return jsonify({"status": "success"}), 200    
 
-
-
-# ======================================================
-# LOGIN GOOGLE
-# ======================================================
-@app.route('/login_google', methods=['POST'])
-def login_google():
-    data = request.get_json()
-    id_token = data.get('idToken')
-    
-    try:
-        # Valida o token vindo do front-end
-        decoded_token = firebase_auth.verify_id_token(id_token)
-        email_logado = decoded_token['email']
-        nome = decoded_token.get('name', 'Usuário Google')
-        foto = decoded_token.get('picture', '')
-
-        # Inicia a sessão
-        session['user_email'] = email_logado
-        
-        # 🔍 1. BUSCA DADOS DA CONTA DO USUÁRIO
-        user_ref = db.collection('usuarios').document(email_logado)
-        user_doc = user_ref.get()
-
-        if not user_doc.exists:
-            # Cria exatamente como você pediu
-            user_ref.set({
-                'email': email_logado,
-                'nome': nome,
-                'foto_google': foto,
-                'tipo': None,
-                'acesso_pago': False,
-                'criado_em': firestore.SERVER_TIMESTAMP
-            })
-            # Recarrega o doc recém criado para seguir a lógica abaixo
-            user_doc = user_ref.get()
-
-        dados_usuario = user_doc.to_dict()
-        tipo_usuario = dados_usuario.get('tipo')
-        pagou = dados_usuario.get('acesso_pago', False)
-
-        # 🔍 2. BUSCA DADOS DO PERFIL DO ARTISTA
-        artista_query = db.collection('artistas').where('dono_email', '==', email_logado).limit(1).stream()
-        artista_docs = list(artista_query)
-        artista_dados = None
-        bloqueado = False
-
-        # 🛑 REGRA 1: Se ainda não escolheu o tipo
-        if not tipo_usuario:
-            return jsonify({"status": "success", "redirect": "/dashboard"}), 200
-
-        # 🛑 REGRA 2: LÓGICA DE ACESSO E PAGAMENTO
-        if tipo_usuario == 'musico':
-            if pagou:
-                bloqueado = False
-            else:
-                bloqueado = True
-
-        # 🟢 SE FOR ESTABELECIMENTO
-        if tipo_usuario == 'estabelecimento':
-            doc_estab = db.collection('estabelecimentos').document(email_logado).get()
-            if not doc_estab.exists:
-                return jsonify({"status": "success", "redirect": "/abrir_pagina_estabelecimento"}), 200
-            return jsonify({"status": "success", "redirect": "/dashboard_estabelecimento"}), 200
-
-        # 🟢 PROCESSAMENTO DE DADOS DO ARTISTA (Lógica completa do Dashboard)
-        pedidos, agenda, feedbacks = [], [], []
-        total_cliques, notificacoes_fas, total_estrelas = 0, 0, 0
-
-        if artista_docs:
-            doc = artista_docs[0]
-            artista_id = doc.id
-            artista_dados = doc.to_dict()
-            artista_dados['id'] = artista_id
-            total_cliques = artista_dados.get('cliques', 0)
-
-            pedidos_ref = db.collection('pedidos_reserva').where('musico_id', '==', artista_id).stream()
-            for p in pedidos_ref:
-                p_dados = p.to_dict()
-                p_dados['id'] = p.id
-                pedidos.append(p_dados)
-            pedidos.sort(key=lambda x: x.get('criado_em') if x.get('criado_em') else 0, reverse=True)
-
-            agenda_ref = db.collection('artistas').document(artista_id).collection('agenda').order_by('data_completa').stream()
-            for s in agenda_ref:
-                s_dados = s.to_dict()
-                s_dados['id'] = s.id
-                agenda.append(s_dados)
-
-            feedbacks_ref = db.collection('feedbacks').where('artista_email', '==', email_logado).stream()
-            for f in feedbacks_ref:
-                f_dados = f.to_dict()
-                f_dados['id'] = f.id
-                feedbacks.append(f_dados)
-                total_estrelas += int(f_dados.get('estrelas', 0))
-                if f_dados.get('status') == 'pendente':
-                    notificacoes_fas += 1
-
-        qtd_feedbacks = len(feedbacks)
-        media_estrelas = round(total_estrelas / qtd_feedbacks, 1) if qtd_feedbacks > 0 else 0.0
-
-        # Retorna o sucesso para o JS redirecionar para o local correto baseado na lógica
-        return jsonify({
-            "status": "success", 
-            "redirect": "/dashboard",
-            "bloqueado": bloqueado
-        }), 200
-        
-    except Exception as e:
-        print(f"Erro na validação Google: {e}")
-        return jsonify({"status": "error", "message": "Token inválido"}), 401
 
 
 # 🔔 ROTA: Marcar como lido

@@ -54,19 +54,15 @@ window.loginComGoogle = async function() {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ idToken: idToken })
         });
-        
         const data = await response.json();
-        
         if (data.status === 'success') {
-            // ✅ MUDANÇA AQUI: Redireciona para o Dashboard onde a mágica acontece
-            window.location.href = data.redirect || '/dashboard';
+            acaoPosLogin();
         } else {
             alert("Erro ao sincronizar: " + data.message);
         }
     } catch (error) {
         if (error.code !== 'auth/cancelled-popup-request' && error.code !== 'auth/popup-closed-by-user') {
-            // Se você não tiver a função exibirPopup definida, use console.error ou alert
-            console.error("Erro Google:", error);
+            exibirPopup("Erro Google", traduzirErroFirebase(error));
         }
     }
 }
@@ -432,3 +428,9 @@ document.getElementById('btn-retomar-nao').onclick = async () => {
         }
     }
 };
+
+
+
+document.getElementById("btn-escolha-musico").addEventListener("click", function() {
+    window.location.href = "https://buy.stripe.com/test_5kQ8wO90m6yWbRl0I5gIo00";
+});
