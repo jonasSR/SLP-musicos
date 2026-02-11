@@ -40,59 +40,6 @@ const btnSignup = document.getElementById("btn-signup");
 const emailInput = document.getElementById("email");
 const passwordInput = document.getElementById("password");
 
-
-// 🌐 GOOGLE
-const provider = new GoogleAuthProvider();
-provider.setCustomParameters({ prompt: 'select_account' });
-
-window.loginComGoogle = async function() {
-    try {
-        const result = await signInWithPopup(auth, provider);
-        const email = result.user.email;
-        
-        if (!email) {
-            alert("Não conseguimos obter seu e-mail do Google.");
-            return;
-        }
-
-        const idToken = await result.user.getIdToken();
-
-        const response = await fetch('/login_google', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ idToken: idToken })
-        });
-
-        const data = await response.json();
-
-        if (data.status === 'success') {
-            // EXATAMENTE O SEU FLUXO:
-            // Abre a modal para escolher o caminho
-            const modalEscolha = document.getElementById('modal-escolha-perfil');
-            modalEscolha.style.display = 'flex';
-
-            // Configura o botão Músico -> Vai direto para o Checkout
-            document.getElementById('btn-escolha-musico').onclick = function() {
-                // Link do Stripe com o email já preenchido
-                window.location.href = `https://buy.stripe.com/test_5kQ8wO90m6yWbRl0I5gIo00?prefilled_email=${email}`;
-            };
-
-            // Configura o botão Empresa -> Vai para o Dashboard
-            document.getElementById('btn-escolha-empresa').onclick = function() {
-                window.location.href = "/dashboard";
-            };
-
-        } else {
-            alert("Erro ao sincronizar: " + data.message);
-        }
-
-    } catch (error) {
-        if (error.code !== 'auth/popup-closed-by-user') {
-            console.error("Erro Google:", error);
-        }
-    }
-};
-
 // --- FUNÇÕES AUXILIARES ---
 function traduzirErroFirebase(error) {
     console.log("Código do erro:", error.code); // Útil para debug
@@ -266,6 +213,62 @@ document.addEventListener("DOMContentLoaded", () => {
     if (btnMusico) btnMusico.onclick = () => executarCadastroFinal('musico');
     if (btnEmpresa) btnEmpresa.onclick = () => executarCadastroFinal('estabelecimento');
 });
+
+// 🌐 GOOGLE
+const provider = new GoogleAuthProvider();
+provider.setCustomParameters({ prompt: 'select_account' });
+
+window.loginComGoogle = async function() {
+    try {
+        // 🔹 Login via popup do Firebase
+        const result = await signInWithPopup(auth, provider);
+
+        // 🔹 Checa se retornou e-mail
+        const email = result.user.email;
+        if (!email) {
+            alert("Não conseguimos obter seu e-mail do Google. Use outro login ou tente novamente.");
+            console.error("Google login retornou user sem e-mail:", result.user);
+            return;
+        }
+
+        // 🔹 Pega o ID token
+        const idToken = await result.user.getIdToken();
+
+        // 🔹 Chama o backend
+        const response = await fetch('/login_google', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ idToken: idToken })
+        });
+
+        const data = await response.json();
+        console.log("Resposta do backend login_google:", data);
+
+        if (data.status === 'success') {
+            // 🔹 Usuário precisa escolher tipo → mostra modal existente
+            if (data.precisa_escolher_tipo) {
+                console.log("Usuário precisa escolher tipo → abrindo modal");
+                document.getElementById('modal-escolha-perfil').style.display = 'flex';
+            } else {
+                // 🔹 Usuário já tem tipo (ou já pagou) → dashboard direto
+                console.log("Usuário já tem tipo → chamando acaoPosLogin()");
+                acaoPosLogin();
+            }
+        } else {
+            alert("Erro ao sincronizar: " + data.message);
+            console.error("Erro backend login_google:", data);
+        }
+
+    } catch (error) {
+        // 🔹 Erros do popup
+        console.error("Erro loginComGoogle:", error);
+        if (error.code === 'auth/cancelled-popup-request' || error.code === 'auth/popup-closed-by-user') {
+            console.log("Login Google cancelado pelo usuário");
+            return;
+        }
+        exibirPopup("Erro Google", traduzirErroFirebase(error));
+    }
+};
 
 
 // 👁️ MOSTRAR / ESCONDER SENHA
