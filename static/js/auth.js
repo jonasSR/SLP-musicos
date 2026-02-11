@@ -47,30 +47,32 @@ provider.setCustomParameters({ prompt: 'select_account' });
 
 window.loginComGoogle = async function() {
     try {
-        // Força o Firebase a lembrar que este usuário está logado
-        await setPersistence(auth, browserSessionPersistence);
-        
         const result = await signInWithPopup(auth, provider);
-        const idToken = await result.user.getIdToken();
-        
+        // Garantimos que o Firebase terminou de logar localmente
+        const user = result.user;
+        const idToken = await user.getIdToken();
+
         const response = await fetch('/login_google', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ idToken: idToken })
         });
-        
+
         const data = await response.json();
-        
+
         if (data.status === 'success') {
-            // Recarrega a página ou limpa caches de auth para garantir 
-            // que o clique no botão da modal leia o email do Google, não do input
-            window.location.reload(); 
+            // Em vez de acaoPosLogin(), usamos o redirecionamento direto 
+            // para limpar qualquer estado de erro anterior da modal
+            window.location.href = '/dashboard';
         } else {
-            alert("Erro: " + data.message);
+            alert("Erro no servidor: " + data.message);
         }
     } catch (error) {
-        console.error("Erro Google:", error.code);
-        exibirPopup("Erro Google", traduzirErroFirebase(error));
+        console.error("Erro detalhado:", error);
+        // Se o erro for de popup fechado, não mostramos o alerta
+        if (error.code !== 'auth/cancelled-popup-request' && error.code !== 'auth/popup-closed-by-user') {
+            alert("Erro ao logar com Google: " + error.message);
+        }
     }
 }
 

@@ -474,26 +474,27 @@ def login_google():
         nome = decoded_token.get('name', 'Usuário Google')
         foto = decoded_token.get('picture', '')
 
-        session['user_email'] = email # Define a sessão antes de qualquer coisa
+        # Define a sessão IMEDIATAMENTE
+        session['user_email'] = email
         
         user_ref = db.collection('usuarios').document(email)
-        doc = user_ref.get()
-
-        if not doc.exists:
-            user_ref.set({
-                'email': email,
-                'nome': nome,
-                'foto_google': foto,
-                'tipo': 'musico', # Mantemos musico para evitar erros de validação
-                'acesso_pago': False,
-                'status_financeiro': 'pendente',
-                'criado_em': firestore.SERVER_TIMESTAMP
-            })
+        
+        # Usamos update ou set com merge para não sobrescrever 
+        # se o usuário já existir (evita erros de permissão)
+        user_ref.set({
+            'email': email,
+            'nome': nome,
+            'foto_google': foto,
+            'tipo': 'musico',
+            'acesso_pago': False, # Mantemos falso para cair no bloqueio do dashboard
+            'criado_em': firestore.SERVER_TIMESTAMP
+        }, merge=True)
             
         return jsonify({"status": "success"}), 200
         
     except Exception as e:
         print(f"Erro na validação Google: {e}")
+        # Retornamos o erro real para o JS mostrar no alert e sabermos o que é
         return jsonify({"status": "error", "message": str(e)}), 401
 
 
