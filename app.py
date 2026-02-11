@@ -194,26 +194,28 @@ def perfil_musico(musico_id):
 
 
 # ======================================================
-# 🔐 AUTENTICAÇÃOdef login_page():
+# 🔐 AUTENTICAÇÃO
 # ======================================================
 @app.route('/login')
 def login_page():
-    # 1. Verifica se ele acabou de pagar
+    # 1. Captura os dados necessários
     veio_da_venda = request.args.get('pago') == 'true'
     email_logado = session.get('user_email')
 
-    # 🛑 O PULO DO GATO:
-    # Se ele pagou E já está logado (veio do sistema), não mostra o login!
-    # Manda direto para o Dash com o parâmetro de sucesso.
+    # 🚀 O PULO DO GATO:
+    # Se ele pagou (veio do Stripe) E já está logado no sistema,
+    # ignoramos a tela de login e mandamos direto para o Dash.
     if veio_da_venda and email_logado:
         return redirect(url_for('dashboard', sucesso_pagamento='true'))
 
-    # Caso contrário, segue o fluxo normal para quem vem da página de vendas
+    # 🟢 CASO NÃO ESTEJA LOGADO (Vem da página de vendas externa):
+    # Configuramos a modal de boas-vindas para o primeiro cadastro.
     if veio_da_venda:
         session['mostrar_boas_vindas'] = True
 
     mostrar_modal = session.pop('mostrar_boas_vindas', False)
 
+    # Configurações do Firebase
     config = {
         "apiKey": os.getenv("FIREBASE_API_KEY"),
         "authDomain": os.getenv("FIREBASE_AUTH_DOMAIN"),
