@@ -477,22 +477,24 @@ def login_google():
         session['user_email'] = email
         
         user_ref = db.collection('usuarios').document(email)
-        doc = user_ref.get()
+        user_doc = user_ref.get()
 
-        if not doc.exists:
+        if not user_doc.exists:
+            # CRIAR USUÁRIO SEM TIPO (Para disparar a modal no dashboard)
             user_ref.set({
                 'email': email,
                 'nome': nome,
                 'foto_google': foto,
-                'tipo': None,           # Mantendo None para cair na sua REGRA 1
-                'acesso_pago': False,
+                'tipo': None,           # DEIXE VAZIO
+                'acesso_pago': False,   # COMEÇA COMO FALSE
                 'criado_em': firestore.SERVER_TIMESTAMP
             })
             
         return jsonify({"status": "success"}), 200
         
     except Exception as e:
-        return jsonify({"status": "error", "message": str(e)}), 401
+        print(f"Erro na validação Google: {e}")
+        return jsonify({"status": "error", "message": "Token inválido"}), 401
 
 
 # 🔔 ROTA: Marcar como lido

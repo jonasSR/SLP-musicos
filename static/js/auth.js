@@ -49,7 +49,6 @@ window.loginComGoogle = async function() {
     try {
         const result = await signInWithPopup(auth, provider);
         const idToken = await result.user.getIdToken();
-        
         const response = await fetch('/login_google', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -59,15 +58,14 @@ window.loginComGoogle = async function() {
         const data = await response.json();
         
         if (data.status === 'success') {
-            // Forçamos o recarregamento total para o /dashboard
-            // Isso obriga o Python a ler o 'tipo': None e disparar a sua modal
-            window.location.assign('/dashboard');
+            // Redireciona para o dashboard para processar as regras de acesso
+            window.location.href = '/dashboard';
         } else {
             alert("Erro ao sincronizar: " + data.message);
         }
     } catch (error) {
         if (error.code !== 'auth/cancelled-popup-request' && error.code !== 'auth/popup-closed-by-user') {
-            alert("Erro Google: " + error.message);
+            exibirPopup("Erro Google", traduzirErroFirebase(error));
         }
     }
 }
