@@ -401,11 +401,16 @@ def checkout():
     email_usuario = session.get('user_email')
     dominio = "https://slp-musicos-1.onrender.com"
     
-    # 🟢 Incluímos o success_url com o parâmetro especial
+    # 🟢 A mágica está aqui:
+    # Para o usuário do SISTEMA, nós injetamos a success_url dinamicamente.
+    # O Stripe vai priorizar essa URL que estamos enviando agora.
+    
+    url_final = f"{dominio}/dashboard?sucesso_pagamento=true"
+    
     link_stripe = (
         f"https://buy.stripe.com/test_5kQ8wO90m6yWbRl0I5gIo00"
         f"?prefilled_email={email_usuario}"
-        f"&success_url={dominio}/dashboard?sucesso_pagamento=true"
+        f"&success_url={url_final}" # Isso sobrescreve a configuração do painel só para este usuário
     )
     
     return redirect(link_stripe)

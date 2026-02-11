@@ -10,13 +10,11 @@
 </head>
 <body>
     {% if exibir_boas_vindas_interno %}
-    <div id="modal-boas-vindas-sistema" class="modal-overlay" style="display:flex; position: fixed; z-index: 99999; background: rgba(0,0,0,0.9); top:0; left:0; width:100%; height:100%; align-items:center; justify-content:center; backdrop-filter: blur(5px);">
-        <div class="glass-card" style="max-width: 450px; text-align: center; padding: 40px; border: 1px solid #00ffcc;">
-            <h2 style="color:#00ffcc; font-family: 'Syne', sans-serif; margin-bottom: 20px;">TUDO PRONTO! 🚀</h2>
-            <p style="color: white; line-height: 1.6; margin-bottom: 30px;">
-                Sua assinatura foi confirmada. Agora seu painel está liberado para você configurar sua agenda e receber propostas!
-            </p>
-            <button class="log-btn-main" style="width: 100%; cursor: pointer;" onclick="fecharBoasVindas()">
+    <div id="modal-boas-vindas-sistema" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 9999; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(5px);">
+        <div style="background: #1a1a1a; padding: 40px; border-radius: 15px; border: 1px solid #00ffcc; text-align: center; max-width: 400px;">
+            <h2 style="color: #00ffcc; font-family: 'Syne', sans-serif;">BEM-VINDO! 🚀</h2>
+            <p style="color: white; margin: 20px 0;">Sua assinatura foi confirmada. Seu painel de músico já está liberado!</p>
+            <button onclick="fecharBoasVindas()" style="background: #00ffcc; color: black; border: none; padding: 12px 30px; border-radius: 5px; font-weight: bold; cursor: pointer; width: 100%;">
                 COMEÇAR AGORA
             </button>
         </div>
@@ -25,7 +23,7 @@
     <script>
         function fecharBoasVindas() {
             document.getElementById('modal-boas-vindas-sistema').style.display = 'none';
-            // Limpa a URL (remove o ?sucesso_pagamento=true)
+            // Limpa a URL para o link ficar limpo
             const novaUrl = window.location.protocol + "//" + window.location.host + window.location.pathname;
             window.history.pushState({path: novaUrl}, '', novaUrl);
         }
