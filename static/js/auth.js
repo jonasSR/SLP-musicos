@@ -218,33 +218,28 @@ document.addEventListener("DOMContentLoaded", () => {
 const provider = new GoogleAuthProvider();
 provider.setCustomParameters({ prompt: 'select_account' });
 
-window.loginComGoogle = async function() {
-    try {
-        const result = await signInWithPopup(auth, provider);
-        const idToken = await result.user.getIdToken();
-        const response = await fetch('/login_google', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ idToken: idToken })
-        });
-        const data = await response.json();
+// Aguarda o carregamento para garantir que os botões existam
+document.addEventListener('DOMContentLoaded', () => {
 
-        if (data.status === 'success') {
-            // FECHA O QUE ESTIVER ABERTO E ABRE A MODAL DE ESCOLHA NA MARRA
-            const modalEscolha = document.getElementById('modal-escolha-perfil');
-            if (modalEscolha) {
-                modalEscolha.style.display = 'flex';
-            } else {
-                // Se a modal não existir na página, vai pro dashboard
-                window.location.href = '/dashboard';
-            }
-        } else {
-            alert("Erro: " + data.message);
-        }
-    } catch (error) {
-        console.error("Erro Google:", error);
+    const btnMusico = document.getElementById('btn-escolha-musico');
+    const btnEmpresa = document.getElementById('btn-escolha-empresa');
+
+    if (btnMusico) {
+        btnMusico.onclick = () => {
+            // Se logou pelo Google, enviamos direto para o checkout
+            // O e-mail já está na sessão do servidor (Flask)
+            const stripeUrl = "https://buy.stripe.com/test_5kQ8wO90m6yWbRl0I5gIo00";
+            window.location.href = stripeUrl;
+        };
     }
-}
+
+    if (btnEmpresa) {
+        btnEmpresa.onclick = () => {
+            // Estabelecimento vai direto para o Dashboard
+            window.location.href = "/dashboard";
+        };
+    }
+});
 
 // 👁️ MOSTRAR / ESCONDER SENHA
 const togglePasswordBtn = document.querySelector(".log-toggle-eye");

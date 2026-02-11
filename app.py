@@ -467,21 +467,30 @@ def webhook_stripe():
 def login_google():
     data = request.get_json()
     id_token = data.get('idToken')
+    
     try:
         decoded_token = firebase_auth.verify_id_token(id_token)
         email = decoded_token['email']
-        session['user_email'] = email
+        session['user_email'] = email # Salva na sessão para o Stripe saber quem é
         
         user_ref = db.collection('usuarios').document(email)
-        if not user_ref.get().exists:
+        user_doc = user_ref.get()
+
+        # Se é novo, salva com tipo músico por padrão (como você pediu)
+        if not user_doc.exists:
             user_ref.set({
                 'email': email,
                 'nome': decoded_token.get('name', 'Usuário Google'),
-                'tipo': 'musico', # Já deixa como músico
+                'tipo': 'musico',
                 'acesso_pago': False,
+                'status_financeiro': 'pendente',
                 'criado_em': firestore.SERVER_TIMESTAMP
             })
-        return jsonify({"status": "success"}), 200
+            return jsonify({"status": "success", "new_user": True}), 200
+        
+        # Se já existe e já pagou, avisa o JS para ir pro Dashboard
+        return jsonify({"status": "success", "new_user": False}), 200
+        
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 401
 
