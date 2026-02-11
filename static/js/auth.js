@@ -40,6 +40,36 @@ const btnSignup = document.getElementById("btn-signup");
 const emailInput = document.getElementById("email");
 const passwordInput = document.getElementById("password");
 
+
+// 🌐 GOOGLE
+const provider = new GoogleAuthProvider();
+provider.setCustomParameters({ prompt: 'select_account' });
+
+window.loginComGoogle = async function() {
+    try {
+        const result = await signInWithPopup(auth, provider);
+        const idToken = await result.user.getIdToken();
+        const response = await fetch('/login_google', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ idToken: idToken })
+        });
+        
+        const data = await response.json();
+        if (data.status === 'success') {
+            // Redireciona para o dashboard, onde a lógica do Flask vai detectar que não tem 'tipo'
+            window.location.href = "/dashboard"; 
+        } else {
+            alert("Erro ao sincronizar: " + data.message);
+        }
+    } catch (error) {
+        if (error.code !== 'auth/cancelled-popup-request' && error.code !== 'auth/popup-closed-by-user') {
+            exibirPopup("Erro Google", traduzirErroFirebase(error));
+        }
+    }
+}
+
+
 // --- FUNÇÕES AUXILIARES ---
 function traduzirErroFirebase(error) {
     console.log("Código do erro:", error.code); // Útil para debug
@@ -76,6 +106,7 @@ function traduzirErroFirebase(error) {
     }
 }
 
+
 // Abre a modal de alerta (Erro ou Instrução)
 function exibirPopup(titulo, mensagem) {
     const modal = document.getElementById('modal-auth');
@@ -89,11 +120,13 @@ function exibirPopup(titulo, mensagem) {
     }
 }
 
+
 // Fecha a modal de alerta
 const fecharModal = () => {
     const modal = document.getElementById('modal-auth');
     if (modal) modal.style.display = "none";
 };
+
 
 // Vincula o fechamento aos botões da modal-auth
 const btnCloseX = document.getElementById('btn-close-x');
@@ -101,10 +134,12 @@ const btnModalConfirm = document.getElementById('btn-modal-confirm');
 if (btnCloseX) btnCloseX.onclick = fecharModal;
 if (btnModalConfirm) btnModalConfirm.onclick = fecharModal;
 
+
 window.onclick = (event) => {
     const modal = document.getElementById('modal-auth');
     if (event.target == modal) fecharModal();
 };
+
 
 async function iniciarSessao(email) {
     await fetch("/set_session", {
@@ -148,9 +183,11 @@ if (formLogin) {
     });
 }
 
+
 // 🆕 CADASTRO (UNIFICADO)
 // 1. Variáveis temporárias (não salvam no banco ainda)
 let dadosTemporarios = { email: "", senha: "" };
+
 
 // 2. O BOTÃO "CRIAR CONTA" (O primeiro que o usuário vê)
 if (btnSignup) {
@@ -173,6 +210,7 @@ if (btnSignup) {
         }
     });
 }
+
 
 // 3. OS BOTÕES DENTRO DA MODAL (Aqui é onde a mágica acontece)
 document.addEventListener("DOMContentLoaded", () => {
@@ -214,58 +252,6 @@ document.addEventListener("DOMContentLoaded", () => {
     if (btnEmpresa) btnEmpresa.onclick = () => executarCadastroFinal('estabelecimento');
 });
 
-// 🌐 GOOGLE
-const provider = new GoogleAuthProvider();
-provider.setCustomParameters({ prompt: 'select_account' });
-
-window.loginComGoogle = async function() {
-    try {
-        const result = await signInWithPopup(auth, provider);
-
-        if (!result.user || !result.user.email) {
-            console.error("Usuário inválido retornado pelo Google:", result.user);
-            alert("Erro no login Google. Tente novamente.");
-            return;
-        }
-
-        const idToken = await result.user.getIdToken(true); // força refresh
-
-        const response = await fetch('/login_google', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ idToken })
-        });
-
-        const data = await response.json();
-        console.log("Resposta backend:", data);
-
-        if (data.status !== 'success') {
-            alert("Erro backend: " + data.message);
-            return;
-        }
-
-        if (data.precisa_escolher_tipo) {
-            document.getElementById('modal-escolha-perfil').style.display = 'flex';
-        } else {
-            acaoPosLogin();
-        }
-
-    } catch (error) {
-        console.error("ERRO REAL DO GOOGLE:", error);
-
-        if (error.code === 'auth/invalid-email') {
-            alert("Erro de autenticação Google. Verifique se o domínio está autorizado no Firebase.");
-            return;
-        }
-
-        if (
-            error.code !== 'auth/cancelled-popup-request' &&
-            error.code !== 'auth/popup-closed-by-user'
-        ) {
-            alert("Erro no login Google.");
-        }
-    }
-};
 
 
 // 👁️ MOSTRAR / ESCONDER SENHA
@@ -310,8 +296,10 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 });
 
+
 // Variável para controle local
 let perfilPendente = { tipo: "", email: "" };
+
 
 // Vigia global de sessão
 auth.onAuthStateChanged((user) => {
@@ -319,6 +307,7 @@ auth.onAuthStateChanged((user) => {
         verificarStatusCadastro(user.email);
     }
 });
+
 
 async function verificarStatusCadastro(email) {
     try {
@@ -331,6 +320,7 @@ async function verificarStatusCadastro(email) {
         perfilPendente.email = email;
     } catch (e) { console.error(e); }
 }
+
 
 // 🎯 INTERCEPTAR O CLIQUE NO BOTÃO "PAINEL" (Menu Superior)
 document.addEventListener('click', function(e) {
@@ -349,6 +339,7 @@ document.addEventListener('click', function(e) {
         }
     }
 });
+
 
 // 🎯 CÉREBRO DO LOGIN (Página de Login)
 window.acaoPosLogin = async function() {
@@ -377,6 +368,7 @@ window.acaoPosLogin = async function() {
     } catch (error) { console.error(error); }
 };
 
+
 // 🎯 AÇÃO: SIM (CONTINUAR CADASTRO)
 document.getElementById('btn-retomar-sim').onclick = () => {
     document.getElementById('modal-retomar-cadastro').style.display = "none";
@@ -388,6 +380,7 @@ document.getElementById('btn-retomar-sim').onclick = () => {
         window.location.href = "/dashboard"; 
     }
 };
+
 
 // 🎯 AÇÃO: NÃO (EXCLUIR TUDO)
 document.getElementById('btn-retomar-nao').onclick = async () => {
@@ -438,6 +431,3 @@ document.getElementById('btn-retomar-nao').onclick = async () => {
         }
     }
 };
-
-
-
