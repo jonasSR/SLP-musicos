@@ -488,7 +488,7 @@ def login_google():
                 'email': email_logado,
                 'nome': nome,
                 'foto_google': foto,
-                'tipo': 'musico',
+                'tipo': None,
                 'acesso_pago': False,
                 'criado_em': firestore.SERVER_TIMESTAMP
             })
