@@ -463,29 +463,34 @@ def webhook_stripe():
 # ======================================================
 # LOGIN GOOGLE
 # ======================================================
+# ======================================================
+# LOGIN GOOGLE (AJUSTADO)
+# ======================================================
 @app.route('/login_google', methods=['POST'])
 def login_google():
     data = request.get_json()
     id_token = data.get('idToken')
     
     try:
-        # Valida o token vindo do front-end
         decoded_token = firebase_auth.verify_id_token(id_token)
         email = decoded_token['email']
         nome = decoded_token.get('name', 'Usuário Google')
         foto = decoded_token.get('picture', '')
 
-        # Inicia a sessão
         session['user_email'] = email
         
-        # Verifica se o usuário já existe na coleção 'usuarios'
         user_ref = db.collection('usuarios').document(email)
-        if not user_ref.get().exists:
+        user_doc = user_ref.get()
+
+        if not user_doc.exists:
+            # Criamos o usuário SEM o tipo e SEM pagamento.
+            # Isso força o Dashboard a mostrar a modal de escolha.
             user_ref.set({
                 'email': email,
                 'nome': nome,
                 'foto_google': foto,
-                'tipo': 'musico',
+                'tipo': None,           # IMPORTANTE: Sem tipo para disparar a modal
+                'acesso_pago': False,   # Começa bloqueado
                 'criado_em': firestore.SERVER_TIMESTAMP
             })
             

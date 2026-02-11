@@ -41,7 +41,7 @@ const emailInput = document.getElementById("email");
 const passwordInput = document.getElementById("password");
 
 
-// 🌐 GOOGLE
+// 🌐 GOOGLE (AJUSTADO)
 const provider = new GoogleAuthProvider();
 provider.setCustomParameters({ prompt: 'select_account' });
 
@@ -54,8 +54,13 @@ window.loginComGoogle = async function() {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ idToken: idToken })
         });
+        
         const data = await response.json();
+        
         if (data.status === 'success') {
+            // Como o Python não definiu o 'tipo', ao redirecionar para o dashboard,
+            // a sua função acaoPosLogin() levará o usuário para a tela onde a 
+            // modal de escolha (🎸 Músico / 🏢 Empresa) estará ativa.
             acaoPosLogin();
         } else {
             alert("Erro ao sincronizar: " + data.message);
