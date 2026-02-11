@@ -217,14 +217,12 @@ document.addEventListener("DOMContentLoaded", () => {
     async function executarCadastroFinal(tipoPerfil) {
         try {
 
-            // 1️⃣ Cria usuário no Firebase Auth
             const userCredential = await createUserWithEmailAndPassword(
                 auth,
                 dadosTemporarios.email,
                 dadosTemporarios.senha
             );
 
-            // 2️⃣ Salva/atualiza no Firestore usando EMAIL como ID
             await setDoc(
                 doc(db, "usuarios", dadosTemporarios.email),
                 {
@@ -235,12 +233,9 @@ document.addEventListener("DOMContentLoaded", () => {
                 { merge: true }
             );
 
-            // 3️⃣ Inicia sessão no backend
-            await iniciarSessao(dadosTemporarios.email);
-
-            // 4️⃣ VERIFICA PAGAMENTO ANTES DE REDIRECIONAR
             if (tipoPerfil === "estabelecimento") {
 
+                await iniciarSessao(dadosTemporarios.email);
                 window.location.href = "/cadastro-estabelecimento";
 
             } else {
@@ -252,9 +247,14 @@ document.addEventListener("DOMContentLoaded", () => {
                 const dadosUsuario = userSnap.data();
 
                 if (dadosUsuario?.acesso_pago === true) {
+
+                    await iniciarSessao(dadosTemporarios.email);
                     window.location.href = "/dashboard";
+
                 } else {
-                    window.location.href = "/checkout"; // coloque aqui sua rota real do Stripe
+
+                    // NÃO inicia sessão ainda
+                    window.location.href = "/checkout";
                 }
             }
 
@@ -262,6 +262,7 @@ document.addEventListener("DOMContentLoaded", () => {
             exibirPopup("Erro", traduzirErroFirebase(error));
         }
     }
+
 
     if (btnMusico) {
         btnMusico.onclick = () => executarCadastroFinal('musico');
