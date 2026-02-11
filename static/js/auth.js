@@ -428,9 +428,3 @@ document.getElementById('btn-retomar-nao').onclick = async () => {
         }
     }
 };
-
-
-
-document.getElementById("btn-escolha-musico").addEventListener("click", function() {
-    window.location.href = "https://buy.stripe.com/test_5kQ8wO90m6yWbRl0I5gIo00";
-});

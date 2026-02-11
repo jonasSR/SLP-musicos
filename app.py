@@ -431,7 +431,7 @@ def login_google():
                 'email': email,
                 'nome': nome,
                 'foto_google': foto,
-                'tipo': 'musico',
+                'tipo': None,
                 'criado_em': firestore.SERVER_TIMESTAMP
             })
             
@@ -478,7 +478,7 @@ def webhook_stripe():
                 'email': email_cliente,
                 'acesso_pago': True,
                 'status_financeiro': 'pago',
-                'tipo': 'musico', # Já pré-define como músico
+                'tipo': None, # Já pré-define como músico
                 'data_pagamento': firestore.SERVER_TIMESTAMP,
                 'criado_via': 'pagina_vendas'
             })
@@ -494,6 +494,38 @@ def webhook_stripe():
             })
 
     return jsonify({"status": "success"}), 200    
+@app.route('/escolher-perfil/<tipo>')
+@login_required
+def escolher_perfil(tipo):
+    email = session.get('user_email')
+
+    user_ref = db.collection('usuarios').document(email)
+    user_doc = user_ref.get()
+
+    if not user_doc.exists:
+        return redirect(url_for('login_page'))
+
+    dados = user_doc.to_dict()
+    pagou = dados.get('acesso_pago', False)
+
+    # 🎸 MÚSICO
+    if tipo == 'musico':
+
+        if pagou:
+            # Já pagou → só define tipo
+            user_ref.update({'tipo': 'musico'})
+            return redirect(url_for('dashboard'))
+
+        else:
+            # Não pagou → vai pro Stripe
+            return redirect("https://buy.stripe.com/test_5kQ8wO90m6yWbRl0I5gIo00")
+
+    # 🏢 ESTABELECIMENTO
+    if tipo == 'estabelecimento':
+        user_ref.update({'tipo': 'estabelecimento'})
+        return redirect(url_for('dashboard'))
+
+    return redirect(url_for('dashboard'))
 
 
 
