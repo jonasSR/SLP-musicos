@@ -469,31 +469,39 @@ def login_google():
     id_token = data.get('idToken')
     
     try:
-        # Valida o token vindo do front-end
         decoded_token = firebase_auth.verify_id_token(id_token)
         email = decoded_token['email']
         nome = decoded_token.get('name', 'Usuário Google')
         foto = decoded_token.get('picture', '')
 
-        # Inicia a sessão
         session['user_email'] = email
         
-        # Verifica se o usuário já existe na coleção 'usuarios'
         user_ref = db.collection('usuarios').document(email)
-        if not user_ref.get().exists:
+        user_doc = user_ref.get()
+
+        # Se não existe no banco, cria AUTOMATICAMENTE
+        if not user_doc.exists:
             user_ref.set({
                 'email': email,
                 'nome': nome,
                 'foto_google': foto,
-                'tipo': 'musico',
-                'criado_em': firestore.SERVER_TIMESTAMP
+                'acesso_pago': False,
+                'criado_em': firestore.SERVER_TIMESTAMP,
+                'metodo_login': 'google'
             })
-            
+            # Retorna um status específico para o JS abrir a modal de escolha
+            return jsonify({"status": "abrir_modal_perfil"}), 200
+        
+        # Se já existe mas não definiu o tipo (Músico/Empresa)
+        dados = user_doc.to_dict()
+        if not dados.get('tipo'):
+            return jsonify({"status": "abrir_modal_perfil"}), 200
+
+        # Se já tem tudo, vai direto para o dashboard
         return jsonify({"status": "success"}), 200
         
     except Exception as e:
-        print(f"Erro na validação Google: {e}")
-        return jsonify({"status": "error", "message": "Token inválido"}), 401
+        return jsonify({"status": "error", "message": str(e)}), 401
 
 
 # 🔔 ROTA: Marcar como lido

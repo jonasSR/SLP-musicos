@@ -222,21 +222,26 @@ window.loginComGoogle = async function() {
     try {
         const result = await signInWithPopup(auth, provider);
         const idToken = await result.user.getIdToken();
+        
         const response = await fetch('/login_google', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ idToken: idToken })
         });
+        
         const data = await response.json();
-        if (data.status === 'success') {
-            acaoPosLogin();
-        } else {
-            alert("Erro ao sincronizar: " + data.message);
+
+        if (data.status === 'abrir_modal_perfil') {
+            // FECHA A MODAL DE LOGIN (SE ESTIVER ABERTA) 
+            // E ABRE A DE ESCOLHA DE PERFIL IMEDIATAMENTE
+            document.getElementById('modal-auth').style.display = 'none';
+            document.getElementById('modal-escolha-perfil').style.display = 'flex';
+        } 
+        else if (data.status === 'success') {
+            window.location.href = '/dashboard';
         }
     } catch (error) {
-        if (error.code !== 'auth/cancelled-popup-request' && error.code !== 'auth/popup-closed-by-user') {
-            exibirPopup("Erro Google", traduzirErroFirebase(error));
-        }
+        console.error("Erro Google Login:", error);
     }
 }
 
