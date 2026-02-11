@@ -215,51 +215,37 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 // 🌐 GOOGLE
-// Inicializa provider do Google
 const provider = new GoogleAuthProvider();
 provider.setCustomParameters({ prompt: 'select_account' });
 
 window.loginComGoogle = async function() {
     try {
-        // 🔹 Abre popup do Google
-        const result = await signInWithPopup(auth, provider);
+        const result = await signInWithPopup(auth, new GoogleAuthProvider().setCustomParameters({ prompt: 'select_account' }));
 
-        // 🔹 Confirma que retornou e-mail
-        const email = result.user.email;
-        if (!email) {
-            alert("Não conseguimos obter seu e-mail do Google. Use outro login ou tente novamente.");
-            console.error("Google login retornou user sem e-mail:", result.user);
-            return;
-        }
-
-        // 🔹 Pega ID token
         const idToken = await result.user.getIdToken();
-
-        // 🔹 Chama backend
         const response = await fetch('/login_google', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ idToken: idToken })
+            body: JSON.stringify({ idToken })
         });
+
         const data = await response.json();
         console.log("Resposta do backend login_google:", data);
 
         if (data.status === 'success') {
             if (data.precisa_escolher_tipo) {
-                // 🔹 Usuário precisa escolher tipo → abre modal
+                // 🔹 Modal abrirá apenas para quem realmente precisa escolher tipo
                 document.getElementById('modal-escolha-perfil').style.display = 'flex';
             } else {
-                // 🔹 Usuário já tem tipo definido ou já pagou → dashboard direto
+                // 🔹 Usuário já tem tipo → dashboard direto
                 acaoPosLogin();
             }
         } else {
             alert("Erro ao sincronizar: " + data.message);
-            console.error("Erro backend login_google:", data);
         }
 
     } catch (error) {
         console.error("Erro loginComGoogle:", error);
-        // Ignora popup fechado/cancelado
         if (error.code !== 'auth/cancelled-popup-request' && error.code !== 'auth/popup-closed-by-user') {
             exibirPopup("Erro Google", traduzirErroFirebase(error));
         }

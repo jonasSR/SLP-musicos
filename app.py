@@ -469,7 +469,6 @@ def login_google():
     id_token = data.get('idToken')
 
     try:
-        # 🔹 Valida o token vindo do front-end
         decoded_token = firebase_auth.verify_id_token(id_token)
         email = decoded_token.get('email')
         nome = decoded_token.get('name', 'Usuário Google')
@@ -478,20 +477,17 @@ def login_google():
         if not email:
             return jsonify({"status": "error", "message": "Google não retornou e-mail"}), 400
 
-        # 🔹 Inicia a sessão
         session['user_email'] = email
-
-        # 🔹 Referência do usuário no Firestore
         user_ref = db.collection('usuarios').document(email)
         doc = user_ref.get()
 
         if not doc.exists:
-            # Usuário novo → tipo null → modal abre
+            # Usuário novo → modal abre
             user_ref.set({
                 'email': email,
                 'nome': nome,
                 'foto_google': foto,
-                'tipo': None,          # modal vai abrir
+                'tipo': None,
                 'acesso_pago': False,
                 'criado_em': firestore.SERVER_TIMESTAMP
             })
@@ -499,18 +495,14 @@ def login_google():
         else:
             dados = doc.to_dict()
 
-            # Usuário já pagou mas tipo ainda é null → assume músico
+            # Usuário já pagou mas tipo é null → define tipo 'musico'
             if dados.get('acesso_pago') and not dados.get('tipo'):
+                dados['tipo'] = 'musico'
                 user_ref.update({'tipo': 'musico'})
 
-            # 🔹 Recarrega o documento atualizado do Firestore
-            doc = user_ref.get()
-            dados = doc.to_dict()
+            # Usuário precisa escolher tipo apenas se tipo ainda for None
+            precisa_escolher_tipo = False if dados.get('tipo') else True
 
-            # Precisa escolher tipo só se tipo ainda for null
-            precisa_escolher_tipo = dados.get('tipo') is None
-
-        # 🔹 Resposta final
         return jsonify({
             "status": "success",
             "precisa_escolher_tipo": precisa_escolher_tipo
