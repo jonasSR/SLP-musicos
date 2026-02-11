@@ -947,7 +947,7 @@ def lista_artistas():
     # TRADUÇÃO PARA O BANCO DE DADOS
     # Se receber "músico independente", vira "musico" para buscar no Firebase
     termo_busca = tipo_original.lower()
-    if termo_busca == 'músico independente':
+    if termo_busca == 'músico':
         termo_busca = 'musico'
 
     # 1. Ajuste para o nome do arquivo template
