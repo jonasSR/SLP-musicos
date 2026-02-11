@@ -216,22 +216,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
     async function executarCadastroFinal(tipoPerfil) {
         try {
-            // Tenta criar o usuário no Firebase Auth
-            try {
-                await createUserWithEmailAndPassword(
-                    auth,
-                    dadosTemporarios.email,
-                    dadosTemporarios.senha
-                );
-            } catch (authError) {
-                // Se o erro for "e-mail já existe", a gente ignora e continua para o banco de dados
-                if (authError.code !== 'auth/email-already-in-use') {
-                    throw authError; // Se for outro erro (senha curta, etc), para tudo aqui
-                }
-                console.log("Usuário já autenticado, atualizando dados...");
-            }
 
-            // 1. Sempre atualiza ou cria o documento no Firestore
+            const userCredential = await createUserWithEmailAndPassword(
+                auth,
+                dadosTemporarios.email,
+                dadosTemporarios.senha
+            );
+
             await setDoc(
                 doc(db, "usuarios", dadosTemporarios.email),
                 {
@@ -242,30 +233,37 @@ document.addEventListener("DOMContentLoaded", () => {
                 { merge: true }
             );
 
-            // 2. Lógica de Redirecionamento
             if (tipoPerfil === "estabelecimento") {
+
                 await iniciarSessao(dadosTemporarios.email);
                 window.location.href = "/cadastro-estabelecimento";
+
             } else {
-                // É Músico: Verifica se já pagou
-                const userSnap = await getDoc(doc(db, "usuarios", dadosTemporarios.email));
+
+                const userSnap = await getDoc(
+                    doc(db, "usuarios", dadosTemporarios.email)
+                );
+
                 const dadosUsuario = userSnap.data();
 
                 if (dadosUsuario?.acesso_pago === true) {
+
                     await iniciarSessao(dadosTemporarios.email);
                     window.location.href = "/dashboard";
+
                 } else {
-                    // Se não pagou, manda para o checkout do Stripe
-                    // IMPORTANTE: Aqui você deve chamar a rota do seu servidor que gera o checkout
-                    window.location.href = "/checkout"; 
+
+                    // NÃO inicia sessão ainda
+                    window.location.href = "/checkout";
                 }
             }
 
         } catch (error) {
-            console.error("Erro no cadastro final:", error);
             exibirPopup("Erro", traduzirErroFirebase(error));
         }
     }
+
+
     if (btnMusico) {
         btnMusico.onclick = () => executarCadastroFinal('musico');
     }

@@ -309,15 +309,18 @@ def dashboard():
         return render_template('dashboard.html', pedidos=[], musico=None, agenda=[], feedbacks=[], notificacoes_fas=0, total_cliques=0, media_estrelas=0, bloqueado=False)
 
     # 🛑 REGRA 2: LÓGICA DE ACESSO E PAGAMENTO (PÁGINA DE VENDAS + INTERNO)
+    # 🛑 REGRA 2: LÓGICA DE ACESSO E PAGAMENTO
     if tipo_usuario == 'musico':
 
-        # ✅ PAGOU → acesso normal
+        # ✅ PAGOU → acesso normal ao Dashboard
         if pagou:
             bloqueado = False
 
-        # ❌ NÃO PAGOU → SEMPRE bloqueia a tela
+        # ❌ NÃO PAGOU → REDIRECIONA IMEDIATAMENTE PARA O CHECKOUT
         else:
-            bloqueado = True
+            # Em vez de apenas definir 'bloqueado = True' e carregar a página,
+            # nós forçamos o navegador a ir para a rota de pagamento.
+            return redirect(url_for('checkout'))
             
     # 🟢 SE FOR ESTABELECIMENTO
     if tipo_usuario == 'estabelecimento':
