@@ -14,12 +14,14 @@ function showMobileTab(evt, tabName) {
     window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
+
 // Inicializa a aba perfil no mobile
 document.addEventListener("DOMContentLoaded", function() {
     if (window.innerWidth <= 768) {
         document.body.classList.add('tab-perfil');
     }
 });
+
 
 // --- ELEMENTOS DE PREVIEW ---
 const inputName = document.getElementById('input-name');
@@ -40,6 +42,7 @@ const userEmailPrefix = "{{ session.get('user_email').split('@')[0]|upper }}";
 
 // Fallback de imagem caso não exista uma foto salva
 const imagemDoBanco = "{{ musico.foto or 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?q=80&w=1000' }}";
+
 
 // Função para atualizar a prévia do card em tempo real
 function atualizarCard() {
@@ -64,12 +67,14 @@ function atualizarCard() {
     }
 }
 
+
 // Listeners para garantir que a função dispare
 if (inputName) inputName.addEventListener('input', atualizarCard);
 if (selectStyle) selectStyle.addEventListener('change', atualizarCard);
 if (inputCidade) inputCidade.addEventListener('input', atualizarCard);
 if (inputEstado) inputEstado.addEventListener('input', atualizarCard);
 if (inputFile) inputFile.addEventListener('change', atualizarCard);
+
 
     // --- LÓGICA DO MENU HAMBÚRGUER ---
     function setupMenu() {
@@ -105,9 +110,11 @@ if (inputFile) inputFile.addEventListener('change', atualizarCard);
         }
     }
 
+
     // --- MODAIS E MENSAGENS ---
     function abrirModalSenha() { document.getElementById('modal-senha')?.classList.add('active'); }
     function fecharModalSenha() { document.getElementById('modal-senha')?.classList.remove('active'); }
+
 
     function abrirMensagem(id, nome, email, tel, data, local, tipo) {
         document.getElementById('view-nome').innerText = nome || 'Não informado';
@@ -138,10 +145,12 @@ if (inputFile) inputFile.addEventListener('change', atualizarCard);
         fetch(`/marcar_lido/${id}`, { method: 'POST' }).catch(err => console.error("Erro ao marcar lido:", err));
     }
 
+
     function fecharModal() {
         document.getElementById('modal-leitura')?.classList.remove('active');
         location.reload(); 
     }
+
 
     // --- EXCLUSÃO EM MASSA ---
     function updateBulkUI() {
@@ -153,10 +162,12 @@ if (inputFile) inputFile.addEventListener('change', atualizarCard);
         if (countSpan) countSpan.innerText = checkboxes.length;
     }
 
+
     function toggleSelectAll(master) {
         document.querySelectorAll('.msg-checkbox').forEach(cb => cb.checked = master.checked);
         updateBulkUI();
     }
+
 
     function enviarExclusao(listaIds) {
         fetch('/excluir_pedidos', {
@@ -174,6 +185,7 @@ if (inputFile) inputFile.addEventListener('change', atualizarCard);
         });
     }
 
+
     function excluirSelecionados() {
         const selecionados = Array.from(document.querySelectorAll('.msg-checkbox:checked')).map(cb => cb.value);
         if (selecionados.length > 0 && confirm(`Excluir ${selecionados.length} mensagens?`)) {
@@ -181,9 +193,11 @@ if (inputFile) inputFile.addEventListener('change', atualizarCard);
         }
     }
 
+
     function excluirMensagemIndividual(id) {
         if (confirm("Apagar esta mensagem?")) enviarExclusao([id]);
     }
+
 
     // --- INICIALIZAÇÃO ---
     document.addEventListener('DOMContentLoaded', function() {
@@ -227,13 +241,6 @@ if (inputFile) inputFile.addEventListener('change', atualizarCard);
     });
 
 
-
-
-
-
-
-    
-
 // FUNÇÂO BARRA MENU DESKTOP
 function showSection(sectionId) {
     // Lista de IDs das suas seções
@@ -254,6 +261,7 @@ function showSection(sectionId) {
         target.style.display = 'block'; 
     }
 }
+
 
 // Inicializa a página mostrando o Perfil
 document.addEventListener('DOMContentLoaded', () => {

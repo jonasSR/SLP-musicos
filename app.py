@@ -40,7 +40,6 @@ db = firestore.client()
 
 
 app = Flask(__name__)
-# 3. ATIVA O CORS (Logo aqui no começo!)
 CORS(app)
 
 # 🔐 Sessão
@@ -54,6 +53,7 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
 
 
 # ======================================================
@@ -86,6 +86,8 @@ def inject_firebase():
             "appId": os.getenv("FIREBASE_APP_ID")
         }
     }
+
+
 # ======================================================
 # 🌎 ROTAS PÚBLICAS
 # ======================================================
@@ -193,7 +195,6 @@ def perfil_musico(musico_id):
     )
 
 
-
 @app.route('/set_session', methods=['POST'])
 def set_session():
     data = request.get_json()
@@ -249,7 +250,6 @@ def check_user_type():
     return jsonify({"status": "novo"})
 
 
-
 # ======================================================
 # 🔐 AUTENTICAÇÃOdef login_page():
 # ======================================================
@@ -283,6 +283,7 @@ def login_page():
         firebase_config=config,
         confirmacao_venda=mostrar_modal
     )
+
 
 @app.route('/dashboard')
 @login_required
@@ -400,6 +401,7 @@ def dashboard():
         pagou=pagou
     )
 
+
 @app.route('/checkout')
 @login_required
 def checkout():
@@ -415,7 +417,6 @@ def checkout():
     )
     
     return redirect(link_stripe)
-
 
 
 @app.route('/webhook-stripe', methods=['POST'])
@@ -749,7 +750,6 @@ def adicionar_agenda():
     return redirect(url_for('dashboard'))
 
 
-
 @app.route('/remover_agenda/<show_id>', methods=['POST'])
 @login_required
 def remover_agenda(show_id):
@@ -1031,6 +1031,23 @@ def api_excluir_conta_definitiva(): # <--- Mudei o nome da função aqui
         return jsonify({"status": "error", "message": str(e)}), 500
 
 
+
+# ======================================================
+# 🔎 PORTA LATERAL: VISUALIZADOR DE MEMBROS
+# ======================================================
+@app.route('/admin/membros')
+def lista_membros_secreta():
+    # Busca todos os artistas cadastrados no Firestore
+    artistas_ref = db.collection('artistas').stream()
+    lista_artistas = []
+    
+    for doc in artistas_ref:
+        dados = doc.to_dict()
+        dados['id'] = doc.id
+        lista_artistas.append(dados)
+    
+    # Renderiza uma página simples só para você gerenciar
+    return render_template('admin_membros.html', artistas=lista_artistas)
 # ======================================================
 # 🚀 START
 # ======================================================

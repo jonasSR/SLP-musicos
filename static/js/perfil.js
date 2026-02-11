@@ -25,7 +25,6 @@ if (flashContainer) {
 });
 
 
-
 document.getElementById('form-feedback').addEventListener('submit', async (e) => {
 e.preventDefault();
 const btn = document.getElementById('btn-enviar-feedback');
@@ -59,6 +58,8 @@ try {
     btn.innerText = "ENVIAR NO MURAL";
 }
 });
+
+
 document.querySelector('.profile-form').addEventListener('submit', async (e) => {
 e.preventDefault(); // Impede o navegador de abrir a página de JSON puro
 
@@ -109,9 +110,11 @@ try {
 }
 });
 
+
 function toggleDropdown() {
 document.getElementById('optionsList').classList.toggle('active');
 }
+
 
 function selectOption(texto, valor) {
 // Atualiza o texto que o usuário vê
@@ -134,8 +137,6 @@ if (!event.target.matches('.select-trigger') && !event.target.matches('#selected
     }
 }
 }
-
-
 
 // FUNÇÃO PARA TROCAR ABAS NO MOBILE
 function showMobileTab(event, tabId) {

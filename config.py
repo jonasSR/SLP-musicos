@@ -1,7 +1,7 @@
 ESTILOS = [
     "Marchinha",
     "Regional / MPB",
-    "Choro",
+    "Sertanejo Universitário",
     "Rock Rural",
     "Samba",
     "Forró / Xote",

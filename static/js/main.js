@@ -30,6 +30,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // .artist-card.visible { opacity: 1; transform: translateY(0); }
 });
 
+
 document.addEventListener('DOMContentLoaded', function () {
     const container = document.getElementById('genreFilterContainer');
     const selectedText = document.getElementById('genre-label');
@@ -74,6 +75,8 @@ document.addEventListener('DOMContentLoaded', function () {
         container.classList.remove('is-active');
     });
 });
+
+
 document.addEventListener("DOMContentLoaded", function() {
     const cards = document.querySelectorAll(".modern-card");
 
@@ -97,9 +100,11 @@ document.addEventListener("DOMContentLoaded", function() {
     });
 });
 
+
 const observerOptions = {
     threshold: 0.1
 };
+
 
 const observer = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
@@ -108,6 +113,7 @@ const observer = new IntersectionObserver((entries) => {
         }
     });
 }, observerOptions);
+
 
 document.querySelectorAll('.modern-card').forEach(card => {
     observer.observe(card);
@@ -127,7 +133,6 @@ document.addEventListener('DOMContentLoaded', function() {
         speed: 800,                 // Velocidade da transição (suavidade)
     });
 });
-
 
 
 const menuTrigger = document.getElementById('mobile-menu-trigger');
