@@ -193,44 +193,6 @@ def perfil_musico(musico_id):
     )
 
 
-# ======================================================
-# 🔐 AUTENTICAÇÃO
-# ======================================================
-@app.route('/login')
-def login_page():
-    # 1. Captura os dados necessários
-    veio_da_venda = request.args.get('pago') == 'true'
-    email_logado = session.get('user_email')
-
-    # 🚀 O PULO DO GATO:
-    # Se ele pagou (veio do Stripe) E já está logado no sistema,
-    # ignoramos a tela de login e mandamos direto para o Dash.
-    if veio_da_venda and email_logado:
-        return redirect(url_for('dashboard', sucesso_pagamento='true'))
-
-    # 🟢 CASO NÃO ESTEJA LOGADO (Vem da página de vendas externa):
-    # Configuramos a modal de boas-vindas para o primeiro cadastro.
-    if veio_da_venda:
-        session['mostrar_boas_vindas'] = True
-
-    mostrar_modal = session.pop('mostrar_boas_vindas', False)
-
-    # Configurações do Firebase
-    config = {
-        "apiKey": os.getenv("FIREBASE_API_KEY"),
-        "authDomain": os.getenv("FIREBASE_AUTH_DOMAIN"),
-        "projectId": os.getenv("FIREBASE_PROJECT_ID"),
-        "storageBucket": os.getenv("FIREBASE_STORAGE_BUCKET"),
-        "messagingSenderId": os.getenv("FIREBASE_MESSAGING_SENDER_ID"),
-        "appId": os.getenv("FIREBASE_APP_ID")
-    }
-
-    return render_template(
-        'login.html',
-        firebase_config=config,
-        confirmacao_venda=mostrar_modal
-    )
-
 
 @app.route('/set_session', methods=['POST'])
 def set_session():
@@ -287,17 +249,48 @@ def check_user_type():
     return jsonify({"status": "novo"})
 
 
-from flask import request # Certifique-se de importar o request no topo
+
+# ======================================================
+# 🔐 AUTENTICAÇÃOdef login_page():
+# ======================================================
+@app.route('/login')
+def login_page():
+    # Detecta se veio do Stripe (página de vendas ou link fixo)
+    veio_da_venda = request.args.get('pago') == 'true'
+    email_logado = session.get('user_email')
+
+    # 🚀 FLUXO SISTEMA: Se já está logado e pagou, pula o login e vai pro Dash
+    if veio_da_venda and email_logado:
+        return redirect(url_for('dashboard', sucesso_pagamento='true'))
+
+    # 🟢 FLUXO PÁGINA DE VENDA: Se pagou mas não está logado, fica aqui para criar conta
+    if veio_da_venda:
+        session['mostrar_boas_vindas'] = True
+
+    mostrar_modal = session.pop('mostrar_boas_vindas', False)
+
+    config = {
+        "apiKey": os.getenv("FIREBASE_API_KEY"),
+        "authDomain": os.getenv("FIREBASE_AUTH_DOMAIN"),
+        "projectId": os.getenv("FIREBASE_PROJECT_ID"),
+        "storageBucket": os.getenv("FIREBASE_STORAGE_BUCKET"),
+        "messagingSenderId": os.getenv("FIREBASE_MESSAGING_SENDER_ID"),
+        "appId": os.getenv("FIREBASE_APP_ID")
+    }
+
+    return render_template(
+        'login.html',
+        firebase_config=config,
+        confirmacao_venda=mostrar_modal
+    )
 
 @app.route('/dashboard')
 @login_required
 def dashboard():
     email_logado = session.get('user_email')
     
-    # 🟢 AJUSTE: Detecta se o usuário está voltando do checkout 
-    # (Checa 'sucesso_pagamento' do seu link E 'pago' que vem do link fixo do Stripe)
-    veio_do_checkout_interno = (request.args.get('sucesso_pagamento') == 'true' or 
-                                request.args.get('pago') == 'true')
+    # 🟢 NOVO: Detecta se o usuário está voltando do checkout (via nosso redirecionamento do login)
+    veio_do_checkout_interno = request.args.get('sucesso_pagamento') == 'true'
     
     # 🔍 1. BUSCA DADOS DA CONTA DO USUÁRIO
     user_query = db.collection('usuarios').where('email', '==', email_logado).limit(1).stream()
@@ -319,17 +312,17 @@ def dashboard():
 
     bloqueado = False
 
-    # 🛑 REGRA 1: Se ainda não escolheu o tipo (Músico/Estabelecimento)
+    # 🛑 REGRA 1: Se ainda não escolheu o tipo
     if not tipo_usuario:
         return render_template('dashboard.html', pedidos=[], musico=None, agenda=[], feedbacks=[], notificacoes_fas=0, total_cliques=0, media_estrelas=0, bloqueado=False)
 
     # 🛑 REGRA 2: LÓGICA DE ACESSO PARA MÚSICO
     if tipo_usuario == 'musico':
-        # ✅ Liberamos se pagou OU se acabou de voltar do checkout (evita delay do Webhook)
+        # ✅ LIBERADO: Se o banco confirma o pago OU se ele acabou de vir do checkout (sucesso_pagamento)
         if pagou or veio_do_checkout_interno:
             bloqueado = False
         else:
-            # ❌ Não pagou e não está voltando do checkout -> Redireciona
+            # ❌ Caso contrário, manda para o checkout
             return redirect(url_for('checkout'))
             
     # 🟢 SE FOR ESTABELECIMENTO
@@ -339,7 +332,7 @@ def dashboard():
             return redirect(url_for('abrir_pagina_estabelecimento'))
         return redirect(url_for('dashboard_estabelecimento'))
 
-    # 🟢 PROCESSAMENTO DE DADOS DO ARTISTA (Agenda, Pedidos, Feedbacks)
+    # 🟢 PROCESSAMENTO DE DADOS DO ARTISTA
     pedidos, agenda, feedbacks = [], [], []
     total_cliques, notificacoes_fas, total_estrelas = 0, 0, 0
 
@@ -400,7 +393,7 @@ def dashboard():
         total_cliques=total_cliques,
         media_estrelas=media_estrelas,
         bloqueado=bloqueado,
-        exibir_boas_vindas_interno=veio_do_checkout_interno, 
+        exibir_boas_vindas_interno=veio_do_checkout_interno, # Ativa a modal no HTML
         data_ativacao=data_ativacao,
         data_vencimento=data_vencimento,
         dias_restantes=dias_restantes,
@@ -411,18 +404,16 @@ def dashboard():
 @login_required
 def checkout():
     email_usuario = session.get('user_email')
-    
-    # URL do seu site no Render
     dominio_producao = "https://slp-musicos-1.onrender.com"
     
-    # Adicionamos o success_url apontando para o seu dashboard com o parâmetro de sucesso
+    # Mandamos para o /login?pago=true. 
+    # Se o cara estiver logado (nosso caso aqui), a rota /login joga ele pro Dash.
     link_stripe = (
         f"https://buy.stripe.com/test_5kQ8wO90m6yWbRl0I5gIo00"
         f"?prefilled_email={email_usuario}"
-        f"&success_url={dominio_producao}/dashboard?sucesso_pagamento=true"
+        f"&success_url={dominio_producao}/login?pago=true"
     )
     
-    print(f">>> [CHECKOUT] Redirecionando usuário interno para: {link_stripe}", flush=True)
     return redirect(link_stripe)
 
 
