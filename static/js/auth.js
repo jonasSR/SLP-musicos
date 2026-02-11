@@ -48,30 +48,27 @@ provider.setCustomParameters({ prompt: 'select_account' });
 window.loginComGoogle = async function() {
     try {
         const result = await signInWithPopup(auth, provider);
-        // Garantimos que o Firebase terminou de logar localmente
-        const user = result.user;
-        const idToken = await user.getIdToken();
-
+        const idToken = await result.user.getIdToken();
+        
         const response = await fetch('/login_google', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ idToken: idToken })
         });
-
+        
         const data = await response.json();
-
+        
         if (data.status === 'success') {
-            // Em vez de acaoPosLogin(), usamos o redirecionamento direto 
-            // para limpar qualquer estado de erro anterior da modal
+            // Redireciona para o dashboard. 
+            // Como o 'tipo' no banco agora é None, a sua lógica de dashboard 
+            // vai exibir a modal automaticamente para ele escolher ser músico.
             window.location.href = '/dashboard';
         } else {
-            alert("Erro no servidor: " + data.message);
+            alert("Erro ao sincronizar: " + data.message);
         }
     } catch (error) {
-        console.error("Erro detalhado:", error);
-        // Se o erro for de popup fechado, não mostramos o alerta
         if (error.code !== 'auth/cancelled-popup-request' && error.code !== 'auth/popup-closed-by-user') {
-            alert("Erro ao logar com Google: " + error.message);
+            alert("Erro Google: " + error.message);
         }
     }
 }
