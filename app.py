@@ -406,6 +406,17 @@ def dashboard():
         pagou=pagou
     )
 
+@app.route('/checkout')
+@login_required # Garante que só quem logou chega aqui
+def checkout():
+    email_usuario = session.get('user_email')
+    
+    # Adicionamos o e-mail do cliente ao link para o Stripe pré-preencher
+    link_stripe = f"https://buy.stripe.com/test_5kQ8wO90m6yWbRl0I5gIo00?prefilled_email={email_usuario}"
+    
+    return redirect(link_stripe)
+
+
 
 @app.route('/webhook-stripe', methods=['POST'])
 def webhook_stripe():

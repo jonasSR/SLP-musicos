@@ -216,54 +216,40 @@ document.addEventListener("DOMContentLoaded", () => {
 
     async function executarCadastroFinal(tipoPerfil) {
         try {
-
-            const userCredential = await createUserWithEmailAndPassword(
-                auth,
-                dadosTemporarios.email,
-                dadosTemporarios.senha
-            );
-
-            await setDoc(
-                doc(db, "usuarios", dadosTemporarios.email),
-                {
-                    email: dadosTemporarios.email,
-                    tipo: tipoPerfil,
-                    data_cadastro: serverTimestamp()
-                },
-                { merge: true }
-            );
-
-            if (tipoPerfil === "estabelecimento") {
-
-                await iniciarSessao(dadosTemporarios.email);
-                window.location.href = "/cadastro-estabelecimento";
-
-            } else {
-
-                const userSnap = await getDoc(
-                    doc(db, "usuarios", dadosTemporarios.email)
-                );
-
-                const dadosUsuario = userSnap.data();
-
-                if (dadosUsuario?.acesso_pago === true) {
-
-                    await iniciarSessao(dadosTemporarios.email);
-                    window.location.href = "/dashboard";
-
-                } else {
-
-                    // NÃO inicia sessão ainda
-                    window.location.href = "/checkout";
-                }
+            // 1. Tenta criar ou apenas segue se já existir
+            try {
+                await createUserWithEmailAndPassword(auth, dadosTemporarios.email, dadosTemporarios.senha);
+            } catch (authError) {
+                if (authError.code !== 'auth/email-already-in-use') throw authError;
             }
 
+            // 2. SALVA NO FIRESTORE (Crucial: use await aqui)
+            await setDoc(doc(db, "usuarios", dadosTemporarios.email), {
+                email: dadosTemporarios.email,
+                tipo: tipoPerfil,
+                data_cadastro: serverTimestamp()
+            }, { merge: true });
+
+            console.log("Dados salvos. Iniciando sessão...");
+
+            // 3. LOGA O USUÁRIO NO SISTEMA (Para o @login_required do Python funcionar)
+            // Você precisa chamar sua função de login/sessão aqui antes do redirect
+            await iniciarSessao(dadosTemporarios.email); 
+
+            // 4. REDIRECIONAMENTO ÚNICO
+            // Manda para o dashboard. O Python vai ler que é 'musico' e 'pagou=False' 
+            // e vai te dar o redirect(url_for('checkout')) automaticamente.
+            window.location.href = "/dashboard";
+
         } catch (error) {
-            exibirPopup("Erro", traduzirErroFirebase(error));
+            console.error("Erro detalhado:", error);
+            // Evita exibir 'undefined' se o erro não tiver mensagem
+            const msg = error.message || "Erro ao processar cadastro";
+            exibirPopup("Erro", msg);
         }
     }
 
-
+    // Vincula os cliques dos botões
     if (btnMusico) {
         btnMusico.onclick = () => executarCadastroFinal('musico');
     }
@@ -272,6 +258,8 @@ document.addEventListener("DOMContentLoaded", () => {
         btnEmpresa.onclick = () => executarCadastroFinal('estabelecimento');
     }
 
+    // EXPOSTO GLOBALMENTE: Isso garante que o navegador encontre a função se chamada de fora
+    window.executarCadastroFinal = executarCadastroFinal;
 });
 
 
