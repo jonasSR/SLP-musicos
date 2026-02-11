@@ -216,34 +216,40 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Esta função é a única que realmente toca no Banco de Dados
     async function executarCadastroFinal(tipoPerfil) {
-        try {
-            // SÓ AGORA criamos o login no Firebase Auth
-            const userCredential = await createUserWithEmailAndPassword(
-                auth, 
-                dadosTemporarios.email, 
-                dadosTemporarios.senha
-            );
+    try {
+        // 1️⃣ Cria usuário no Firebase Auth
+        const userCredential = await createUserWithEmailAndPassword(
+            auth,
+            dadosTemporarios.email,
+            dadosTemporarios.senha
+        );
 
-            // SÓ AGORA salvamos no Firestore
-            await setDoc(doc(db, "usuarios", userCredential.user.uid), {
+        // 2️⃣ SALVA NO FIRESTORE USANDO O EMAIL COMO ID (PADRÃO ÚNICO)
+        await setDoc(
+            doc(db, "usuarios", dadosTemporarios.email),
+            {
                 email: dadosTemporarios.email,
                 tipo: tipoPerfil,
                 data_cadastro: serverTimestamp()
-            });
+            },
+            { merge: true } // NÃO APAGA acesso_pago do webhook
+        );
 
-            // Cria a sessão no Python e redireciona
-            await iniciarSessao(dadosTemporarios.email);
-            
-            if (tipoPerfil === 'estabelecimento') {
-                window.location.href = "/cadastro-estabelecimento";
-            } else {
-                window.location.href = "/dashboard";
-            }
+        // 3️⃣ Inicia sessão Python
+        await iniciarSessao(dadosTemporarios.email);
 
-        } catch (error) {
-            exibirPopup("Erro", traduzirErroFirebase(error));
+        // 4️⃣ Redirecionamento
+        if (tipoPerfil === "estabelecimento") {
+            window.location.href = "/cadastro-estabelecimento";
+        } else {
+            window.location.href = "/dashboard";
         }
+
+    } catch (error) {
+        exibirPopup("Erro", traduzirErroFirebase(error));
     }
+}
+
 
     if (btnMusico) btnMusico.onclick = () => executarCadastroFinal('musico');
     if (btnEmpresa) btnEmpresa.onclick = () => executarCadastroFinal('estabelecimento');

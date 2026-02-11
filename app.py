@@ -494,38 +494,6 @@ def webhook_stripe():
             })
 
     return jsonify({"status": "success"}), 200    
-@app.route('/escolher-perfil/<tipo>')
-@login_required
-def escolher_perfil(tipo):
-    email = session.get('user_email')
-
-    user_ref = db.collection('usuarios').document(email)
-    user_doc = user_ref.get()
-
-    if not user_doc.exists:
-        return redirect(url_for('login_page'))
-
-    dados = user_doc.to_dict()
-    pagou = dados.get('acesso_pago', False)
-
-    # 🎸 MÚSICO
-    if tipo == 'musico':
-
-        if pagou:
-            # Já pagou → só define tipo
-            user_ref.update({'tipo': 'musico'})
-            return redirect(url_for('dashboard'))
-
-        else:
-            # Não pagou → vai pro Stripe
-            return redirect("https://buy.stripe.com/test_5kQ8wO90m6yWbRl0I5gIo00")
-
-    # 🏢 ESTABELECIMENTO
-    if tipo == 'estabelecimento':
-        user_ref.update({'tipo': 'estabelecimento'})
-        return redirect(url_for('dashboard'))
-
-    return redirect(url_for('dashboard'))
 
 
 
