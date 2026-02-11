@@ -42,6 +42,7 @@ const passwordInput = document.getElementById("password");
 
 
 // 🌐 GOOGLE
+// 🌐 LOGIN GOOGLE FINALIZADO
 const provider = new GoogleAuthProvider();
 provider.setCustomParameters({ prompt: 'select_account' });
 
@@ -49,6 +50,7 @@ window.loginComGoogle = async function() {
     try {
         const result = await signInWithPopup(auth, provider);
         const idToken = await result.user.getIdToken();
+        
         const response = await fetch('/login_google', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -58,14 +60,17 @@ window.loginComGoogle = async function() {
         const data = await response.json();
         
         if (data.status === 'success') {
-            // Redireciona para o dashboard para processar as regras de acesso
-            window.location.href = '/dashboard';
+            // Redirecionamento forçado para o dashboard
+            // Como o 'tipo' no banco é None, a modal de escolha vai abrir sozinha
+            window.location.assign('/dashboard');
         } else {
-            alert("Erro ao sincronizar: " + data.message);
+            alert("Erro ao sincronizar com o servidor: " + data.message);
         }
     } catch (error) {
+        // Ignora se o usuário apenas fechar o popup do Google
         if (error.code !== 'auth/cancelled-popup-request' && error.code !== 'auth/popup-closed-by-user') {
-            exibirPopup("Erro Google", traduzirErroFirebase(error));
+            console.error("Erro Google:", error);
+            alert("Erro ao entrar com Google. Tente novamente.");
         }
     }
 }
