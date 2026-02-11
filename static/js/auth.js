@@ -215,48 +215,56 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 // 🌐 GOOGLE
-@app.route('/login_google', methods=['POST'])
-def login_google():
-    data = request.get_json()
-    id_token = data.get('idToken')
+// Inicializa provider do Google
+const provider = new GoogleAuthProvider();
+provider.setCustomParameters({ prompt: 'select_account' });
 
-    try:
-        decoded_token = firebase_auth.verify_id_token(id_token)
-        email = decoded_token['email']
-        nome = decoded_token.get('name', 'Usuário Google')
-        foto = decoded_token.get('picture', '')
+window.loginComGoogle = async function() {
+    try {
+        // 🔹 Abre popup do Google
+        const result = await signInWithPopup(auth, provider);
 
-        session['user_email'] = email
-        user_ref = db.collection('usuarios').document(email)
-        doc = user_ref.get()
+        // 🔹 Confirma que retornou e-mail
+        const email = result.user.email;
+        if (!email) {
+            alert("Não conseguimos obter seu e-mail do Google. Use outro login ou tente novamente.");
+            console.error("Google login retornou user sem e-mail:", result.user);
+            return;
+        }
 
-        if not doc.exists:
-            # Usuário novo → tipo null → modal abre
-            user_ref.set({
-                'email': email,
-                'nome': nome,
-                'foto_google': foto,
-                'tipo': None,          # modal vai abrir
-                'acesso_pago': False,
-                'criado_em': firestore.SERVER_TIMESTAMP
-            })
-            precisa_escolher_tipo = True
-        else:
-            dados = doc.to_dict()
+        // 🔹 Pega ID token
+        const idToken = await result.user.getIdToken();
 
-            # Usuário já pagou mas tipo ainda é null → assume músico
-            if dados.get('acesso_pago') and not dados.get('tipo'):
-                user_ref.update({'tipo': 'musico'})
-                dados['tipo'] = 'musico'
+        // 🔹 Chama backend
+        const response = await fetch('/login_google', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ idToken: idToken })
+        });
+        const data = await response.json();
+        console.log("Resposta do backend login_google:", data);
 
-            # Precisa escolher tipo só se tipo ainda for null
-            precisa_escolher_tipo = dados.get('tipo') is None
+        if (data.status === 'success') {
+            if (data.precisa_escolher_tipo) {
+                // 🔹 Usuário precisa escolher tipo → abre modal
+                document.getElementById('modal-escolha-perfil').style.display = 'flex';
+            } else {
+                // 🔹 Usuário já tem tipo definido ou já pagou → dashboard direto
+                acaoPosLogin();
+            }
+        } else {
+            alert("Erro ao sincronizar: " + data.message);
+            console.error("Erro backend login_google:", data);
+        }
 
-        return jsonify({"status": "success", "precisa_escolher_tipo": precisa_escolher_tipo}), 200
-
-    except Exception as e:
-        print(f"Erro na validação Google: {e}")
-        return jsonify({"status": "error", "message": "Token inválido"}), 401
+    } catch (error) {
+        console.error("Erro loginComGoogle:", error);
+        // Ignora popup fechado/cancelado
+        if (error.code !== 'auth/cancelled-popup-request' && error.code !== 'auth/popup-closed-by-user') {
+            exibirPopup("Erro Google", traduzirErroFirebase(error));
+        }
+    }
+};
 
 
 // 👁️ MOSTRAR / ESCONDER SENHA
