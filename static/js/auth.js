@@ -220,9 +220,11 @@ provider.setCustomParameters({ prompt: 'select_account' });
 
 window.loginComGoogle = async function() {
     try {
+        // 1. Autentica no Firebase
         const result = await signInWithPopup(auth, provider);
         const idToken = await result.user.getIdToken();
         
+        // 2. Envia para o seu servidor Python
         const response = await fetch('/login_google', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -231,17 +233,21 @@ window.loginComGoogle = async function() {
         
         const data = await response.json();
 
-        if (data.status === 'abrir_modal_perfil') {
-            // FECHA A MODAL DE LOGIN (SE ESTIVER ABERTA) 
-            // E ABRE A DE ESCOLHA DE PERFIL IMEDIATAMENTE
-            document.getElementById('modal-auth').style.display = 'none';
-            document.getElementById('modal-escolha-perfil').style.display = 'flex';
+        if (data.status === 'redirect') {
+            window.location.href = data.url; // Vai para Dashboard ou Stripe
         } 
-        else if (data.status === 'success') {
-            window.location.href = '/dashboard';
+        else if (data.status === 'abrir_modal_perfil') {
+            // Fecha modais de erro/aviso e abre a de escolha
+            document.getElementById('modal-auth').style.display = 'none';
+            if(document.getElementById('modal-boas-vindas')) 
+                document.getElementById('modal-boas-vindas').style.display = 'none';
+                
+            document.getElementById('modal-escolha-perfil').style.display = 'flex';
         }
     } catch (error) {
-        console.error("Erro Google Login:", error);
+        if (error.code !== 'auth/popup-closed-by-user') {
+            console.error("Erro no Google:", error.code);
+        }
     }
 }
 

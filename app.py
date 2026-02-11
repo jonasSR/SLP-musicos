@@ -471,35 +471,38 @@ def login_google():
     try:
         decoded_token = firebase_auth.verify_id_token(id_token)
         email = decoded_token['email']
-        nome = decoded_token.get('name', 'Usuário Google')
-        foto = decoded_token.get('picture', '')
-
         session['user_email'] = email
         
         user_ref = db.collection('usuarios').document(email)
         user_doc = user_ref.get()
 
-        # Se não existe no banco, cria AUTOMATICAMENTE
-        if not user_doc.exists:
+        # Se o usuário já existe (como na sua imagem do Firebase)
+        if user_doc.exists:
+            dados = user_doc.to_dict()
+            
+            # Se já escolheu o tipo e já pagou -> DASHBOARD
+            if dados.get('tipo') and dados.get('acesso_pago'):
+                return jsonify({"status": "redirect", "url": "/dashboard"}), 200
+            
+            # Se é músico mas NÃO pagou -> CHECKOUT
+            if dados.get('tipo') == 'musico' and not dados.get('acesso_pago'):
+                link = f"https://buy.stripe.com/test_5kQ8wO90m6yWbRl0I5gIo00?prefilled_email={email}"
+                return jsonify({"status": "redirect", "url": link}), 200
+
+            # Se existe mas não tem tipo -> MODAL DE ESCOLHA
+            if not dados.get('tipo'):
+                return jsonify({"status": "abrir_modal_perfil"}), 200
+
+        # Se for um usuário totalmente novo
+        else:
             user_ref.set({
                 'email': email,
-                'nome': nome,
-                'foto_google': foto,
+                'nome': decoded_token.get('name', 'Usuário Google'),
                 'acesso_pago': False,
-                'criado_em': firestore.SERVER_TIMESTAMP,
-                'metodo_login': 'google'
+                'criado_em': firestore.SERVER_TIMESTAMP
             })
-            # Retorna um status específico para o JS abrir a modal de escolha
-            return jsonify({"status": "abrir_modal_perfil"}), 200
-        
-        # Se já existe mas não definiu o tipo (Músico/Empresa)
-        dados = user_doc.to_dict()
-        if not dados.get('tipo'):
             return jsonify({"status": "abrir_modal_perfil"}), 200
 
-        # Se já tem tudo, vai direto para o dashboard
-        return jsonify({"status": "success"}), 200
-        
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 401
 
