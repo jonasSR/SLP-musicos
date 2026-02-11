@@ -483,17 +483,17 @@ def login_google():
         user_doc = user_ref.get()
 
         if not user_doc.exists:
-            # Cria o usuário novo SEM o tipo definido para disparar a REGRA 1
+            # Cria exatamente como você pediu
             user_ref.set({
                 'email': email_logado,
                 'nome': nome,
                 'foto_google': foto,
-                'tipo': None, # Deixa nulo para cair na REGRA 1
+                'tipo': 'musico',
                 'acesso_pago': False,
                 'criado_em': firestore.SERVER_TIMESTAMP
             })
-            # Força o redirecionamento para o dashboard para processar a REGRA 1
-            return jsonify({"status": "success", "redirect": url_for('dashboard')}), 200
+            # Recarrega o doc recém criado para seguir a lógica abaixo
+            user_doc = user_ref.get()
 
         dados_usuario = user_doc.to_dict()
         tipo_usuario = dados_usuario.get('tipo')
@@ -507,7 +507,7 @@ def login_google():
 
         # 🛑 REGRA 1: Se ainda não escolheu o tipo
         if not tipo_usuario:
-            return jsonify({"status": "success", "redirect": url_for('dashboard')}), 200
+            return jsonify({"status": "success", "redirect": "/dashboard"}), 200
 
         # 🛑 REGRA 2: LÓGICA DE ACESSO E PAGAMENTO
         if tipo_usuario == 'musico':
@@ -520,12 +520,51 @@ def login_google():
         if tipo_usuario == 'estabelecimento':
             doc_estab = db.collection('estabelecimentos').document(email_logado).get()
             if not doc_estab.exists:
-                return jsonify({"status": "success", "redirect": url_for('abrir_pagina_estabelecimento')}), 200
-            return jsonify({"status": "success", "redirect": url_for('dashboard_estabelecimento')}), 200
+                return jsonify({"status": "success", "redirect": "/abrir_pagina_estabelecimento"}), 200
+            return jsonify({"status": "success", "redirect": "/dashboard_estabelecimento"}), 200
 
-        # 🟢 PROCESSAMENTO DE DADOS DO ARTISTA (DASHBOARD)
-        # (Lógica idêntica para quando o usuário já tem perfil completo)
-        return jsonify({"status": "success", "redirect": url_for('dashboard')}), 200
+        # 🟢 PROCESSAMENTO DE DADOS DO ARTISTA (Lógica completa do Dashboard)
+        pedidos, agenda, feedbacks = [], [], []
+        total_cliques, notificacoes_fas, total_estrelas = 0, 0, 0
+
+        if artista_docs:
+            doc = artista_docs[0]
+            artista_id = doc.id
+            artista_dados = doc.to_dict()
+            artista_dados['id'] = artista_id
+            total_cliques = artista_dados.get('cliques', 0)
+
+            pedidos_ref = db.collection('pedidos_reserva').where('musico_id', '==', artista_id).stream()
+            for p in pedidos_ref:
+                p_dados = p.to_dict()
+                p_dados['id'] = p.id
+                pedidos.append(p_dados)
+            pedidos.sort(key=lambda x: x.get('criado_em') if x.get('criado_em') else 0, reverse=True)
+
+            agenda_ref = db.collection('artistas').document(artista_id).collection('agenda').order_by('data_completa').stream()
+            for s in agenda_ref:
+                s_dados = s.to_dict()
+                s_dados['id'] = s.id
+                agenda.append(s_dados)
+
+            feedbacks_ref = db.collection('feedbacks').where('artista_email', '==', email_logado).stream()
+            for f in feedbacks_ref:
+                f_dados = f.to_dict()
+                f_dados['id'] = f.id
+                feedbacks.append(f_dados)
+                total_estrelas += int(f_dados.get('estrelas', 0))
+                if f_dados.get('status') == 'pendente':
+                    notificacoes_fas += 1
+
+        qtd_feedbacks = len(feedbacks)
+        media_estrelas = round(total_estrelas / qtd_feedbacks, 1) if qtd_feedbacks > 0 else 0.0
+
+        # Retorna o sucesso para o JS redirecionar para o local correto baseado na lógica
+        return jsonify({
+            "status": "success", 
+            "redirect": "/dashboard",
+            "bloqueado": bloqueado
+        }), 200
         
     except Exception as e:
         print(f"Erro na validação Google: {e}")

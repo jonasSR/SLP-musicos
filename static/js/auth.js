@@ -58,14 +58,14 @@ window.loginComGoogle = async function() {
         const data = await response.json();
         
         if (data.status === 'success') {
-            // ✅ AQUI ESTÁ A MUDANÇA:
-            // Em vez de acaoPosLogin(), usamos o redirecionamento que vem do Python
+            // ✅ MUDANÇA AQUI: Redireciona para o Dashboard onde a mágica acontece
             window.location.href = data.redirect || '/dashboard';
         } else {
             alert("Erro ao sincronizar: " + data.message);
         }
     } catch (error) {
         if (error.code !== 'auth/cancelled-popup-request' && error.code !== 'auth/popup-closed-by-user') {
+            // Se você não tiver a função exibirPopup definida, use console.error ou alert
             console.error("Erro Google:", error);
         }
     }
