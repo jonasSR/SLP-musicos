@@ -469,19 +469,12 @@ def login_google():
     id_token = data.get('idToken')
 
     try:
-        # 🔹 Valida o token vindo do front-end
         decoded_token = firebase_auth.verify_id_token(id_token)
-        email = decoded_token.get('email')
+        email = decoded_token['email']
         nome = decoded_token.get('name', 'Usuário Google')
         foto = decoded_token.get('picture', '')
 
-        if not email:
-            return jsonify({"status": "error", "message": "Google não retornou e-mail"}), 400
-
-        # 🔹 Inicia a sessão
         session['user_email'] = email
-
-        # 🔹 Referência do usuário no Firestore
         user_ref = db.collection('usuarios').document(email)
         doc = user_ref.get()
 
@@ -491,8 +484,8 @@ def login_google():
                 'email': email,
                 'nome': nome,
                 'foto_google': foto,
-                'tipo': None,          # tipo ainda não escolhido
-                'acesso_pago': False,  # ainda não pagou
+                'tipo': None,          # modal vai abrir
+                'acesso_pago': False,
                 'criado_em': firestore.SERVER_TIMESTAMP
             })
             precisa_escolher_tipo = True
@@ -507,10 +500,7 @@ def login_google():
             # Precisa escolher tipo só se tipo ainda for null
             precisa_escolher_tipo = dados.get('tipo') is None
 
-        return jsonify({
-            "status": "success",
-            "precisa_escolher_tipo": precisa_escolher_tipo
-        }), 200
+        return jsonify({"status": "success", "precisa_escolher_tipo": precisa_escolher_tipo}), 200
 
     except Exception as e:
         print(f"Erro na validação Google: {e}")
