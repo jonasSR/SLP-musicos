@@ -574,13 +574,19 @@ def api_enviar_feedback():
 def cadastrar_musico():
     nome = request.form.get('nome')
     
-    # --- ARRUUMADO AQUI: LIMPEZA DO TIPO ---
-    tipo_input = request.form.get('tipo') 
-    if tipo_input and "músico" in tipo_input.lower():
-        tipo = "músico"
+    # --- AJUSTADO: SALVAR SEM ACENTO ("musico") ---
+    tipo_input = request.form.get('tipo', '') 
+    term_check = tipo_input.lower()
+    
+    if "músico" in term_check or "musico" in term_check:
+        tipo = "musico"  # Força sem acento e sem o "independente"
+    elif "dj" in term_check:
+        tipo = "dj"
+    elif "banda" in term_check:
+        tipo = "banda"
     else:
         tipo = tipo_input
-    # ---------------------------------------
+    # ----------------------------------------------
 
     estilo = request.form.get('estilo')
     cidade = request.form.get('cidade')
@@ -633,7 +639,7 @@ def cadastrar_musico():
     # Dicionário de dados atualizado
     dados = {
         'nome': nome,
-        'tipo': tipo, # Aqui agora entra o valor limpo ("músico")
+        'tipo': tipo, # Aqui agora entra "musico" (sem acento)
         'cidade': cidade,
         'estado': estado,
         'estilo': estilo,
@@ -641,7 +647,6 @@ def cadastrar_musico():
         'instagram': instagram, 
         'facebook': facebook,   
         'youtube': youtube, 
-        # 2. ACRESCENTADO: Adiciona o link ao dicionário que vai para o Firebase
         'vibracao_link': vibracao_link, 
         'dono_email': email,
         'timestamp': firestore.SERVER_TIMESTAMP
