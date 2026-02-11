@@ -573,7 +573,15 @@ def api_enviar_feedback():
 @login_required
 def cadastrar_musico():
     nome = request.form.get('nome')
-    tipo = request.form.get('tipo') 
+    
+    # --- ARRUUMADO AQUI: LIMPEZA DO TIPO ---
+    tipo_input = request.form.get('tipo') 
+    if tipo_input and "músico" in tipo_input.lower():
+        tipo = "músico"
+    else:
+        tipo = tipo_input
+    # ---------------------------------------
+
     estilo = request.form.get('estilo')
     cidade = request.form.get('cidade')
     estado = request.form.get('estado')
@@ -625,7 +633,7 @@ def cadastrar_musico():
     # Dicionário de dados atualizado
     dados = {
         'nome': nome,
-        'tipo': tipo,
+        'tipo': tipo, # Aqui agora entra o valor limpo ("músico")
         'cidade': cidade,
         'estado': estado,
         'estilo': estilo,
