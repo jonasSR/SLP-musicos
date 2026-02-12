@@ -42,8 +42,6 @@ body {
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     overflow-x: hidden;
     line-height: 1.6;
-    /* Centraliza e evita que os cards espalhem demais em telas 4K */
-    max-width: 1600px; 
     margin: 0 auto;
 }
 
