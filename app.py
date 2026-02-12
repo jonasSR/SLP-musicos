@@ -876,6 +876,7 @@ def abrir_pagina_estabelecimento():
 
 
 # 2. ROTA QUE PROCESSA O CADASTRO (API)
+# 2. ROTA QUE PROCESSA O CADASTRO (API)
 @app.route('/api_cadastrar_estabelecimento', methods=['POST'])
 @login_required
 def api_cadastrar_estabelecimento():
@@ -905,7 +906,8 @@ def api_cadastrar_estabelecimento():
         'estado': request.form.get('estado'),
         'instagram': request.form.get('instagram'),
         'facebook': request.form.get('facebook'),
-        'foto': foto_final, # Aqui está a segurança: ela nunca será vazia
+        'whatsapp': request.form.get('whatsapp'), # <-- ADICIONADO AQUI
+        'foto': foto_final, 
         'dono_email': email_dono,
         'tipo': 'estabelecimento',
         'timestamp': firestore.SERVER_TIMESTAMP
@@ -1018,7 +1020,6 @@ def api_excluir_conta_definitiva(): # <--- Mudei o nome da função aqui
     try:
         data = request.get_json()
         email = data.get('email')
-        # ... resto do seu código de deletar ...
         db.collection('estabelecimentos').document(email).delete()
         
         user_query = db.collection('usuarios').document(email)
@@ -1048,6 +1049,15 @@ def lista_membros_secreta():
     
     # Renderiza uma página simples só para você gerenciar
     return render_template('admin_membros.html', artistas=lista_artistas)
+
+
+@app.route('/termos')
+def termos():
+    return render_template('termos.html')
+
+@app.route('/privacidade')
+def privacidade():
+    return render_template('privacidade.html')    
 # ======================================================
 # 🚀 START
 # ======================================================

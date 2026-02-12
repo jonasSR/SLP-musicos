@@ -73,6 +73,10 @@
                         {% if estab.facebook %}
                         <div class="social-btn"><i class="fa-brands fa-facebook"></i> {{ estab.facebook }}</div>
                         {% endif %}
+
+                        {% if estab.whatsapp %}
+                        <div class="social-btn"><i class="fa-brands fa-whatsapp"></i> {{ estab.whatsapp }}</div>
+                        {% endif %}
                         
                         <div class="contact-item"><i class="fa-solid fa-envelope"></i> {{ estab.dono_email }}</div>
                     </div>
@@ -106,8 +110,12 @@
                         <input type="text" name="instagram" value="{{ estab.instagram }}" placeholder="@usuario">
                     </div>
                     <div class="input-group">
-                        <label>Facebook/WhatsApp</label>
+                        <label>Facebook</label>
                         <input type="text" name="facebook" value="{{ estab.facebook }}">
+                    </div>
+                    <div class="input-group">
+                        <label>WhatsApp</label>
+                        <input type="text" name="whatsapp" value="{{ estab.whatsapp }}" placeholder="(00) 00000-0000">
                     </div>
                 </div>
 

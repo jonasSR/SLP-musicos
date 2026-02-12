@@ -52,7 +52,7 @@
 
         <section class="estab-grid">
             {% for estab in todos_estabelecimentos %}
-            <a href="/perfil/{{ estab.id }}" class="estab-card">
+            <div class="estab-card">
                 <div class="card-image">
                     <img src="{{ estab.foto }}" alt="{{ estab.nome }}">
                 </div>
@@ -68,15 +68,26 @@
                         
                         <div class="social-mini">
                             {% if estab.instagram %}
-                                <i class="fa-brands fa-instagram"></i>
+                                <a href="https://instagram.com/{{ estab.instagram }}" target="_blank" style="color: inherit; text-decoration: none;">
+                                    <i class="fa-brands fa-instagram"></i>
+                                </a>
                             {% endif %}
+
                             {% if estab.facebook %}
-                                <i class="fa-brands fa-facebook"></i>
+                                <a href="{{ estab.facebook }}" target="_blank" style="color: inherit; text-decoration: none;">
+                                    <i class="fa-brands fa-facebook"></i>
+                                </a>
+                            {% endif %}
+
+                            {% if estab.whatsapp %}
+                                <a href="https://wa.me/{{ estab.whatsapp|replace('(', '')|replace(')', '')|replace('-', '')|replace(' ', '') }}" target="_blank" style="color: inherit; text-decoration: none;">
+                                    <i class="fa-brands fa-whatsapp"></i>
+                                </a>
                             {% endif %}
                         </div>
                     </div>
                 </div>
-            </a>
+            </div>
             {% else %}
                 <div style="grid-column: 1 / -1; text-align: center; padding: 100px 20px; opacity: 0.5;">
                     <h2>Nenhum estabelecimento encontrado.</h2>

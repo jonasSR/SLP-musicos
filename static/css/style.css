@@ -5,6 +5,8 @@
 @import url('https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Plus+Jakarta+Sans:wght@200;400;700&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Syne:wght@700;800&display=swap');
 
+
+
 /* ##########################################################################
     REGRAS GERAIS
    ########################################################################## */
@@ -54,11 +56,20 @@
     scroll-behavior: smooth; 
 }
 
+html {
+    /* Diminui a escala global sem quebrar cliques ou nitidez */
+    /* 13px é aprox. 80% do padrão (16px) */
+    font-size: 13px; 
+}
+
 body {
     background-color: var(--bg-dark);
     color: white;
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     overflow-x: hidden;
+    /* Centraliza e evita que os cards espalhem demais em telas 4K */
+    max-width: 1600px; 
+    margin: 0 auto;
 }
 
 
@@ -149,7 +160,7 @@ body {
 
 .modern-card {
     aspect-ratio: 4 / 5; /* Formato Retangular */
-    border-radius: 20px;
+    border-radius: 10px;
     position: relative;
     overflow: hidden;
     background: #000;
@@ -291,7 +302,7 @@ body {
     top: 0;
     left: 0;
     width: 100%;
-    height: 80px; /* Altura fixa para garantir que o height: 100% do logo funcione */
+    height: 60px; /* Altura fixa para garantir que o height: 100% do logo funcione */
     padding: 0 5%;
     display: flex;
     justify-content: space-between;
@@ -447,8 +458,8 @@ body {
     z-index: 100;
     display: flex;
     flex-direction: column; 
-    align-items: flex-end; 
-    margin: -70px 0 40px 0;
+    align-items: flex-start; /* Alinhado à esquerda conforme as imagens */
+    margin: 20px 0 40px 4px; /* Margem positiva para dar espaço abaixo do título e alinhar lateralmente */
 }
 
 .music-filter-title {
@@ -458,6 +469,7 @@ body {
     text-transform: uppercase;
     opacity: 0.7;
     margin-bottom: 8px;
+    margin-left: 5px;
 }
 
 .music-select-box {
@@ -481,7 +493,7 @@ body {
 .music-options-list {
     position: absolute;
     top: calc(100% + 5px);
-    right: 0;
+    left: 0; /* Alinhado à esquerda do botão */
     width: 100%;
     background: rgba(12, 12, 14, 0.98);
     border: 1px solid rgba(255, 255, 255, 0.1);
@@ -525,8 +537,8 @@ body {
 }
 
 .modern-card {
-    aspect-ratio: 1 / 1; 
-    border-radius: 20px;
+    aspect-ratio: 4 / 6; 
+    border-radius: 10px;
     position: relative;
     overflow: hidden;
     background: var(--glass);
@@ -549,51 +561,109 @@ body {
 }
 
 /* ##########################################################################
-   7. FOOTER (VERSÃO ENXUTA)
+   7. FOOTER (VERSÃO PREMIUM SaaS)
    ########################################################################## */
 .main-footer {
     background: rgba(255, 255, 255, 0.02);
-    backdrop-filter: blur(10px);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
     border-top: 1px solid rgba(255, 255, 255, 0.08);
-    padding: 30px 5% 15px;
-    margin-top: 50px;
+    padding: 60px 5% 20px;
+    margin-top: 80px;
 }
 
 .footer-content {
     display: grid;
-    grid-template-columns: 1.2fr 0.8fr 0.8fr; 
-    gap: 20px;
-    max-width: 1000px;
+    grid-template-columns: 1.5fr 1fr 1fr;
+    gap: 40px;
+    max-width: 1100px;
     margin: 0 auto;
 }
 
-.footer-brand .logo { font-size: 1.3rem; margin-bottom: 8px; }
-.footer-brand p { opacity: 0.6; font-size: 14px; line-height: 1.4; }
-
-.footer-links h4, .footer-social h4 {
-    margin-bottom: 12px;
-    font-size: 0.85rem;
-    text-transform: uppercase;
-    color: var(--accent);
+/* Coluna da Marca */
+.footer-brand .footer-logo {
+    height: 45px;
+    margin-bottom: 20px;
+    display: block;
 }
 
-.footer-links ul { list-style: none; }
+.footer-brand p {
+    opacity: 0.6;
+    font-size: 14px;
+    line-height: 1.6;
+    max-width: 320px;
+}
+
+/* Títulos das Colunas */
+.footer-links h4 {
+    margin-bottom: 25px;
+    font-size: 0.85rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--accent); /* Sua cor de destaque (ciano/azul) */
+}
+
+.footer-links ul {
+    list-style: none;
+    padding: 0;
+}
+
+.footer-links ul li {
+    margin-bottom: 12px;
+}
+
 .footer-links a {
     color: #fff;
     text-decoration: none;
     opacity: 0.5;
-    font-size: 13.5px;
+    font-size: 14px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.footer-links a:hover { opacity: 1; padding-left: 3px; }
+.footer-links a:hover {
+    opacity: 1;
+    color: var(--accent);
+    padding-left: 5px;
+}
 
+/* Rodapé Final */
 .footer-bottom {
-    text-align: center;
-    margin-top: 30px;
-    padding-top: 15px;
+    margin-top: 50px;
+    padding-top: 25px;
     border-top: 1px solid rgba(255, 255, 255, 0.05);
-    font-size: 0.7rem;
+}
+
+.footer-bottom-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 1100px;
+    margin: 0 auto;
+}
+
+.footer-bottom p {
+    font-size: 0.75rem;
     opacity: 0.4;
+    margin: 0;
+}
+
+/* Ícones Sociais */
+.footer-social-icons {
+    display: flex;
+    gap: 20px;
+}
+
+.footer-social-icons a {
+    color: #fff;
+    opacity: 0.4;
+    font-size: 1.2rem;
+    transition: 0.3s;
+}
+
+.footer-social-icons a:hover {
+    opacity: 1;
+    color: var(--accent);
+    transform: translateY(-3px);
 }
 
 
@@ -800,27 +870,12 @@ body {
 }
 
 
-/* Container do Filtro */
+/* Container do Filtro - Alinhado à Esquerda */
 .local-filter-bar {
     display: flex;
-    justify-content: center;
-    width: 100%;
-    margin: 40px 0;
-}
-
-.filter-wrapper {
-    background: rgba(255, 255, 255, 0.05); /* Fundo quase transparente */
-    padding: 10px 25px;
-    border-radius: 100px; /* Formato pílula */
-    border: 1px solid rgba(0, 242, 255, 0.2); /* Borda ciano sutil */
-    backdrop-filter: blur(15px); /* Efeito de vidro fosco */
-    -webkit-backdrop-filter: blur(15px);
-    transition: all 0.3s ease;
-}
-
-.filter-wrapper:hover {
-    border-color: #00f2ff;
-    box-shadow: 0 0 20px rgba(0, 242, 255, 0.15);
+    justify-content: flex-start; /* Alinha com o início do título */
+    width: 100%; /* Ocupa a largura total para não centralizar */
+    margin: 15px 0 40px 0; /* Espaçamento equilibrado abaixo do título */
 }
 
 .filter-form {
@@ -834,7 +889,7 @@ body {
     display: flex;
     align-items: center;
     gap: 8px;
-    color: #00f2ff;
+    color: #ffffff;
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     font-weight: 800;
     font-size: 0.75rem;
@@ -1004,13 +1059,14 @@ body {
 
     /* --- 6. FILTROS E BUSCA --- */
     .music-filter-wrapper, .filter-wrapper {
-        width: 100% !important;
         padding: 0 15px !important;
         margin-bottom: 30px !important;
+        margin-top: 10px !important; /* Ajuste para não cobrir o título no mobile */
+        align-items: flex-start !important; /* Mantém na esquerda como o outro */
     }
 
     .music-select-btn {
-        height: 48px !important;
+        height: 38px !important;
         font-size: 0.8rem !important;
     }
 
@@ -1089,4 +1145,104 @@ body {
         transform: rotate(45deg) translate(-5px, -6px);
         background-color: var(--accent);
     }
+}
+
+/* Estilo profissional para o título da vitrine */
+.discovery-header-saas {
+    margin: 60px 0 30px 0;
+    padding-left: 15px;
+    border-left: 4px solid var(--accent);
+    display: block;
+    width: 100%;
+}
+
+.discovery-header-saas h2 {
+    color: #ffffff;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-size: 1.5rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin: 0;
+    font-weight: 700;
+    line-height: 1.2;
+    margin-top: -100px;
+}
+
+/* Ajuste para telas menores */
+@media (max-width: 768px) {
+    .discovery-header-saas {
+        margin: 40px 0 20px 0;
+    }
+    .discovery-header-saas h2 {
+        font-size: 1.2rem;
+    }
+}
+
+
+/* Responsividade Mobile */
+@media (max-width: 768px) {
+    .footer-content {
+        grid-template-columns: 1fr;
+        text-align: center;
+        gap: 40px;
+    }
+
+    .footer-brand p {
+        margin: 0 auto;
+    }
+
+    .footer-bottom-container {
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .footer-links a:hover {
+        padding-left: 0;
+    }
+}
+
+
+
+/* Estilos para Páginas Legais */
+.legal-container {
+    max-width: 800px;
+    margin: 40px auto;
+    padding: 0; /* Para o glass-footer colar na borda */
+    cursor: default !important; /* Remove o cursor de link do card */
+}
+
+.legal-content {
+    padding: 40px;
+    color: rgba(255, 255, 255, 0.8);
+    line-height: 1.8;
+}
+
+.legal-content h3 {
+    color: var(--accent);
+    margin-top: 30px;
+    margin-bottom: 15px;
+    font-size: 1.1rem;
+    text-transform: uppercase;
+    font-family: 'Orbitron', sans-serif;
+}
+
+.legal-content p {
+    margin-bottom: 20px;
+    font-size: 0.95rem;
+}
+
+/* Ajuste para o botão voltar no glass-footer */
+.legal-container .btn-profile-link {
+    background: rgba(255,255,255,0.1);
+    padding: 8px 15px;
+    border-radius: 5px;
+    font-size: 0.7rem;
+    text-decoration: none;
+    color: #fff;
+    transition: 0.3s;
+}
+
+.legal-container .btn-profile-link:hover {
+    background: var(--accent);
+    color: #000;
 }

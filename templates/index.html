@@ -58,118 +58,158 @@
             </div>
         </div>
     </header>
- 
-    <main class="gallery-section" id="destaques">
-        {% if destaques %}
-        <section class="highlights-section">
-            <div class="highlights-container">
-                <div class="section-title-area" style="text-align: center; margin-bottom: 30px;">
-                    <h2 class="highlights-main-title">DESTAQUES PULSA MUSIC</h2>
-                    <p class="highlights-subtitle">Conheça os talentos que estão fazendo a cena pulsar agora.</p>
-                </div>
+<main class="gallery-section" id="destaques">
+    {% if destaques %}
+    <section class="highlights-section">
+        <div class="highlights-container">
+            <div class="section-title-area" style="text-align: center; margin-bottom: 30px;">
+                <h2 class="highlights-main-title">DESTAQUES PULSA MUSIC</h2>
+                <p class="highlights-subtitle">Conheça os talentos que estão fazendo a cena pulsar agora.</p>
+            </div>
 
-                <div class="swiper highlightsSwiper">
-                    <div class="swiper-wrapper">
-                        {% for musico in destaques %}
-                            {% set url_foto = musico.foto if musico.foto else '/static/img/default.jpg' %}
-                            <div class="swiper-slide" style="width: auto;">
-                                <div class="high-card" style="--bg-image: url('{{ url_foto }}');">
-                                    <div class="high-image"></div>
-                                    <div class="high-overlay">
-                                        <span class="high-category">{{ musico.estilo | upper }}</span>
-                                        <h3>{{ musico.nome | upper }}</h3>
-                                        <p>{{ (musico.cidade or "") | truncate(25) }}</p>
-                                        <a href="{{ url_for('perfil_musico', musico_id=musico.id) }}" class="btn-high-view">VER PERFIL</a>
+            <div class="swiper highlightsSwiper">
+                <div class="swiper-wrapper">
+                    {% for musico in destaques %}
+                        {% set url_foto = musico.foto if musico.foto else '/static/img/default.jpg' %}
+                        <div class="swiper-slide" style="width: auto;">
+                            <div class="high-card" style="--bg-image: url('{{ url_foto }}');">
+                                <div class="high-image"></div>
+                                <div class="high-overlay">
+                                    <span class="high-category">{{ musico.estilo | upper }}</span>
+                                    <h3>{{ musico.nome | upper }}</h3>
+                                    <p>{{ (musico.cidade or "") | truncate(25) }}</p>
+                                    <a href="{{ url_for('perfil_musico', musico_id=musico.id) }}" class="btn-high-view">VER PERFIL</a>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+                </div>
+        </div>
+    </section>
+    {% else %}
+    <div class="search-placeholder" style="text-align: center; padding: 50px 20px;">
+        <h3 style="color: #fff; font-family: 'Orbitron', sans-serif; font-weight: 800; text-transform: uppercase; opacity: 0.6;">
+            Breve, Destaques de artistas independentes e bandas
+        </h3>
+    </div>
+    {% endif %}
+</main>
+
+<main class="gallery-section" id="musicos-locais">
+    <section class="local-section" id="artistas-locais">
+        <div class="container">
+            
+            <div class="discovery-header-saas">
+                <h2 class="local-title">Artistas Locais</h2>
+                <p class="local-subtitle" style="color: rgba(255,255,255,0.6); font-size: 0.9rem; margin-top: 5px;">
+                    Pesquise talentos na sua cidade.
+                </p>
+            </div>
+
+            <div class="local-filter-bar">
+                <div class="filter-wrapper">
+                    <form action="/#artistas-locais" method="GET" class="filter-form" id="cityForm">
+                        <div class="music-select-box" id="cityFilterContainer">
+                            <div class="music-select-btn" id="cityTrigger">
+                                <span id="city-label">
+                                    {% if cidade_nome %}{{ cidade_nome | upper }}{% else %}TODAS AS CIDADES{% endif %}
+                                </span>
+                                <i data-lucide="chevron-down"></i>
+                            </div>
+
+                            <div class="music-options-list">
+                                <div class="music-opt-item {% if not cidade_nome %}active{% endif %}" data-filter="all">
+                                    Todas as Cidades
+                                </div>
+                                {% for cidade in cidades_disponiveis %}
+                                    <div class="music-opt-item {% if cidade == cidade_nome %}active{% endif %}" data-filter="{{ cidade }}">
+                                        {{ cidade }}
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <input type="hidden" name="cidade" id="hiddenCityInput" value="{{ cidade_nome if cidade_nome else '' }}">
+                    </form>
+                </div>
+            </div>
+
+            {% if cidade_nome %}
+                <div class="artist-grid"> {% for artista in artistas_locais %}
+                        {% set url_foto = artista.foto if artista.foto else '/static/img/default.jpg' %}
+                        
+                        <a href="{{ url_for('perfil_musico', musico_id=artista.id) }}" class="modern-card" data-tilt>
+                            <div class="card-image" style="background-image: url('{{ url_foto }}');"></div>
+                            
+                            <div class="card-overlay">
+                                <div class="artist-main-info">
+                                    <h3>{{ artista.nome }}</h3>
+                                    <span class="btn-profile-link">
+                                        VER PERFIL <i class="fas fa-chevron-right" style="font-size: 0.6rem;"></i>
+                                    </span>
+                                </div>
+                                
+                                <div class="glass-footer">
+                                    <div class="footer-line">
+                                        <span class="tag-genre">{{ artista.estilo }}</span>
+                                        <span class="tag-type">ARTISTA</span>
+                                    </div>
+                                    
+                                    <div class="footer-line">
+                                        <span class="card-location">
+                                            <svg viewBox="0 0 24 24" width="10" height="10" fill="none" stroke="currentColor" stroke-width="3">
+                                                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                                                <circle cx="12" cy="10" r="3"></circle>
+                                            </svg>
+                                            {{ artista.cidade }}
+                                        </span>
                                     </div>
                                 </div>
                             </div>
-                        {% endfor %}
+                        </a>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="search-placeholder" style="text-align: center; padding: 50px 20px;">
+                    <h3 style="color: #fff; font-family: 'Orbitron', sans-serif; font-weight: 800; text-transform: uppercase; opacity: 0.6;">
+                        Selecione uma cidade para encontrar artistas locais
+                    </h3>
+                </div>
+            {% endif %}
+
+        </div>
+    </section>
+</main>
+
+<main class="gallery-section" id="artistas">
+    
+    <div class="discovery-header-saas">
+        <h2>Explorar Artistas e Bandas</h2>
+    </div>
+
+    <div class="filter-section-header">
+        <div class="music-filter-wrapper">
+            <div class="search-group">
+                <h3 class="music-filter-title">FILTRE POR GÊNERO</h3>
+                <div class="music-select-box" id="genreFilterContainer">
+                    <div class="music-select-btn" id="genreTrigger">
+                        <span id="genre-label">TODOS OS ESTILOS</span>
+                        <i data-lucide="chevron-down"></i>
                     </div>
-                </div>
-            </div>
-        </section>
-        {% endif %}
-    </main>
-
-    <main class="gallery-section" id="musicos-locais">
-        <section class="local-section" id="artistas-locais">
-            <div class="container">
-                
-                <div class="section-header" style="text-align: center; margin-bottom: 30px;">
-                    <h2 class="local-title" style="color: #fff; font-size: 2.5rem; font-weight: 900; text-transform: uppercase;">ARTISTAS LOCAIS</h2>
-                    <p class="local-subtitle" style="color: rgba(255,255,255,0.6); font-size: 1.1rem;">Pesquise talentos na sua cidade.</p>
-                </div>
-
-                <div class="local-filter-bar">
-                    <div class="filter-wrapper">
-                        <form action="/#artistas-locais" method="GET" class="filter-form" id="cityForm">
-                            <div class="input-group">
-                                <i class="fas fa-map-marker-alt"></i>
-                                <label>PROCURAR:</label>
-                            </div>
-                            <select name="cidade" onchange="this.form.submit()">
-                                <option value=""> ---- </option>
-                                {% for cidade in cidades_disponiveis %}
-                                    <option value="{{ cidade }}" {% if cidade == cidade_nome %}selected{% endif %}>{{ cidade }}</option>
-                                {% endfor %}
-                            </select>
-                        </form>
-                    </div>
-                </div>
-
-                {% if cidade_nome %}
-                    <div class="local-grid">
-                        {% for artista in artistas_locais %}
-                            {% set url_foto = artista.foto if artista.foto else '/static/img/default.jpg' %}
-                            <div class="local-card">
-                                <div class="local-card-bg" style="--bg-image: url('{{ url_foto }}');"></div>
-                                <div class="local-info-overlay">
-                                    <span class="local-tag">{{ artista.estilo | upper }}</span>
-                                    <h4>{{ artista.nome | upper }}</h4>
-                                    <p class="local-location-text">{{ artista.cidade | upper }}</p>
-                                    <a href="{{ url_for('perfil_musico', musico_id=artista.id) }}" class="btn-local-view">
-                                        VER PERFIL <i class="fas fa-arrow-right"></i>
-                                    </a>
-                                </div>
+                    <div class="music-options-list">
+                        <div class="music-opt-item active" data-filter="all">Todos os Estilos</div>
+                        {% for estilo in estilos %}
+                            <div class="music-opt-item" data-filter="{{ estilo | lower | replace(' ', '-') | replace('/', '') }}">
+                                {{ estilo }}
                             </div>
                         {% endfor %}
                     </div>
-                {% else %}
-                    <div class="search-placeholder" style="text-align: center; padding: 50px 20px;">
-                        <h3 style="color: #fff; font-family: 'Orbitron', sans-serif; font-weight: 800; text-transform: uppercase; opacity: 0.6;">
-                            Selecione uma cidade para encontrar artistas locais
-                        </h3>
-                    </div>
-                {% endif %}
-
-            </div>
-        </section>
-    </main>
-
-    <main class="gallery-section" id="artistas">
-        
-        <div class="filter-section-header">
-            <div class="music-filter-wrapper">
-                <div class="search-group">
-                    <h3 class="music-filter-title"><i data-lucide="music-2"></i> GÊNERO</h3>
-                    
-                    <div class="music-select-box" id="genreFilterContainer">
-                        <div class="music-select-btn" id="genreTrigger">
-                            <span id="genre-label">TODOS OS ESTILOS</span>
-                            <i data-lucide="chevron-down"></i>
-                        </div>
-
-                        <div class="music-options-list">
-                            <div class="music-opt-item active" data-filter="all">Todos os Estilos</div>
-                            {% for estilo in estilos %}
-                                <div class="music-opt-item" data-filter="{{ estilo | lower | replace(' ', '-') | replace('/', '') }}">
-                                    {{ estilo }}
-                                </div>
-                            {% endfor %}
-                        </div>
-                    </div>
                 </div>
             </div>
+        </div>
+    </div>
+
+    <div class="artist-grid">
         </div>
 
         <div class="artist-grid">
@@ -203,34 +243,52 @@
                         </div>
                     </div>
                 </a>
-            {% endfor %}
+                {% else %}
+                    <div class="search-placeholder" style="grid-column: 1 / -1; text-align: center; padding: 80px 20px;">
+                        <h3 style="color: #fff; font-family: 'Orbitron', sans-serif; font-weight: 800; text-transform: uppercase; opacity: 0.6;">
+                            Breve novos talentos e bandas aqui
+                        </h3>
+                        <p style="color: #fff; opacity: 0.4;">Fique atento às atualizações da cena local.</p>
+                    </div>
+                {% endfor %}
+            </div>
         </div>
     </main>
 
-    <footer class="main-footer">
-        <div class="footer-content">
-            <div class="footer-brand">
-                <img src="static/img/conect1.png" alt="PULSAMUSICCONECT" class="logo-img">
-                <p>Preservando a cultura, impulsionando talentos. A rede completa que une artistas, especialistas e infraestrutura em um só movimento.</p>
-            </div>
-            
-            <div class="footer-links">
-                <h4>Navegação</h4>
-                <ul>
-                    <li><a href="#">Início</a></li>
-                    <li><a href="#artistas">Artistas</a></li>
-                    <li><a href="/dashboard">Área do Membro</a></li>
-                </ul>
-            </div>
-
-            <div class="footer-social">
-                </div>
+<footer class="main-footer">
+    <div class="footer-content">
+        <div class="footer-brand">
+            <img src="static/img/conect1.png" alt="PULSAMUSICCONECT" class="logo-img">
+            <p>Preservando a cultura, impulsionando talentos. A rede completa que une artistas, especialistas e infraestrutura.</p>
         </div>
         
-        <div class="footer-bottom">
+        <div class="footer-links">
+            <h4>Explorar</h4>
+            <ul>
+                <li><a href="/artistas?tipo=dj">DJs</a></li>
+                <li><a href="/artistas?tipo=músico">Músicos</a></li>
+                <li><a href="/artistas?tipo=banda">Bandas</a></li>
+                <li><a href="/palco">Estabelecimentos</a></li>
+            </ul>
+        </div>
+
+        <div class="footer-links">
+            <h4>Plataforma</h4>
+            <ul>
+                <li><a href="/">Home</a></li>
+                <li><a href="/dashboard">Área do Membro</a></li>
+                <li><a href="/termos">Termos de Uso</a></li>
+                <li><a href="/privacidade">Privacidade</a></li>
+            </ul>
+        </div>
+    </div>
+    
+    <div class="footer-bottom">
+        <div class="footer-bottom-container">
             <p>&copy; 2026 Pulsa Music Conect. O Futuro da Tradição.</p>
         </div>
-    </footer>
+    </div>
+</footer>
 
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
     <script>

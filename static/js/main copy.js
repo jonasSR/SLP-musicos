@@ -32,67 +32,47 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 document.addEventListener('DOMContentLoaded', function () {
-    // ##########################################
-    // 1. FILTRO DE GÊNERO (Seu código original)
-    // ##########################################
-    const genreContainer = document.getElementById('genreFilterContainer');
-    const genreText = document.getElementById('genre-label');
-    const genreOptions = document.querySelector('#genreFilterContainer .music-options-list');
+    const container = document.getElementById('genreFilterContainer');
+    const selectedText = document.getElementById('genre-label');
+    const optionsList = document.querySelector('.music-options-list');
 
-    if (genreContainer && genreOptions) {
-        genreContainer.addEventListener('click', function (e) {
-            e.stopPropagation();
-            if (cityContainer) cityContainer.classList.remove('is-active'); // Fecha cidade ao abrir gênero
-            this.classList.toggle('is-active');
+    if (!container || !optionsList) return;
+
+    // Abrir / fechar menu
+    container.addEventListener('click', function (e) {
+        e.stopPropagation();
+        this.classList.toggle('is-active');
+    });
+
+    // Seleção de opções (Usando delegação de eventos)
+    optionsList.addEventListener('click', function (e) {
+        const option = e.target.closest('.music-opt-item');
+        if (!option) return;
+
+        e.stopPropagation();
+
+        // 1. Atualiza o texto do botão
+        const filtro = option.dataset.filter;
+        selectedText.innerText = option.innerText.toUpperCase();
+
+        // 2. Gerencia classe ativa visualmente
+        document.querySelectorAll('.music-opt-item').forEach(opt => opt.classList.remove('active'));
+        option.classList.add('active');
+
+        // 3. Lógica de Filtro dos Cards
+        document.querySelectorAll('.modern-card').forEach(card => {
+            const estilo = card.dataset.estilo;
+            // Se for 'all' mostra todos, senão compara com o dataset do card
+            card.style.display = (filtro === 'all' || estilo === filtro) ? 'block' : 'none';
         });
 
-        genreOptions.addEventListener('click', function (e) {
-            const option = e.target.closest('.music-opt-item');
-            if (!option) return;
-            e.stopPropagation();
-            const filtro = option.dataset.filter;
-            genreText.innerText = option.innerText.toUpperCase();
-            genreOptions.querySelectorAll('.music-opt-item').forEach(opt => opt.classList.remove('active'));
-            option.classList.add('active');
-            document.querySelectorAll('.modern-card').forEach(card => {
-                const estilo = card.dataset.estilo;
-                card.style.display = (filtro === 'all' || estilo === filtro) ? 'block' : 'none';
-            });
-            genreContainer.classList.remove('is-active');
-        });
-    }
+        // 4. Fecha o menu
+        container.classList.remove('is-active');
+    });
 
-    // ##########################################
-    // 2. FILTRO DE CIDADE (Novo - Segue o mesmo jeito)
-    // ##########################################
-    const cityContainer = document.getElementById('cityFilterContainer');
-    const cityOptions = document.querySelector('#cityFilterContainer .music-options-list');
-
-    if (cityContainer && cityOptions) {
-        cityContainer.addEventListener('click', function (e) {
-            e.stopPropagation();
-            if (genreContainer) genreContainer.classList.remove('is-active'); // Fecha gênero ao abrir cidade
-            this.classList.toggle('is-active');
-        });
-
-        cityOptions.addEventListener('click', function (e) {
-            const option = e.target.closest('.music-opt-item');
-            if (!option) return;
-            e.stopPropagation();
-            
-            // Pega o valor da cidade e envia o formulário
-            const form = document.getElementById('cityForm');
-            const hiddenInput = document.getElementById('hiddenCityInput');
-            
-            hiddenInput.value = option.dataset.filter === 'all' ? '' : option.innerText;
-            form.submit(); // Dispara o refresh da página com a nova cidade
-        });
-    }
-
-    // Fechar ao clicar fora
+    // Fechar ao clicar fora de qualquer lugar da janela
     window.addEventListener('click', function () {
-        if (genreContainer) genreContainer.classList.remove('is-active');
-        if (cityContainer) cityContainer.classList.remove('is-active');
+        container.classList.remove('is-active');
     });
 });
 
