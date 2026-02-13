@@ -343,6 +343,32 @@ async function verificarStatusCadastro(email) {
 }
 
 
+// 🎯 AÇÃO: NÃO (APENAS SAIR E SALVAR PROGRESSO)
+document.getElementById('btn-retomar-nao').onclick = async () => {
+    // 1. Fecha a modal
+    document.getElementById('modal-retomar-cadastro').style.display = "none";
+
+    // 2. Avisa que os dados estão salvos
+    exibirPopup("Até breve!", "Seu progresso foi salvo. Você pode continuar quando quiser, basta fazer login novamente.");
+
+    try {
+        // 3. Desloga do Firebase
+        await auth.signOut();
+
+        // 4. Limpa a sessão no Flask
+        await fetch('/logout'); 
+
+        // 5. Manda para a home
+        setTimeout(() => { window.location.href = "/"; }, 2500);
+
+    } catch (error) {
+        console.error("Erro ao sair:", error);
+        window.location.href = "/";
+    }
+};
+
+
+
 // 🎯 INTERCEPTAR O CLIQUE NO BOTÃO "PAINEL" (Menu Superior)
 document.addEventListener('click', function(e) {
     if (e.target.id === 'btn-menu-painel' || e.target.innerText === 'Painel') {
@@ -403,47 +429,10 @@ document.getElementById('btn-retomar-sim').onclick = () => {
 };
 
 
-// 🎯 AÇÃO: NÃO (APENAS SAIR E SALVAR PROGRESSO)
-document.getElementById('btn-retomar-nao').onclick = async () => {
-    // 1. Fecha a modal
-    document.getElementById('modal-retomar-cadastro').style.display = "none";
-
-    // 2. Avisa que os dados estão salvos
-    exibirPopup("Até breve!", "Seu progresso foi salvo. Você pode continuar quando quiser, basta fazer login novamente.");
-
-    try {
-        // 3. Desloga do Firebase
-        await auth.signOut();
-
-        // 4. Limpa a sessão no Flask
-        await fetch('/logout'); 
-
-        // 5. Manda para a home
-        setTimeout(() => { window.location.href = "/"; }, 2500);
-
-    } catch (error) {
-        console.error("Erro ao sair:", error);
-        window.location.href = "/";
-    }
-};
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// --- LÓGICA DE PÓS-VENDA (MODAL DE SENHA) ---
-document.addEventListener("DOMContentLoaded", () => {
+// --- LÓGICA DE PÓS-VENDA ---
+function inicializarModalVenda() {
     const params = new URLSearchParams(window.location.search);
-    const emailPagante = params.get('email'); // O Python precisa enviar isso!
+    const emailPagante = params.get('email');
 
     const inputOculto = document.getElementById('email-venda');
     const displayTexto = document.getElementById('display-email-venda');
@@ -451,11 +440,13 @@ document.addEventListener("DOMContentLoaded", () => {
     if (emailPagante) {
         if (inputOculto) inputOculto.value = emailPagante;
         if (displayTexto) displayTexto.innerText = emailPagante;
-        console.log("✅ E-mail capturado:", emailPagante);
-    } else {
-        console.error("❌ E-mail não encontrado na URL. Verifique a success_url no Python.");
+        console.log("✅ E-mail pronto para vincular:", emailPagante);
     }
-});
+}
+
+// Roda assim que o script carrega e quando o DOM estiver pronto
+document.addEventListener("DOMContentLoaded", inicializarModalVenda);
+inicializarModalVenda();
 
 // Exporta a função para o objeto window para que o HTML consiga vê-la
 window.vincularSenhaAoPagamento = async function() {

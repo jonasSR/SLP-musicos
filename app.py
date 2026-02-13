@@ -399,13 +399,12 @@ def checkout():
     email_usuario = session.get('user_email')
     dominio_producao = "https://slp-musicos-1.onrender.com"
     
-    # O SEGREDO: Adicionamos &email={email_usuario} no final da success_url
+    # ADICIONADO: &email={email_usuario} para a modal conseguir ler
     link_stripe = (
         f"https://buy.stripe.com/test_5kQ8wO90m6yWbRl0I5gIo00"
         f"?prefilled_email={email_usuario}"
         f"&success_url={dominio_producao}/login?confirmacao_venda=true&email={email_usuario}"
     )
-    
     return redirect(link_stripe)
 
 
@@ -431,24 +430,22 @@ def webhook_stripe():
     # 1. ✅ PAGAMENTO APROVADO
     if tipo_evento == 'checkout.session.completed':
         if user_docs:
-            # USUÁRIO JÁ EXISTE: Apenas atualiza
             user_ref = user_docs[0].reference
             user_ref.update({
                 'acesso_pago': True,
                 'status_financeiro': 'pago',
+                'tipo': 'musico', # GARANTE QUE NÃO FICA NONE
                 'data_pagamento': firestore.SERVER_TIMESTAMP
             })
         else:
-            # USUÁRIO NÃO EXISTE (Vindo da página de vendas): Cria o documento prévio
             db.collection('usuarios').document(email_cliente).set({
                 'email': email_cliente,
                 'acesso_pago': True,
                 'status_financeiro': 'pago',
-                'tipo': None, # Já pré-define como músico
+                'tipo': 'musico', # AQUI ESTAVA NONE, AGORA É MUSICO
                 'data_pagamento': firestore.SERVER_TIMESTAMP,
                 'criado_via': 'pagina_vendas'
             })
-
     # 2. ❌ PAGAMENTO FALHOU / EXPIROU
     elif tipo_evento in ['checkout.session.async_payment_failed', 'checkout.session.expired']:
         if user_docs:
