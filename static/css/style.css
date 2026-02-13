@@ -218,7 +218,7 @@ body {
 .btn-profile-link {
     text-decoration: none;
     color: var(--accent);
-    font-size: 0.7rem;
+    font-size: 0.8rem;
     font-weight: 800;
     letter-spacing: 0.5px;
     display: flex;
@@ -246,14 +246,14 @@ body {
 
 .tag-genre {
     color: var(--accent);
-    font-size: 0.65rem;
+    font-size: 0.9rem;
     font-weight: 900;
     text-transform: uppercase;
 }
 
 .tag-type {
     color: rgba(255, 255, 255, 0.6);
-    font-size: 0.6rem;
+    font-size: 0.9rem;
     font-weight: 700;
     text-transform: uppercase;
 }
@@ -262,7 +262,7 @@ body {
     display: flex;
     align-items: center;
     gap: 4px;
-    font-size: 0.65rem;
+    font-size: 0.9rem;
     color: #fff;
     opacity: 0.7;
     text-transform: uppercase;
@@ -632,16 +632,17 @@ body {
 }
 
 .footer-bottom-container {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    max-width: 1100px;
-    margin: 0 auto;
+    text-align: center;
+    margin-top: 30px;
+    padding-top: 15px;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    font-size: 0.7rem;
+    opacity: 0.4;
+    letter-spacing: 1px;
 }
 
 .footer-bottom p {
     font-size: 0.75rem;
-    opacity: 0.4;
     margin: 0;
 }
 
@@ -833,7 +834,7 @@ body {
 .local-tag {
     color: #00f2ff;
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    font-size: 0.65rem;
+    font-size: 0.9rem;
     font-weight: 800;
     margin-bottom: 2px;
 }
@@ -859,7 +860,7 @@ body {
     pointer-events: auto;
     color: #00f2ff;
     text-decoration: none;
-    font-size: 0.7rem;
+    font-size: 0.8rem;
     font-weight: 800;
     text-transform: uppercase;
     display: flex;
@@ -1050,7 +1051,7 @@ body {
     .artist-grid .tag-genre, 
     .artist-grid .tag-type, 
     .artist-grid .card-location {
-        font-size: 0.55rem !important;
+        font-size: 0.9rem !important;
         font-weight: 700;
         text-transform: uppercase;
     }
@@ -1068,16 +1069,61 @@ body {
         font-size: 0.8rem !important;
     }
 
-    /* --- 7. FOOTER PRINCIPAL --- */
-    .main-footer {
-        padding: 40px 20px !important;
-        text-align: center !important;
+.main-footer {
+    padding: 40px 20px !important;
+    text-align: left !important; /* Alinha o texto para a esquerda para ficar mais limpo */
+}
+
+.footer-content {
+    display: grid !important;
+    /* 1fr para a marca (topo) e depois duas colunas iguais para os links */
+    grid-template-columns: 1fr 1fr !important; 
+    gap: 20px !important;
+}
+
+/* Faz a parte da Marca (Logo e texto) ocupar as duas colunas inteiras no topo */
+.footer-brand {
+    grid-column: 1 / -1; 
+    text-align: center; /* Centraliza a logo e o texto principal */
+    margin-bottom: 20px;
+}
+
+.footer-brand p {
+    margin: 10px auto !important;
+    max-width: 100% !important;
+}
+
+/* Garante que os títulos dos links fiquem bem posicionados */
+.footer-links h4 {
+    font-size: 0.8rem !important;
+    margin-bottom: 12px !important;
+}
+
+.footer-links ul {
+    list-style: none !important;
+    padding: 0 !important;
+}
+}
+
+/* Responsividade Mobile */
+@media (max-width: 768px) {
+    .footer-content {
+        grid-template-columns: 1fr;
+        text-align: center;
+        gap: 40px;
     }
 
-    .footer-content {
-        display: flex !important;
-        flex-direction: column !important;
-        gap: 30px !important;
+    .footer-brand p {
+        margin: 0 auto;
+    }
+
+    .footer-bottom-container {
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .footer-links a:hover {
+        padding-left: 0;
     }
 }
 /* ##########################################################################
@@ -1176,31 +1222,6 @@ body {
     }
 }
 
-
-/* Responsividade Mobile */
-@media (max-width: 768px) {
-    .footer-content {
-        grid-template-columns: 1fr;
-        text-align: center;
-        gap: 40px;
-    }
-
-    .footer-brand p {
-        margin: 0 auto;
-    }
-
-    .footer-bottom-container {
-        flex-direction: column;
-        gap: 20px;
-    }
-
-    .footer-links a:hover {
-        padding-left: 0;
-    }
-}
-
-
-
 /* Estilos para Páginas Legais */
 .legal-container {
     max-width: 800px;
@@ -1234,7 +1255,7 @@ body {
     background: rgba(255,255,255,0.1);
     padding: 8px 15px;
     border-radius: 5px;
-    font-size: 0.7rem;
+    font-size: 0.9rem;
     text-decoration: none;
     color: #fff;
     transition: 0.3s;

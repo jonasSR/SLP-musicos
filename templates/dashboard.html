@@ -11,7 +11,7 @@
 <body>
     {% if exibir_boas_vindas_interno %}
     <div id="modal-boas-vindas-sistema" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 9999; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(5px);">
-        <div style="background: #1a1a1a; padding: 40px; border-radius: 15px; border: 1px solid #00ffcc; text-align: center; max-width: 400px;">
+        <div style="background: #1a1a1a; padding: 40px; border-radius: 10px; border: 1px solid #00ffcc; text-align: center; max-width: 400px;">
             <h2 style="color: #00ffcc; font-family: 'Syne', sans-serif;">BEM-VINDO! 🚀</h2>
             <p style="color: white; margin: 20px 0;">Sua assinatura foi confirmada. Seu painel de músico já está liberado!</p>
             <button onclick="fecharBoasVindas()" style="background: #00ffcc; color: black; border: none; padding: 12px 30px; border-radius: 5px; font-weight: bold; cursor: pointer; width: 100%;">
@@ -32,29 +32,56 @@
 
 
     {% if bloqueado %}
-        <div id="lock-screen" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 10000; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(10px); padding: 20px;">
-            <div class="glass-card" style="max-width: 500px; text-align: center; padding: 40px; border: 2px solid #00f2ff; box-shadow: 0 0 30px rgba(0, 242, 255, 0.2);">
-                <div style="font-size: 50px; color: #ff0000; margin-bottom: 20px;">
-                    <i class="fas fa-lock"></i>
-                </div>
-                <h2 style="color: #fff; margin-bottom: 15px; font-family: 'Orbitron', sans-serif;">ACESSO RESTRITO</h2>
-                <p style="color: rgba(255,255,255,0.8); line-height: 1.6; margin-bottom: 30px;">
-                    Identificamos que sua assinatura <strong>Pulsa Music Conect</strong> não está ativa. 
-                    Para continuar acessando seus pedidos, agenda e estatísticas, regularize seu acesso.
-                </p>
-                
-                <a href="https://buy.stripe.com/test_5kQ8wO90m6yWbRl0I5gIo00" class="btn-glow-action" style="text-decoration: none; font-size: 1.0rem; display: block; width: 100%;">
-                    <span>REATIVAR MEU PAINEL AGORA</span>
-                </a>
-                
-                <p style="margin-top: 20px; font-size: 0.8rem;">
-                    <a href="/logout" style="color: white; background-color: red; padding: 10px 20px; text-decoration: none; border-radius: 5px;">
-                        Sair da conta
-                    </a>
-                </p>
-            </div>
-        </div>
-    {% endif %}
+    <div style="
+        position: absolute;
+        top: 90px;
+        right: 70px;
+        z-index: 999;
+        /* ESTRUTURA COMPACTA HORIZONTAL */
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        background: rgba(15, 0, 0, 0.96); /* Um tom mais escuro para ficar mais fino */
+        padding: 8px 18px; /* Padding reduzido para achatar a barra */
+        border-radius: 6px;
+        backdrop-filter: blur(15px);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        animation: fadeInRight 0.6s ease-out;
+        border: 1px solid rgba(255,0,0,0.2);
+        border-left: 4px solid #ff0000;
+        white-space: nowrap; /* Impede que o texto quebre e aumente a altura */
+    ">
+    
+    <div style="display: flex; align-items: center; flex-shrink: 0;">
+        <i class="fas fa-exclamation-circle" style="color: #ff4d4d; margin-right: 8px; font-size: 1rem;"></i>
+        <h4 style="color: #fff; margin: 0; font-family: 'Orbitron', sans-serif; font-size: 0.7rem; letter-spacing: 1px;">PERFIL OFFLINE</h4>
+    </div>
+
+    <div style="width: 1px; height: 15px; background: rgba(255,255,255,0.1);"></div>
+
+    <p style="color: rgba(255,255,255,0.7); font-size: 0.7rem; margin: 0; font-family: 'Syne', sans-serif; flex-grow: 1;">
+        Sua assinatura <strong>Pulsa Music</strong> expirou. Seu perfil está invisível para contratantes.
+    </p>
+
+    <a href="/checkout" style="
+        display: inline-block; 
+        background: #00b818; 
+        color: white; 
+        text-align: center; 
+        padding: 5px 15px; 
+        border-radius: 4px; 
+        text-decoration: none; 
+        font-weight: bold; 
+        font-size: 0.65rem; 
+        transition: 0.3s; 
+        text-transform: uppercase;
+        flex-shrink: 0;
+    ">
+        Reativar
+    </a>
+</div>
+{% endif %}
+
     <div id="toast-container" class="toast-container"></div>
     {% set foto_url = musico.foto if musico.foto else 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?q=80&w=1000' %}
     <div id="cursor-aura"></div>
@@ -64,50 +91,58 @@
         <div class="orb orb-3"></div>
     </div>
 
-    <nav class="glass-nav">
-        <a href="/" style="text-decoration: none;">
-            <img src="static/img/conect1.png" alt="PULSAMUSICCONECT" class="logo-img">
-        </a>
-        <div class="menu-toggle" id="mobile-menu">
-            <span class="bar"></span><span class="bar"></span><span class="bar"></span>
-        </div>
-        <ul class="nav-links" id="nav-links">
-            <li><a href="/" class="btn-nav-link">HOME</a></li>
-            
-            {% if session.get('user_email') %}
-                <li class="desktop-only-menu"><a href="javascript:void(0)" onclick="showSection('aba-perfil')" class="btn-nav-link">PERFIL</a></li>
-                <li class="desktop-only-menu"><a href="javascript:void(0)" onclick="showSection('aba-agenda')" class="btn-nav-link">AGENDA</a></li>
-                <li class="desktop-only-menu"><a href="javascript:void(0)" onclick="showSection('aba-inbox')" class="btn-nav-link">INBOX</a></li>
-                <li class="desktop-only-menu"><a href="javascript:void(0)" onclick="showSection('aba-fas')" class="btn-nav-link">COMUNIDADE</a></li>
-
-                <li><a href="javascript:void(0)" onclick="abrirModalSenha()" class="btn-nav-link">ALTERAR SENHA</a></li>
-                <li><a href="/logout" class="btn-logout">SAIR</a></li>
-            {% endif %}
-        </ul>
-    </nav>
-
-    <div id="modal-senha" class="modal-overlay">
-        <div class="modal-content glass-card">
-            <button class="close-modal" onclick="fecharModalSenha()">×</button>
-            <h3>Trocar Senha</h3>
-            <p style="font-size: 0.8rem; opacity: 0.7; margin-bottom: 20px;">Digite sua nova senha abaixo.</p>
-            
-            <form id="form-trocar-senha" class="nebula-form">
-                <div class="input-modern">
-                    <input type="password" id="nova-senha" required placeholder=" ">
-                    <label>NOVA SENHA</label>
-                </div>
-                <div class="input-modern" style="margin-top: 15px;">
-                    <input type="password" id="confirma-senha" required placeholder=" ">
-                    <label>CONFIRMAR SENHA</label>
-                </div>
-                
-                <button type="submit" class="btn-glow-action" style="margin-top: 25px; width: 100%;">
-                    <span>ATUALIZAR SENHA</span>
-                </button>
-            </form>
-        </div>
+<nav class="glass-nav">
+    <a href="/" style="text-decoration: none;">
+        <img src="static/img/conect1.png" alt="PULSAMUSICCONECT" class="logo-img">
+    </a>
+    <div class="menu-toggle" id="mobile-menu">
+        <span class="bar"></span><span class="bar"></span><span class="bar"></span>
     </div>
+    <ul class="nav-links" id="nav-links">
+        {% if session.get('user_email') %}
+            <li class="mobile-only-item profile-card-mobile">
+                <div class="user-avatar-1to1" style="background-image: url('{{ foto_url }}');"></div>
+                <span class="user-name-text">{{ musico.nome or 'Nome do Artista' }}</span>
+                <span class="tag">{{ musico.estilo or 'Estilo' }}</span>
+            </li>
+        {% endif %}
+
+        <li><a href="/" class="btn-nav-link"><i class="fas fa-home"></i> <span>HOME</span></a></li>
+        
+        {% if session.get('user_email') %}
+            <li class="desktop-only-menu"><a href="javascript:void(0)" onclick="showSection('aba-perfil')" class="btn-nav-link"><i class="fas fa-user"></i> <span>PERFIL</span></a></li>
+            <li class="desktop-only-menu"><a href="javascript:void(0)" onclick="showSection('aba-agenda')" class="btn-nav-link"><i class="fas fa-calendar-alt"></i> <span>AGENDA</span></a></li>
+            <li class="desktop-only-menu"><a href="javascript:void(0)" onclick="showSection('aba-inbox')" class="btn-nav-link"><i class="fas fa-envelope"></i> <span>INBOX</span></a></li>
+            <li class="desktop-only-menu"><a href="javascript:void(0)" onclick="showSection('aba-fas')" class="btn-nav-link"><i class="fas fa-users"></i> <span>COMUNIDADE</span></a></li>
+
+            <li><a href="javascript:void(0)" onclick="abrirModalSenha()" class="btn-nav-link"><i class="fas fa-lock"></i> <span>ALTERAR SENHA</span></a></li>
+            <li><a href="/logout" class="btn-logout"><i class="fas fa-sign-out-alt"></i> <span>SAIR</span></a></li>
+        {% endif %}
+
+        <li class="mobile-only-item"><a href="/termos" class="btn-nav-link"><i class="fas fa-file-alt"></i> <span>TERMOS</span></a></li>
+        <li class="mobile-only-item"><a href="/privacidade" class="btn-nav-link"><i class="fas fa-shield-alt"></i> <span>PRIVACIDADE</span></a></li>
+    </ul>
+</nav>
+
+<div id="modal-senha" class="modal-overlay">
+    <div class="modal-content glass-card">
+        <button class="close-modal" onclick="fecharModalSenha()">×</button>
+        <h3>Trocar Senha</h3>
+        <form id="form-trocar-senha" class="nebula-form">
+            <div class="input-modern">
+                <input type="password" id="nova-senha" required placeholder=" ">
+                <label>NOVA SENHA</label>
+            </div>
+            <div class="input-modern" style="margin-top: 15px;">
+                <input type="password" id="confirma-senha" required placeholder=" ">
+                <label>CONFIRMAR SENHA</label>
+            </div>
+            <button type="submit" class="btn-glow-action" style="margin-top: 25px; width: 100%;">
+                <span>ATUALIZAR SENHA</span>
+            </button>
+        </form>
+    </div>
+</div>
 
 
 <main class="dash-main">
@@ -231,7 +266,7 @@
         </div> 
 
 
-<div id="aba-perfil" class="form-panel glass-card" style="padding: 20px; border-radius: 20px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05);">
+<div id="aba-perfil" class="form-panel glass-card" style="padding: 20px; border-radius: 10px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05);">
     <form action="{{ url_for('cadastrar_musico') }}" method="POST" enctype="multipart/form-data" class="nebula-form" autocomplete="off">
         <div class="form-section">
             <h2 class="section-label">DADOS DO PERFIL</h2>
@@ -263,7 +298,7 @@
                 </div>
             </div>
             
-            <div class="input-modern" style="border: 1px dashed rgba(0, 242, 255, 0.3); padding: 10px; border-radius: 12px; margin-bottom: 20px;">
+            <div class="input-modern" style="border: 1px dashed rgba(0, 242, 255, 0.3); padding: 10px; border-radius: 10px; margin-bottom: 20px;">
                 <input type="url" name="vibracao_link" id="input-vibracao" placeholder="https://open.spotify.com/track/..." value="{{ musico.vibracao_link or '' }}" data-lpignore="true">
                 <label><i class="fas fa-play-circle"></i> LINK DA MÚSICA (SPOTIFY, SOUNDCLOUD, ETC)</label>
                 <small style="color: rgba(255,255,255,0.5); font-size: 0.6rem; margin-top: 5px; display: block;">
@@ -299,7 +334,7 @@
             </div>
             <br>
 
-            <div class="image-config-box" style="background: rgba(255,255,255,0.03); padding: 20px; border-radius: 15px; border: 1px solid rgba(255,255,255,0.05); margin-bottom: 25px; font-family: 'Orbitron', sans-serif;">
+            <div class="image-config-box" style="background: rgba(255,255,255,0.03); padding: 20px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.05); margin-bottom: 25px; font-family: 'Orbitron', sans-serif;">
                 <div style="text-align: center; margin: 10px 0; font-size: 0.7rem; color: #ffffff; letter-spacing: 2px;">FAÇA UPLOAD PARA IMAGEM DA CAPA</div>
                 <div class="input-modern">
                     <input type="file" name="foto_arquivo" id="input-file" accept="image/*" 
