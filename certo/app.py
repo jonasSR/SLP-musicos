@@ -51,6 +51,7 @@ UPLOAD_FOLDER = os.path.join('static', 'img')
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'webp'}
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
+
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
@@ -93,10 +94,14 @@ def inject_firebase():
 # ======================================================
 @app.route('/')
 def index():
+    # 🔍 0. BUSCA QUEM ESTÁ COM PAGAMENTO EM DIA
+    usuarios_pagos = db.collection('usuarios').where('acesso_pago', '==', True).stream()
+    emails_pagos = {u.to_dict().get('email').strip().lower() for u in usuarios_pagos if u.to_dict().get('email')}
+
     musicos_ref = db.collection('artistas')
-    musicos = []
+    musicos_brutos = []
     
-    # 1. Busca feedbacks aprovados para saber quem é relevante
+    # 1. Busca feedbacks aprovados
     feedbacks_ref = db.collection('feedbacks').where('status', '==', 'aprovado').stream()
     contagem_feedbacks = {}
 
@@ -106,47 +111,45 @@ def index():
         if aid:
             contagem_feedbacks[aid] = contagem_feedbacks.get(aid, 0) + 1
 
-    # 2. Processa os músicos
+    # 2. Processa os músicos filtrando por PAGAMENTO
     for doc in musicos_ref.stream():
         dados = doc.to_dict()
-        dados['id'] = doc.id
-        dados['qtd_fb'] = contagem_feedbacks.get(doc.id, 0)
-        musicos.append(dados)
+        email_dono = dados.get('dono_email', '').strip().lower()
 
-    # 3. DESTAQUES (Mantido conforme sua solicitação)
-    destaques = [m for m in musicos if m.get('qtd_fb', 0) > 0]
+        # 🛡️ SÓ ADICIONA SE O DONO PAGOU
+        if email_dono in emails_pagos:
+            dados['id'] = doc.id
+            dados['qtd_fb'] = contagem_feedbacks.get(doc.id, 0)
+            musicos_brutos.append(dados)
+
+    # A partir daqui, usamos a lista 'musicos_brutos' (que já está filtrada)
+    
+    # 3. DESTAQUES (Baseado apenas em quem pagou)
+    destaques = [m for m in musicos_brutos if m.get('qtd_fb', 0) > 0]
     destaques = sorted(destaques, key=lambda x: x['qtd_fb'], reverse=True)[:3]
 
-    # --- NOVAS ATUALIZAÇÕES PARA ARTISTAS LOCAIS ---
-    
-    # 4. Captura a cidade selecionada no filtro
     cidade_selecionada = request.args.get('cidade')
     
-    # 5. Gera lista de cidades únicas para o componente de filtro (Dropdown)
-    # Filtra apenas músicos que têm o campo 'cidade' preenchido
-    # m.get('cidade') busca o valor dentro de cada documento no banco
     cidades_disponiveis = sorted(list(set([
         str(m.get('cidade')).strip() 
-        for m in musicos 
+        for m in musicos_brutos 
         if m.get('cidade')
     ])))
     
-    # 6. Filtra os artistas para a seção local
     if cidade_selecionada:
-        artistas_locais = [m for m in musicos if str(m.get('cidade')).strip().lower() == cidade_selecionada.strip().lower()]
+        artistas_locais = [m for m in musicos_brutos if str(m.get('cidade')).strip().lower() == cidade_selecionada.strip().lower()]
     else:
-        # Se nenhuma cidade for selecionada, mostramos os 4 músicos mais recentes (ou os primeiros da lista)
-        artistas_locais = musicos[:4]
+        # Se não houver cidade, pega os 4 primeiros que pagaram
+        artistas_locais = musicos_brutos[:4]
 
     return render_template(
         'index.html', 
-        musicos=musicos, 
+        musicos=musicos_brutos, 
         destaques=destaques,
         artistas_locais=artistas_locais,
         cidades_disponiveis=cidades_disponiveis,
         cidade_nome=cidade_selecionada
     )
-
 
 @app.route('/musico/<musico_id>')
 def perfil_musico(musico_id):
@@ -323,8 +326,8 @@ def dashboard():
         if pagou or veio_do_checkout_interno:
             bloqueado = False
         else:
-            # ❌ Caso contrário, manda para o checkout
-            return redirect(url_for('checkout'))
+            """return redirect(url_for('checkout'))"""
+            bloqueado = True
             
     # 🟢 SE FOR ESTABELECIMENTO
     if tipo_usuario == 'estabelecimento':
@@ -384,22 +387,34 @@ def dashboard():
         diff = dt_vencimento.replace(tzinfo=None) - hoje.replace(tzinfo=None)
         dias_restantes = diff.days
 
+    # Criamos o objeto de permissões baseado no status de pagamento
+    status_liberado = pagou or veio_do_checkout_interno
+    # Criamos o dicionário de permissões
+    permissoes = {
+        'pode_receber_pedidos': pagou or veio_do_checkout_interno,
+        'perfil_visivel': pagou or veio_do_checkout_interno,
+        'ver_agenda': True,  # Sempre liberado para evitar problemas jurídicos/agendamento
+        'responder_feedback': pagou or veio_do_checkout_interno,
+        'editar_perfil': pagou or veio_do_checkout_interno
+    }
+
     return render_template(
-        'dashboard.html',
-        pedidos=pedidos,
-        musico=artista_dados,
-        agenda=agenda,
-        feedbacks=feedbacks,
-        notificacoes_fas=notificacoes_fas,
-        total_cliques=total_cliques,
-        media_estrelas=media_estrelas,
-        bloqueado=bloqueado,
-        exibir_boas_vindas_interno=veio_do_checkout_interno, # Ativa a modal no HTML
-        data_ativacao=data_ativacao,
-        data_vencimento=data_vencimento,
-        dias_restantes=dias_restantes,
-        pagou=pagou
-    )
+            'dashboard.html',
+            pedidos=pedidos,
+            musico=artista_dados,
+            agenda=agenda,
+            feedbacks=feedbacks,
+            notificacoes_fas=notificacoes_fas,
+            total_cliques=total_cliques,
+            media_estrelas=media_estrelas,
+            bloqueado=not status_liberado, # Se não liberado, está bloqueado (restrito)
+            exibir_boas_vindas_interno=veio_do_checkout_interno,
+            data_ativacao=data_ativacao,
+            data_vencimento=data_vencimento,
+            dias_restantes=dias_restantes,
+            pagou=pagou,
+            permissoes=permissoes  # <--- NOVA VARIÁVEL ENVIADA
+        )
 
 
 @app.route('/checkout')
@@ -838,7 +853,6 @@ def excluir_pedidos():
     except Exception as e:
         print(f"Erro ao excluir: {e}")
         return jsonify({'status': 'error', 'message': str(e)}), 500
-
 
 
 @app.route('/api/artistas_vitrine')
