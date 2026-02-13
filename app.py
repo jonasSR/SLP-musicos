@@ -242,25 +242,27 @@ def check_user_type():
     return jsonify({"status": "novo"})
 
 
-# ======================================================
-# 🔐 AUTENTICAÇÃOdef login_page():
-# ======================================================
 @app.route('/login')
 def login_page():
     # Detecta se veio do Stripe (página de vendas ou link fixo)
     veio_da_venda = request.args.get('pago') == 'true'
     email_logado = session.get('user_email')
 
-    # 🚀 FLUXO SISTEMA: Se já está logado e pagou, pula o login e vai pro Dash
+    # 🚀 FLUXO SISTEMA: Se já está logado e pagou, vai direto pro Dashboard
     if veio_da_venda and email_logado:
         return redirect(url_for('dashboard', sucesso_pagamento='true'))
 
-    # 🟢 FLUXO PÁGINA DE VENDA: Se pagou mas não está logado, fica aqui para criar conta
-    if veio_da_venda:
-        session['mostrar_boas_vindas'] = True
+    # 🟢 FLUXO PÁGINA DE VENDA: Se pagou mas não está logado
+    email_venda = request.args.get('email')  # 🔹 Espera que o link Stripe passe ?email=usuario@exemplo.com
+    if veio_da_venda and email_venda:
+        # Guarda o e-mail da compra na sessão para preencher o formulário
+        session['user_email_venda'] = email_venda
+        mostrar_modal = True
+    else:
+        mostrar_modal = False
+        session.pop('user_email_venda', None)  # Limpa se não veio da venda
 
-    mostrar_modal = session.pop('mostrar_boas_vindas', False)
-
+    # Config Firebase
     config = {
         "apiKey": os.getenv("FIREBASE_API_KEY"),
         "authDomain": os.getenv("FIREBASE_AUTH_DOMAIN"),
@@ -275,6 +277,7 @@ def login_page():
         firebase_config=config,
         confirmacao_venda=mostrar_modal
     )
+
 
 
 @app.route('/dashboard')
@@ -396,18 +399,20 @@ def dashboard():
 @app.route('/checkout')
 @login_required
 def checkout():
-    email_usuario = session.get('user_email')
+    email_usuario = session.get('user_email')  # Usuário logado
     dominio_producao = "https://slp-musicos-1.onrender.com"
     
-    # Mandamos para o /login?pago=true. 
-    # Se o cara estiver logado (nosso caso aqui), a rota /login joga ele pro Dash.
+    # Inclui o e-mail no success_url
+    success_url = f"{dominio_producao}/login?pago=true&email={email_usuario}"
+
     link_stripe = (
         f"https://buy.stripe.com/test_5kQ8wO90m6yWbRl0I5gIo00"
         f"?prefilled_email={email_usuario}"
-        f"&success_url={dominio_producao}/login?pago=true"
+        f"&success_url={success_url}"
     )
-    
+
     return redirect(link_stripe)
+
 
 
 @app.route('/webhook-stripe', methods=['POST'])
