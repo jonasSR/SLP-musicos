@@ -406,7 +406,7 @@ def dashboard():
         pagou=pagou
     )
 
-
+from urllib.parse import quote
 
 @app.route('/checkout')
 @login_required
@@ -418,9 +418,8 @@ def checkout():
     # Se o cara estiver logado (nosso caso aqui), a rota /login joga ele pro Dash.
     link_stripe = (
         f"https://buy.stripe.com/test_5kQ8wO90m6yWbRl0I5gIo00"
-        f"?prefilled_email={email_usuario}"
-        f"&success_url={dominio_producao}/login?confirmacao_venda=true&email={email_usuario}"
-
+        f"?prefilled_email={quote(email_usuario)}"
+        f"&success_url={dominio_producao}/login?confirmacao_venda=true&email={quote(email_usuario)}"
     )
     
     return redirect(link_stripe)
