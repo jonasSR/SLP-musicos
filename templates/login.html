@@ -25,11 +25,9 @@
             <strong id="display-email-venda">{{ email_pagamento if email_pagamento else 'E-mail não detectado' }}</strong>
         </div>
 
-        <input type="hidden" id="email-venda" value="{{ email_pagamento }}">
-
         <p class="instruction-text">Defina uma senha para acessar seu painel:</p>
 
-        <input type="hidden" id="email-venda" value="">
+        <input type="hidden" id="email-venda" value="{{ email_pagamento }}">
         
         <div class="senha-input-container">
             <label class="senha-label">CRIE SUA SENHA (MÍN. 6 DÍGITOS)</label>

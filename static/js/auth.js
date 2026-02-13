@@ -429,10 +429,10 @@ document.getElementById('btn-retomar-sim').onclick = () => {
 };
 
 
-// --- LÓGICA DE PÓS-VENDA ---
-function inicializarModalVenda() {
+// --- LÓGICA DE PÓS-VENDA (MODAL DE SENHA) ---
+document.addEventListener("DOMContentLoaded", () => {
     const params = new URLSearchParams(window.location.search);
-    const emailPagante = params.get('email');
+    const emailPagante = params.get('email'); // O Python precisa enviar isso!
 
     const inputOculto = document.getElementById('email-venda');
     const displayTexto = document.getElementById('display-email-venda');
@@ -440,13 +440,11 @@ function inicializarModalVenda() {
     if (emailPagante) {
         if (inputOculto) inputOculto.value = emailPagante;
         if (displayTexto) displayTexto.innerText = emailPagante;
-        console.log("✅ E-mail pronto para vincular:", emailPagante);
+        console.log("✅ E-mail capturado:", emailPagante);
+    } else {
+        console.error("❌ E-mail não encontrado na URL. Verifique a success_url no Python.");
     }
-}
-
-// Roda assim que o script carrega e quando o DOM estiver pronto
-document.addEventListener("DOMContentLoaded", inicializarModalVenda);
-inicializarModalVenda();
+});
 
 // Exporta a função para o objeto window para que o HTML consiga vê-la
 window.vincularSenhaAoPagamento = async function() {
