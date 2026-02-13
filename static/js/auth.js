@@ -427,10 +427,23 @@ document.getElementById('btn-retomar-nao').onclick = async () => {
     }
 };
 
+
+
+
+
+
+
+
+
+
+
+
+
+
 // --- LÓGICA DE PÓS-VENDA (MODAL DE SENHA) ---
 document.addEventListener("DOMContentLoaded", () => {
     const params = new URLSearchParams(window.location.search);
-    const emailPagante = params.get('email');
+    const emailPagante = params.get('email'); // O Python precisa enviar isso!
 
     const inputOculto = document.getElementById('email-venda');
     const displayTexto = document.getElementById('display-email-venda');
@@ -438,8 +451,9 @@ document.addEventListener("DOMContentLoaded", () => {
     if (emailPagante) {
         if (inputOculto) inputOculto.value = emailPagante;
         if (displayTexto) displayTexto.innerText = emailPagante;
-    } else if (displayTexto) {
-        displayTexto.innerText = "E-mail não detectado";
+        console.log("✅ E-mail capturado:", emailPagante);
+    } else {
+        console.error("❌ E-mail não encontrado na URL. Verifique a success_url no Python.");
     }
 });
 
