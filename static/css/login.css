@@ -739,3 +739,92 @@ background: rgba(255, 255, 255, 0.05); /* Fundo sutil */
 .log-input-field {
     background-color: transparent !important;
 }
+
+
+/* Container Principal (Clean & Dark) */
+.clean-card-style {
+    background: #111111 !important; /* Preto profundo sólido */
+    border: 1px solid #333333 !important; /* Borda cinza discreta */
+    padding: 40px !important;
+    border-radius: 12px !important;
+    max-width: 380px !important;
+    text-align: center;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.5) !important;
+}
+
+/* Tipografia */
+.clean-card-style h3 {
+    font-family: 'Syne', sans-serif;
+    color: #ffffff;
+    font-size: 22px;
+    margin: 0;
+}
+
+.clean-card-style .status-msg {
+    color: #888;
+    font-size: 14px;
+    margin-top: 10px;
+}
+
+/* Caixa de E-mail (O único ponto de cor suave) */
+.email-info-box {
+    background: #1a1a1a;
+    border: 1px solid #222;
+    padding: 15px;
+    border-radius: 8px;
+    margin: 25px 0;
+}
+
+.email-info-box .label {
+    display: block;
+    font-size: 10px;
+    color: #666;
+    letter-spacing: 1px;
+    margin-bottom: 5px;
+}
+
+#display-email-venda {
+    color: #00ffcc; /* Mantemos o verde aqui para destaque positivo */
+    font-family: monospace;
+    font-size: 15px;
+}
+
+.instruction-text {
+    font-size: 13px;
+    color: #999;
+    margin-bottom: 15px;
+}
+
+/* Input de Senha (Seguindo seu padrão de labels flutuantes) */
+.clean-card-style .log-field-group {
+    background: #000 !important;
+    border: 1px solid #444 !important;
+    border-radius: 6px !important;
+    margin-top: 10px;
+}
+
+.clean-card-style .log-input-field {
+    padding: 15px !important;
+    color: #fff !important;
+}
+
+/* Botão Premium (Estilo Apple/Spotify) */
+.btn-finalizar-premium {
+    width: 100%;
+    padding: 15px;
+    margin-top: 25px;
+    background: #ffffff; /* Branco para autoridade e clareza */
+    color: #000000;
+    border: none;
+    border-radius: 6px;
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+    transition: 0.2s ease;
+    text-transform: uppercase;
+}
+
+.btn-finalizar-premium:hover {
+    background: #00ffcc; /* Fica verde apenas no hover */
+    transform: translateY(-2px);
+}

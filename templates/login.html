@@ -15,22 +15,28 @@
 
 <body class="login-page-root">
 {% if confirmacao_venda %}
-<div id="modal-boas-vindas" class="modal-overlay" style="display:flex;">
-    <div class="modal-content glass-card">
-        <h3 style="color:#00ffcc;">Bem-vindo à Pulsa Music Conect!</h3>
-        <p style="margin-top:15px;">Sua assinatura foi confirmada com sucesso 🚀</p>
+<div id="modal-boas-vindas" class="modal-overlay" style="display:flex; z-index: 9999;">
+    <div class="modal-content clean-card-style">
+        <h3>BEM-VINDO À PULSA MUSIC CONECT</h3>
+        <p class="status-msg">Sua assinatura foi confirmada com sucesso 🚀</p>
         
-        <p style="font-size:0.9rem; color:#ccc; margin-top:15px;">
+        <div class="email-info-box">
+            <span class="label">E-MAIL DA CONTA</span>
+            <strong id="display-email-venda">carregando...</strong>
+        </div>
+
+        <p class="instruction-text">
             Defina uma senha para acessar seu painel:
         </p>
 
         <input type="hidden" id="email-venda" value="">
         
-        <div class="input-group" style="margin-top:15px;">
-            <input type="password" id="nova-senha" placeholder="Crie sua senha" class="log-input">
+        <div class="log-field-group">
+            <input type="password" id="nova-senha" class="log-input-field" required placeholder=" ">
+            <label class="log-field-label">CRIE SUA SENHA (MÍN. 6 DÍGITOS)</label>
         </div>
 
-        <button class="log-btn-main" style="margin-top:20px;" onclick="vincularSenhaAoPagamento()">
+        <button class="btn-finalizar-premium" onclick="vincularSenhaAoPagamento()">
             FINALIZAR E ENTRAR
         </button>
     </div>
@@ -128,55 +134,6 @@
 
     
     <script>
-        document.addEventListener("DOMContentLoaded", () => {
-    // 1. Pega o e-mail que veio na URL (ex: ?email=...)
-    const params = new URLSearchParams(window.location.search);
-    const emailPagante = params.get('email');
-
-    if (emailPagante) {
-        document.getElementById('email-venda').value = emailPagante;
-    }
-});
-
-async function vincularSenhaAoPagamento() {
-    const email = document.getElementById('email-venda').value;
-    const senha = document.getElementById('nova-senha').value;
-
-    if (!senha || senha.length < 6) {
-        exibirPopup("Atenção", "A senha deve ter no mínimo 6 caracteres.");
-        return;
-    }
-
-    if (!email) {
-        exibirPopup("Erro", "E-mail não identificado. Por favor, use o cadastro comum.");
-        return;
-    }
-
-    try {
-        // 1. Cria o acesso no Firebase Authentication (O que estava faltando)
-        await createUserWithEmailAndPassword(auth, email, senha);
-
-        // 2. Atualiza o documento que JÁ EXISTE no Firestore (para garantir o tipo e status)
-        await setDoc(doc(db, "usuarios", email), {
-            acesso_pago: true,
-            status: 'completo' // Ou a lógica que você usa para liberar o painel
-        }, { merge: true });
-
-        exibirPopup("Sucesso!", "Senha cadastrada com sucesso!");
-
-        // 3. Inicia sessão e manda pro Dashboard
-        await iniciarSessao(email);
-        window.location.href = "/dashboard";
-
-    } catch (error) {
-        console.error(error);
-        if (error.code === 'auth/email-already-in-use') {
-            exibirPopup("Atenção", "Este e-mail já possui senha. Tente fazer login.");
-        } else {
-            exibirPopup("Erro", "Não foi possível criar sua senha.");
-        }
-    }
-}
         // Colocamos aspas para o editor achar que é uma String comum
         // O | safe garante que o Flask não quebre os caracteres
         const configData = '{{ firebase_config | tojson | safe }}';

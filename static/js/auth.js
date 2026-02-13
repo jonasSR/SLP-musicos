@@ -427,3 +427,63 @@ document.getElementById('btn-retomar-nao').onclick = async () => {
     }
 };
 
+// --- LÓGICA DE PÓS-VENDA (MODAL DE SENHA) ---
+
+document.addEventListener("DOMContentLoaded", () => {
+    const params = new URLSearchParams(window.location.search);
+    const emailPagante = params.get('email');
+
+    const inputOculto = document.getElementById('email-venda');
+    const displayTexto = document.getElementById('display-email-venda');
+
+    if (emailPagante) {
+        if (inputOculto) inputOculto.value = emailPagante;
+        if (displayTexto) displayTexto.innerText = emailPagante;
+    } else if (displayTexto) {
+        displayTexto.innerText = "E-mail não detectado";
+    }
+});
+
+// Tornamos a função GLOBAL para o 'onclick' do HTML conseguir enxergar
+window.vincularSenhaAoPagamento = async function() {
+    const email = document.getElementById('email-venda').value;
+    const senha = document.getElementById('nova-senha').value;
+
+    if (!senha || senha.length < 6) {
+        exibirPopup("Atenção", "A senha deve ter no mínimo 6 caracteres.");
+        return;
+    }
+
+    if (!email) {
+        exibirPopup("Erro", "E-mail não identificado. Use o cadastro comum.");
+        return;
+    }
+
+    try {
+        // 1. Cria o acesso no Firebase Auth (O que faltava)
+        await createUserWithEmailAndPassword(auth, email, senha);
+
+        // 2. Atualiza o documento no Firestore (Garante que o acesso_pago seja true)
+        await setDoc(doc(db, "usuarios", email), {
+            acesso_pago: true,
+            status: 'completo' 
+        }, { merge: true });
+
+        exibirPopup("Sucesso!", "Sua senha foi criada!");
+
+        // 3. Inicia sessão no Flask e vai para o Dashboard
+        await iniciarSessao(email);
+        
+        setTimeout(() => {
+            window.location.href = "/dashboard";
+        }, 1500);
+
+    } catch (error) {
+        console.error("Erro ao vincular senha:", error);
+        if (error.code === 'auth/email-already-in-use') {
+            exibirPopup("Conta já existe", "Este e-mail já possui uma senha cadastrada. Tente fazer login.");
+        } else {
+            exibirPopup("Erro", "Não foi possível criar a senha: " + error.message);
+        }
+    }
+};
