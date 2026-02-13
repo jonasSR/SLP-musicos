@@ -247,20 +247,18 @@ def check_user_type():
 # ======================================================
 @app.route('/login')
 def login_page():
-    # Detecta se veio do Stripe (página de vendas ou link fixo)
     veio_da_venda = request.args.get('pago') == 'true'
     email_logado = session.get('user_email')
-    email_url = request.args.get('email', '')  # ✅ Pegando o email da URL
     
-    # 🚀 FLUXO SISTEMA: Se já está logado e pagou, pula o login e vai pro Dash
-    if veio_da_venda and email_logado:
+    # Se veio do Stripe e o usuário já está logado, vai direto pro dashboard
+    if request.args.get('confirmacao_venda') == 'true' and email_logado:
         return redirect(url_for('dashboard', sucesso_pagamento='true'))
 
-    # 🟢 FLUXO PÁGINA DE VENDA: Se pagou mas não está logado, fica aqui para criar conta
-    if veio_da_venda:
-        session['mostrar_boas_vindas'] = True
+    # Passa o e-mail da URL para a modal
+    email_pagamento = request.args.get('email', '')
 
-    mostrar_modal = session.pop('mostrar_boas_vindas', False)
+    # Decide se a modal de boas-vindas deve aparecer
+    mostrar_modal = email_pagamento != ''
 
     config = {
         "apiKey": os.getenv("FIREBASE_API_KEY"),
@@ -275,8 +273,9 @@ def login_page():
         'login.html',
         firebase_config=config,
         confirmacao_venda=mostrar_modal,
-        email_pagamento=email_url  # ✅ Passando email para modal
+        email_pagamento=email_pagamento
     )
+
 
 
 
@@ -413,15 +412,15 @@ from urllib.parse import quote
 def checkout():
     email_usuario = session.get('user_email')
     dominio_producao = "https://slp-musicos-1.onrender.com"
-    
-    # Mandamos para o /login?pago=true. 
-    # Se o cara estiver logado (nosso caso aqui), a rota /login joga ele pro Dash.
+
+    # Codifica o e-mail para garantir que a URL funcione
+    email_codificado = quote(email_usuario)
+
     link_stripe = (
         f"https://buy.stripe.com/test_5kQ8wO90m6yWbRl0I5gIo00"
-        f"?prefilled_email={quote(email_usuario)}"
-        f"&success_url={dominio_producao}/login?confirmacao_venda=true&email={quote(email_usuario)}"
+        f"?prefilled_email={email_codificado}"
+        f"&success_url={dominio_producao}/login?confirmacao_venda=true&email={email_codificado}"
     )
-    
     return redirect(link_stripe)
 
 

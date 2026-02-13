@@ -430,6 +430,7 @@ document.getElementById('btn-retomar-sim').onclick = () => {
 
 
 // --- LÓGICA DE PÓS-VENDA (MODAL DE SENHA) ---
+// --- LÓGICA DE PÓS-VENDA (MODAL DE SENHA) ---
 document.addEventListener("DOMContentLoaded", () => {
     const inputOculto = document.getElementById('email-venda');
     const displayTexto = document.getElementById('display-email-venda');
@@ -452,6 +453,7 @@ document.addEventListener("DOMContentLoaded", () => {
         console.error("❌ E-mail não encontrado na modal!");
     }
 });
+
 
 // Exporta a função para o objeto window para que o HTML consiga vê-la
 window.vincularSenhaAoPagamento = async function() {
