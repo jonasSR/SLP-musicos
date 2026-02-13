@@ -55,7 +55,6 @@ def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
-
 # ======================================================
 # 🔐 DECORATOR DE PROTEÇÃO (SEM MUDAR LÓGICA)
 # ======================================================
@@ -117,25 +116,18 @@ def index():
     destaques = [m for m in musicos if m.get('qtd_fb', 0) > 0]
     destaques = sorted(destaques, key=lambda x: x['qtd_fb'], reverse=True)[:3]
 
-    # --- NOVAS ATUALIZAÇÕES PARA ARTISTAS LOCAIS ---
-    
-    # 4. Captura a cidade selecionada no filtro
     cidade_selecionada = request.args.get('cidade')
     
-    # 5. Gera lista de cidades únicas para o componente de filtro (Dropdown)
-    # Filtra apenas músicos que têm o campo 'cidade' preenchido
-    # m.get('cidade') busca o valor dentro de cada documento no banco
     cidades_disponiveis = sorted(list(set([
         str(m.get('cidade')).strip() 
         for m in musicos 
         if m.get('cidade')
     ])))
     
-    # 6. Filtra os artistas para a seção local
+
     if cidade_selecionada:
         artistas_locais = [m for m in musicos if str(m.get('cidade')).strip().lower() == cidade_selecionada.strip().lower()]
     else:
-        # Se nenhuma cidade for selecionada, mostramos os 4 músicos mais recentes (ou os primeiros da lista)
         artistas_locais = musicos[:4]
 
     return render_template(
@@ -316,15 +308,14 @@ def dashboard():
     # 🛑 REGRA 1: Se ainda não escolheu o tipo
     if not tipo_usuario:
         return render_template('dashboard.html', pedidos=[], musico=None, agenda=[], feedbacks=[], notificacoes_fas=0, total_cliques=0, media_estrelas=0, bloqueado=False)
-
+    
     # 🛑 REGRA 2: LÓGICA DE ACESSO PARA MÚSICO
     if tipo_usuario == 'musico':
-        # ✅ LIBERADO: Se o banco confirma o pago OU se ele acabou de vir do checkout (sucesso_pagamento)
-        if pagou or veio_do_checkout_interno:
+        # Só libera se acesso_pago for True OU se acabou de voltar com o token de sucesso
+        if pagou == True or veio_do_checkout_interno == True:
             bloqueado = False
         else:
-            # ❌ Caso contrário, manda para o checkout
-            return redirect(url_for('checkout'))
+            return redirect(url_for('checkout')) # Força a ida para o pagamento
             
     # 🟢 SE FOR ESTABELECIMENTO
     if tipo_usuario == 'estabelecimento':
@@ -448,7 +439,6 @@ def webhook_stripe():
                 'status_financeiro': 'pago',
                 'data_pagamento': firestore.SERVER_TIMESTAMP
             })
-            print(f"✅ SUCESSO: Cadastro existente de {email_cliente} atualizado para PAGO.")
         else:
             # USUÁRIO NÃO EXISTE (Vindo da página de vendas): Cria o documento prévio
             db.collection('usuarios').document(email_cliente).set({
@@ -459,7 +449,6 @@ def webhook_stripe():
                 'data_pagamento': firestore.SERVER_TIMESTAMP,
                 'criado_via': 'pagina_vendas'
             })
-            print(f"✨ NOVO: Usuário {email_cliente} pagou na LP e teve documento criado.")
 
     # 2. ❌ PAGAMENTO FALHOU / EXPIROU
     elif tipo_evento in ['checkout.session.async_payment_failed', 'checkout.session.expired']:
@@ -505,7 +494,6 @@ def login_google():
         return jsonify({"status": "success"}), 200
         
     except Exception as e:
-        print(f"Erro na validação Google: {e}")
         return jsonify({"status": "error", "message": "Token inválido"}), 401
 
 
@@ -533,7 +521,6 @@ def aprovar_feedback(id):
         
         return redirect('/dashboard')
     except Exception as e:
-        print(f"Erro ao aprovar: {e}")
         return redirect('/dashboard')
 
 
@@ -545,7 +532,6 @@ def remover_feedback(id):
         
         return redirect('/dashboard')
     except Exception as e:
-        print(f"Erro ao remover: {e}")
         return redirect('/dashboard')
 
 
@@ -714,7 +700,6 @@ def reservar():
         })
 
     except Exception as e:
-        print(f"Erro ao processar reserva: {e}")
         return jsonify({"status": "error", "message": "Erro interno no servidor"}), 500
     
 
@@ -836,37 +821,9 @@ def excluir_pedidos():
         return jsonify({'status': 'success', 'message': 'Excluído com sucesso'})
 
     except Exception as e:
-        print(f"Erro ao excluir: {e}")
         return jsonify({'status': 'error', 'message': str(e)}), 500
 
 
-
-@app.route('/api/artistas_vitrine')
-def api_artistas_vitrine():
-    try:
-        # Pega 4 artistas aleatórios ou os últimos
-        musicos_ref = db.collection('artistas').limit(4).stream()
-        musicos = []
-
-        for doc in musicos_ref:
-            dados = doc.to_dict()
-            foto = dados.get('foto', '')
-            
-            # Se a foto for um caminho interno, coloca o domínio completo
-            if foto and foto.startswith('/static'):
-                foto = f"https://slp-musicos-3.onrender.com{foto}"
-
-            musicos.append({
-                'id': doc.id,
-                'nome': dados.get('nome'),
-                'estilo': dados.get('estilo'),
-                'foto': foto
-            })
-
-        return jsonify(musicos)
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500        
-    
 
 # 1. ROTA PARA EXIBIR O FORMULÁRIO DE CADASTRO
 @app.route('/cadastro-estabelecimento')
@@ -875,7 +832,7 @@ def abrir_pagina_estabelecimento():
     return render_template('cadastro_estabelecimento.html')
 
 
-# 2. ROTA QUE PROCESSA O CADASTRO (API)
+
 # 2. ROTA QUE PROCESSA O CADASTRO (API)
 @app.route('/api_cadastrar_estabelecimento', methods=['POST'])
 @login_required
@@ -983,55 +940,8 @@ def lista_artistas():
         # Retorna lista_musico.html com os dados encontrados
         return render_template(f'lista_{tipo_limpo}.html', musicos=lista, categoria=tipo_original)
     except Exception as e:
-        print(f"Erro ao carregar template: {e}")
         return f"Erro: Arquivo lista_{tipo_limpo}.html não encontrado", 404
     
-    
-@app.route('/api_deletar_dados_usuario', methods=['POST'])
-def api_deletar_dados_usuario():
-    try:
-        data = request.get_json()
-        email = data.get('email')
-        
-        if not email:
-            return jsonify({"status": "error", "message": "E-mail não fornecido"}), 400
-
-        # 1. Deleta da coleção 'usuarios' (onde você viu na imagem)
-        users_ref = db.collection('usuarios').document(email)
-        for doc in users_ref:
-            doc.reference.delete()
-
-        # 2. Deleta da coleção 'artistas' (caso tenha começado algo)
-        artistas_ref = db.collection('artistas').where('dono_email', '==', email).stream()
-        for doc in artistas_ref:
-            doc.reference.delete()
-
-        # 3. Deleta da coleção 'estabelecimentos' (caso seja o caso)
-        db.collection('estabelecimentos').document(email).delete()
-
-        return jsonify({"status": "success"}), 200
-    except Exception as e:
-        print(f"Erro ao deletar dados do Firestore: {e}")
-        return jsonify({"status": "error", "message": str(e)}), 500
-
-
-@app.route('/api_deletar_dados_usuario', methods=['POST'])
-def api_excluir_conta_definitiva(): # <--- Mudei o nome da função aqui
-    try:
-        data = request.get_json()
-        email = data.get('email')
-        db.collection('estabelecimentos').document(email).delete()
-        
-        user_query = db.collection('usuarios').document(email)
-
-        for doc in user_query:
-            doc.reference.delete()
-
-        return jsonify({"status": "success"}), 200
-    except Exception as e:
-        return jsonify({"status": "error", "message": str(e)}), 500
-
-
 
 # ======================================================
 # 🔎 PORTA LATERAL: VISUALIZADOR DE MEMBROS

@@ -14,27 +14,28 @@
 </head>
 
 <body class="login-page-root">
-    {% if confirmacao_venda %}
-    <div id="modal-boas-vindas" class="modal-overlay" style="display:flex;">
-        <div class="modal-content glass-card">
-            <h3 style="color:#00ffcc;">Bem-vindo à Pulsa Music Conect!</h3>
+{% if confirmacao_venda %}
+<div id="modal-boas-vindas" class="modal-overlay" style="display:flex;">
+    <div class="modal-content glass-card">
+        <h3 style="color:#00ffcc;">Bem-vindo à Pulsa Music Conect!</h3>
+        <p style="margin-top:15px;">Sua assinatura foi confirmada com sucesso 🚀</p>
+        
+        <p style="font-size:0.9rem; color:#ccc; margin-top:15px;">
+            Defina uma senha para acessar seu painel:
+        </p>
 
-            <p style="margin-top:15px;">
-                Sua assinatura foi confirmada com sucesso 🚀
-            </p>
-
-            <p style="font-size:0.9rem; color:#ccc; margin-top:10px;">
-                Para finalizar seu cadastro e acessar o painel, utilize
-                <strong>o mesmo e-mail usado no pagamento e clique em CRIAR CONTA</strong>.
-            </p>
-
-            <button class="log-btn-main"
-                onclick="document.getElementById('modal-boas-vindas').style.display='none'">
-                ENTENDI, VAMOS COMEÇAR
-            </button>
+        <input type="hidden" id="email-venda" value="">
+        
+        <div class="input-group" style="margin-top:15px;">
+            <input type="password" id="nova-senha" placeholder="Crie sua senha" class="log-input">
         </div>
+
+        <button class="log-btn-main" style="margin-top:20px;" onclick="vincularSenhaAoPagamento()">
+            FINALIZAR E ENTRAR
+        </button>
     </div>
-    {% endif %}
+</div>
+{% endif %}
 
     <div class="log-bg-mesh"></div>
 
@@ -111,7 +112,7 @@
             <p>Vimos que você parou seu cadastro como: <br>
             <strong id="tipo-pendente" style="color: #fff; font-size: 1.2em;"></strong>
             </p>
-            <p style="font-size: 0.9em; color: #ccc;">Deseja continuar de onde parou?</p>
+            <p style="font-size: 0.9em; color: #ccc;">Deseja continuar?</p>
             
             <div class="opcoes-perfil">
                 <button type="button" class="btn-perfil" id="btn-retomar-sim" style="background: #00ff88; color: #000;">
@@ -119,7 +120,7 @@
                 </button>
                 
                 <button type="button" class="btn-perfil btn-perfil-cancelar" id="btn-retomar-nao">
-                    ❌ EXCLUIR E RECOMEÇAR
+                    SAIR E CONTINUAR DEPOIS
                 </button>
             </div>
         </div>
@@ -127,6 +128,55 @@
 
     
     <script>
+        document.addEventListener("DOMContentLoaded", () => {
+    // 1. Pega o e-mail que veio na URL (ex: ?email=...)
+    const params = new URLSearchParams(window.location.search);
+    const emailPagante = params.get('email');
+
+    if (emailPagante) {
+        document.getElementById('email-venda').value = emailPagante;
+    }
+});
+
+async function vincularSenhaAoPagamento() {
+    const email = document.getElementById('email-venda').value;
+    const senha = document.getElementById('nova-senha').value;
+
+    if (!senha || senha.length < 6) {
+        exibirPopup("Atenção", "A senha deve ter no mínimo 6 caracteres.");
+        return;
+    }
+
+    if (!email) {
+        exibirPopup("Erro", "E-mail não identificado. Por favor, use o cadastro comum.");
+        return;
+    }
+
+    try {
+        // 1. Cria o acesso no Firebase Authentication (O que estava faltando)
+        await createUserWithEmailAndPassword(auth, email, senha);
+
+        // 2. Atualiza o documento que JÁ EXISTE no Firestore (para garantir o tipo e status)
+        await setDoc(doc(db, "usuarios", email), {
+            acesso_pago: true,
+            status: 'completo' // Ou a lógica que você usa para liberar o painel
+        }, { merge: true });
+
+        exibirPopup("Sucesso!", "Senha cadastrada com sucesso!");
+
+        // 3. Inicia sessão e manda pro Dashboard
+        await iniciarSessao(email);
+        window.location.href = "/dashboard";
+
+    } catch (error) {
+        console.error(error);
+        if (error.code === 'auth/email-already-in-use') {
+            exibirPopup("Atenção", "Este e-mail já possui senha. Tente fazer login.");
+        } else {
+            exibirPopup("Erro", "Não foi possível criar sua senha.");
+        }
+    }
+}
         // Colocamos aspas para o editor achar que é uma String comum
         // O | safe garante que o Flask não quebre os caracteres
         const configData = '{{ firebase_config | tojson | safe }}';

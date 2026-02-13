@@ -44,7 +44,6 @@ const passwordInput = document.getElementById("password");
 // 🌐 GOOGLE
 const provider = new GoogleAuthProvider();
 provider.setCustomParameters({ prompt: 'select_account' });
-
 window.loginComGoogle = async function() {
     try {
         const result = await signInWithPopup(auth, provider);
@@ -66,6 +65,7 @@ window.loginComGoogle = async function() {
         }
     }
 }
+
 
 // --- FUNÇÕES AUXILIARES ---
 function traduzirErroFirebase(error) {
@@ -182,13 +182,11 @@ if (formLogin) {
 
 
 // 🆕 CADASTRO (UNIFICADO)
-// 1. Variáveis temporárias (não salvam no banco ainda)
 let dadosTemporarios = { email: "", senha: "" };
 
-
-// 2. O BOTÃO "CRIAR CONTA" (O primeiro que o usuário vê)
 if (btnSignup) {
-    btnSignup.addEventListener("click", (e) => {
+    // Mudamos para ASYNC para poder esperar a resposta do Firebase antes de abrir a modal
+    btnSignup.addEventListener("click", async (e) => {
         const email = emailInput.value.trim();
         const password = passwordInput.value;
 
@@ -197,59 +195,74 @@ if (btnSignup) {
             return; 
         }
 
-        // APENAS GUARDA OS DADOS E ABRE A MODAL
-        dadosTemporarios.email = email;
-        dadosTemporarios.senha = password;
+        try {
+            // 🔥 TRAVA AQUI: Tenta criar a conta ANTES de abrir a modal
+            // Se o e-mail já existir, o Firebase vai dar erro e pular direto para o 'catch'
+            await createUserWithEmailAndPassword(auth, email, password);
 
-        const modalEscolha = document.getElementById('modal-escolha-perfil');
-        if (modalEscolha) {
-            modalEscolha.style.display = "flex";
+            // Se chegou aqui, a conta é NOVA e foi criada. Agora guardamos e abrimos a modal.
+            dadosTemporarios.email = email;
+            dadosTemporarios.senha = password;
+
+            const modalEscolha = document.getElementById('modal-escolha-perfil');
+            if (modalEscolha) {
+                modalEscolha.style.display = "flex";
+            }
+        } catch (error) {
+            console.error("Erro na verificação inicial:", error.code);
+            
+            // Se o e-mail já existe, ele barra aqui e a modal nem chega a abrir
+            if (error.code === 'auth/email-already-in-use') {
+                exibirPopup("Erro", "Este e-mail já está cadastrado.");
+            } else {
+                exibirPopup("Erro", "Erro ao validar cadastro: " + error.message);
+            }
         }
     });
 }
 
-// 3. OS BOTÕES DENTRO DA MODAL
-document.addEventListener("DOMContentLoaded", () => {
 
+document.addEventListener("DOMContentLoaded", () => {
     const btnMusico = document.getElementById('btn-escolha-musico');
     const btnEmpresa = document.getElementById('btn-escolha-empresa');
 
     async function executarCadastroFinal(tipoPerfil) {
         try {
-            // 1. Tenta criar ou apenas segue se já existir
-            try {
-                await createUserWithEmailAndPassword(auth, dadosTemporarios.email, dadosTemporarios.senha);
-            } catch (authError) {
-                if (authError.code !== 'auth/email-already-in-use') throw authError;
-            }
+            // 1. O usuário JÁ FOI CRIADO no clique do btnSignup.
+            // Aqui apenas salvamos as preferências no Firestore.
 
-            // 2. SALVA NO FIRESTORE (Crucial: use await aqui)
+            // 2. Salva os dados no Firestore
             await setDoc(doc(db, "usuarios", dadosTemporarios.email), {
                 email: dadosTemporarios.email,
                 tipo: tipoPerfil,
+                acesso_pago: false,
+                criado_via: 'sistema', // Adicionado conforme solicitado
                 data_cadastro: serverTimestamp()
             }, { merge: true });
 
-            console.log("Dados salvos. Iniciando sessão...");
+            console.log("Dados salvos. Iniciando sessão no servidor...");
 
-            // 3. LOGA O USUÁRIO NO SISTEMA (Para o @login_required do Python funcionar)
-            // Você precisa chamar sua função de login/sessão aqui antes do redirect
+            // 3. Cria a sessão no Flask
             await iniciarSessao(dadosTemporarios.email); 
 
-            // 4. REDIRECIONAMENTO ÚNICO
-            // Manda para o dashboard. O Python vai ler que é 'musico' e 'pagou=False' 
-            // e vai te dar o redirect(url_for('checkout')) automaticamente.
-            window.location.href = "/dashboard";
+            // 4. REDIRECIONAMENTO
+            if (tipoPerfil === 'musico') {
+                window.location.href = "/checkout";
+            } else {
+                window.location.href = "/dashboard";
+            }
 
         } catch (error) {
-            console.error("Erro detalhado:", error);
-            // Evita exibir 'undefined' se o erro não tiver mensagem
-            const msg = error.message || "Erro ao processar cadastro";
+            console.error("Erro detalhado no salvamento:", error);
+            // Se der erro aqui, fechamos a modal para o usuário ver o erro
+            const modalEscolha = document.getElementById('modal-escolha-perfil');
+            if (modalEscolha) modalEscolha.style.display = "none";
+            
+            const msg = error.message || "Erro ao processar perfil";
             exibirPopup("Erro", msg);
         }
     }
 
-    // Vincula os cliques dos botões
     if (btnMusico) {
         btnMusico.onclick = () => executarCadastroFinal('musico');
     }
@@ -258,11 +271,8 @@ document.addEventListener("DOMContentLoaded", () => {
         btnEmpresa.onclick = () => executarCadastroFinal('estabelecimento');
     }
 
-    // EXPOSTO GLOBALMENTE: Isso garante que o navegador encontre a função se chamada de fora
     window.executarCadastroFinal = executarCadastroFinal;
 });
-
-
 
 
 // 👁️ MOSTRAR / ESCONDER SENHA
@@ -393,52 +403,27 @@ document.getElementById('btn-retomar-sim').onclick = () => {
 };
 
 
-// 🎯 AÇÃO: NÃO (EXCLUIR TUDO)
+// 🎯 AÇÃO: NÃO (APENAS SAIR E SALVAR PROGRESSO)
 document.getElementById('btn-retomar-nao').onclick = async () => {
-    const user = auth.currentUser;
-    // Pega o e-mail do objeto pendente ou do usuário logado
-    const emailExcluir = perfilPendente.email || (user ? user.email : null);
-    
+    // 1. Fecha a modal
     document.getElementById('modal-retomar-cadastro').style.display = "none";
 
-    if (!emailExcluir) {
-        exibirPopup("Erro", "Não foi possível identificar o e-mail para exclusão.");
-        return;
-    }
+    // 2. Avisa que os dados estão salvos
+    exibirPopup("Até breve!", "Seu progresso foi salvo. Você pode continuar quando quiser, basta fazer login novamente.");
 
     try {
-        // 1. Chamar o Python para deletar os documentos no Firestore
-        const response = await fetch('/api_deletar_dados_usuario', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email: emailExcluir })
-        });
+        // 3. Desloga do Firebase
+        await auth.signOut();
 
-        if (!response.ok) throw new Error("Erro ao deletar documentos no servidor");
-
-        // 2. Limpar a sessão do Flask
+        // 4. Limpa a sessão no Flask
         await fetch('/logout'); 
 
-        // 3. Deletar o usuário do Firebase Authentication
-        if (user) {
-            await user.delete();
-        }
-
-        exibirPopup("Conta Excluída", "Seus dados e sua conta foram apagados com sucesso.");
-        
-        // Pequeno delay para o usuário ler a mensagem e recarregar a página limpa
-        setTimeout(() => { window.location.href = "/"; }, 3000);
+        // 5. Manda para a home
+        setTimeout(() => { window.location.href = "/"; }, 2500);
 
     } catch (error) {
-        console.error("Erro no processo de exclusão:", error);
-        
-        // O Firebase Auth exige login recente para deletar conta por segurança
-        if (error.code === 'auth/requires-recent-login') {
-            exibirPopup("Ação Necessária", "Por segurança, faça login novamente para confirmar a exclusão.");
-            auth.signOut();
-            setTimeout(() => { window.location.reload(); }, 3500);
-        } else {
-            exibirPopup("Erro na Exclusão", "Houve um problema. Tente novamente em instantes.");
-        }
+        console.error("Erro ao sair:", error);
+        window.location.href = "/";
     }
 };
+
