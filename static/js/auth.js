@@ -343,32 +343,6 @@ async function verificarStatusCadastro(email) {
 }
 
 
-// 🎯 AÇÃO: NÃO (APENAS SAIR E SALVAR PROGRESSO)
-document.getElementById('btn-retomar-nao').onclick = async () => {
-    // 1. Fecha a modal
-    document.getElementById('modal-retomar-cadastro').style.display = "none";
-
-    // 2. Avisa que os dados estão salvos
-    exibirPopup("Até breve!", "Seu progresso foi salvo. Você pode continuar quando quiser, basta fazer login novamente.");
-
-    try {
-        // 3. Desloga do Firebase
-        await auth.signOut();
-
-        // 4. Limpa a sessão no Flask
-        await fetch('/logout'); 
-
-        // 5. Manda para a home
-        setTimeout(() => { window.location.href = "/"; }, 2500);
-
-    } catch (error) {
-        console.error("Erro ao sair:", error);
-        window.location.href = "/";
-    }
-};
-
-
-
 // 🎯 INTERCEPTAR O CLIQUE NO BOTÃO "PAINEL" (Menu Superior)
 document.addEventListener('click', function(e) {
     if (e.target.id === 'btn-menu-painel' || e.target.innerText === 'Painel') {
@@ -429,70 +403,26 @@ document.getElementById('btn-retomar-sim').onclick = () => {
 };
 
 
-// --- LÓGICA DE PÓS-VENDA (MODAL DE SENHA) ---
-// --- LÓGICA DE PÓS-VENDA (MODAL DE SENHA) ---
-document.addEventListener("DOMContentLoaded", () => {
-    const inputOculto = document.getElementById('email-venda');
-    const displayTexto = document.getElementById('display-email-venda');
+// 🎯 AÇÃO: NÃO (APENAS SAIR E SALVAR PROGRESSO)
+document.getElementById('btn-retomar-nao').onclick = async () => {
+    // 1. Fecha a modal
+    document.getElementById('modal-retomar-cadastro').style.display = "none";
 
-    // Primeiro tenta pegar do input oculto (Flask)
-    let email = inputOculto ? inputOculto.value : "";
-
-    // Se não tiver, pega da URL
-    if (!email) {
-        const params = new URLSearchParams(window.location.search);
-        email = params.get('email');
-    }
-
-    // Preenche modal e input
-    if (email) {
-        if (inputOculto) inputOculto.value = email;
-        if (displayTexto) displayTexto.innerText = email;
-        console.log("✅ E-mail preenchido na modal:", email);
-    } else {
-        console.error("❌ E-mail não encontrado na modal!");
-    }
-});
-
-
-// Exporta a função para o objeto window para que o HTML consiga vê-la
-window.vincularSenhaAoPagamento = async function() {
-    console.log("🚀 Iniciando vínculo de senha...");
-    
-    const email = document.getElementById('email-venda').value;
-    const senha = document.getElementById('nova-senha').value;
-
-    if (!senha || senha.length < 6) {
-        alert("A senha deve ter no mínimo 6 caracteres.");
-        return;
-    }
-
-    if (!email) {
-        alert("Erro: E-mail não identificado.");
-        return;
-    }
+    // 2. Avisa que os dados estão salvos
+    exibirPopup("Até breve!", "Seu progresso foi salvo. Você pode continuar quando quiser, basta fazer login novamente.");
 
     try {
-        // 1. Cria o usuário no Firebase Auth
-        const userCredential = await createUserWithEmailAndPassword(auth, email, senha);
-        console.log("✅ Usuário criado no Auth");
+        // 3. Desloga do Firebase
+        await auth.signOut();
 
-        // 2. Atualiza o Firestore (Merge para não sobrescrever dados do webhook)
-        await setDoc(doc(db, "usuarios", email), {
-            acesso_pago: true,
-            status_cadastro: 'completo'
-        }, { merge: true });
-        console.log("✅ Firestore atualizado");
+        // 4. Limpa a sessão no Flask
+        await fetch('/logout'); 
 
-        // 3. Cria a sessão no Flask
-        await iniciarSessao(email);
-
-        // 4. Redireciona para o Dashboard
-        console.log("➡️ Redirecionando...");
-        window.location.href = "/dashboard?sucesso_pagamento=true";
+        // 5. Manda para a home
+        setTimeout(() => { window.location.href = "/"; }, 2500);
 
     } catch (error) {
-        console.error("❌ Erro no processo:", error);
-        alert("Erro: " + error.message);
+        console.error("Erro ao sair:", error);
+        window.location.href = "/";
     }
 };
