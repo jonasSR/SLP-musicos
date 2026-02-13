@@ -457,33 +457,44 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 });
 
+// Exporta a função para o objeto window para que o HTML consiga vê-la
 window.vincularSenhaAoPagamento = async function() {
-    const email = document.getElementById('email-venda').value; // Pegando do input hidden
+    console.log("🚀 Iniciando vínculo de senha...");
+    
+    const email = document.getElementById('email-venda').value;
     const senha = document.getElementById('nova-senha').value;
 
     if (!senha || senha.length < 6) {
-        exibirPopup("Atenção", "A senha deve ter no mínimo 6 caracteres.");
+        alert("A senha deve ter no mínimo 6 caracteres.");
+        return;
+    }
+
+    if (!email) {
+        alert("Erro: E-mail não identificado.");
         return;
     }
 
     try {
-        // 1. Cria no Auth
-        await createUserWithEmailAndPassword(auth, email, senha);
+        // 1. Cria o usuário no Firebase Auth
+        const userCredential = await createUserWithEmailAndPassword(auth, email, senha);
+        console.log("✅ Usuário criado no Auth");
 
-        // 2. Salva no Firestore (Merge para não apagar o que o webhook fez)
+        // 2. Atualiza o Firestore (Merge para não sobrescrever dados do webhook)
         await setDoc(doc(db, "usuarios", email), {
             acesso_pago: true,
-            status_cadastro: 'completo' 
+            status_cadastro: 'completo'
         }, { merge: true });
+        console.log("✅ Firestore atualizado");
 
         // 3. Cria a sessão no Flask
         await iniciarSessao(email);
-        
-        // 4. Redireciona
+
+        // 4. Redireciona para o Dashboard
+        console.log("➡️ Redirecionando...");
         window.location.href = "/dashboard?sucesso_pagamento=true";
 
     } catch (error) {
-        console.error(error);
-        exibirPopup("Erro", "Falha ao criar acesso: " + error.message);
+        console.error("❌ Erro no processo:", error);
+        alert("Erro: " + error.message);
     }
 };
