@@ -243,29 +243,25 @@ def check_user_type():
 
 
 # ======================================================
-# 🔐 AUTENTICAÇÃO
+# 🔐 AUTENTICAÇÃOdef login_page():
 # ======================================================
 @app.route('/login')
 def login_page():
-    # 1. CAPTURA O EMAIL E O STATUS DA URL (Vindo do Stripe)
-    email_url = request.args.get('email', '') # <-- AQUI ESTÁ O QUE FALTAVA
+    # Detecta se veio do Stripe (página de vendas ou link fixo)
     veio_da_venda = request.args.get('pago') == 'true'
     email_logado = session.get('user_email')
+    email_url = request.args.get('email', '') 
+    
 
     # 🚀 FLUXO SISTEMA: Se já está logado e pagou, pula o login e vai pro Dash
     if veio_da_venda and email_logado:
         return redirect(url_for('dashboard', sucesso_pagamento='true'))
 
-    # 🟢 FLUXO PÁGINA DE VENDA: Se pagou mas não está logado
+    # 🟢 FLUXO PÁGINA DE VENDA: Se pagou mas não está logado, fica aqui para criar conta
     if veio_da_venda:
         session['mostrar_boas_vindas'] = True
-        # Se o email veio na URL, salva na sessão pra garantir
-        if email_url:
-            session['email_pagamento'] = email_url
 
     mostrar_modal = session.pop('mostrar_boas_vindas', False)
-    # Puxa o email da sessão ou da URL
-    email_final = email_url if email_url else session.pop('email_pagamento', '')
 
     config = {
         "apiKey": os.getenv("FIREBASE_API_KEY"),
@@ -280,7 +276,8 @@ def login_page():
         'login.html',
         firebase_config=config,
         confirmacao_venda=mostrar_modal,
-        email_pagamento=email_final  # <-- ENVIA O EMAIL PARA O HTML
+        email_pagamento=email_url
+        
     )
 
 
