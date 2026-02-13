@@ -428,7 +428,6 @@ document.getElementById('btn-retomar-nao').onclick = async () => {
 };
 
 // --- LÓGICA DE PÓS-VENDA (MODAL DE SENHA) ---
-
 document.addEventListener("DOMContentLoaded", () => {
     const params = new URLSearchParams(window.location.search);
     const emailPagante = params.get('email');
@@ -444,9 +443,8 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 });
 
-// Tornamos a função GLOBAL para o 'onclick' do HTML conseguir enxergar
 window.vincularSenhaAoPagamento = async function() {
-    const email = document.getElementById('email-venda').value;
+    const email = document.getElementById('email-venda').value; // Pegando do input hidden
     const senha = document.getElementById('nova-senha').value;
 
     if (!senha || senha.length < 6) {
@@ -454,36 +452,24 @@ window.vincularSenhaAoPagamento = async function() {
         return;
     }
 
-    if (!email) {
-        exibirPopup("Erro", "E-mail não identificado. Use o cadastro comum.");
-        return;
-    }
-
     try {
-        // 1. Cria o acesso no Firebase Auth (O que faltava)
+        // 1. Cria no Auth
         await createUserWithEmailAndPassword(auth, email, senha);
 
-        // 2. Atualiza o documento no Firestore (Garante que o acesso_pago seja true)
+        // 2. Salva no Firestore (Merge para não apagar o que o webhook fez)
         await setDoc(doc(db, "usuarios", email), {
             acesso_pago: true,
-            status: 'completo' 
+            status_cadastro: 'completo' 
         }, { merge: true });
 
-        exibirPopup("Sucesso!", "Sua senha foi criada!");
-
-        // 3. Inicia sessão no Flask e vai para o Dashboard
+        // 3. Cria a sessão no Flask
         await iniciarSessao(email);
         
-        setTimeout(() => {
-            window.location.href = "/dashboard";
-        }, 1500);
+        // 4. Redireciona
+        window.location.href = "/dashboard?sucesso_pagamento=true";
 
     } catch (error) {
-        console.error("Erro ao vincular senha:", error);
-        if (error.code === 'auth/email-already-in-use') {
-            exibirPopup("Conta já existe", "Este e-mail já possui uma senha cadastrada. Tente fazer login.");
-        } else {
-            exibirPopup("Erro", "Não foi possível criar a senha: " + error.message);
-        }
+        console.error(error);
+        exibirPopup("Erro", "Falha ao criar acesso: " + error.message);
     }
 };

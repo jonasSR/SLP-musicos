@@ -404,7 +404,7 @@ def checkout():
     link_stripe = (
         f"https://buy.stripe.com/test_5kQ8wO90m6yWbRl0I5gIo00"
         f"?prefilled_email={email_usuario}"
-        f"&success_url={dominio_producao}/login?pago=true"
+        f"&success_url={dominio_producao}/login?confirmacao_venda=true&email={email_usuario}"
     )
     
     return redirect(link_stripe)
