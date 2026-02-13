@@ -19,16 +19,20 @@
     <div class="clean-card-style">
         <h3>BEM-VINDO À PULSA MUSIC CONECT!</h3>
         <p class="status-msg">Sua assinatura foi confirmada com sucesso 🚀</p>
-        
+
+        <!-- E-mail do usuário -->
         <div class="email-info-box">
             <span class="label">E-MAIL DA CONTA</span>
-            <strong id="display-email-venda">{{ email_pagamento if email_pagamento else 'E-mail não detectado' }}</strong>
+            <strong id="display-email-venda">
+                {{ email_pagamento if email_pagamento else 'E-mail não detectado' }}
+            </strong>
         </div>
 
         <p class="instruction-text">Defina uma senha para acessar seu painel:</p>
 
+        <!-- Input oculto para JS pegar -->
         <input type="hidden" id="email-venda" value="{{ email_pagamento }}">
-        
+
         <div class="senha-input-container">
             <label class="senha-label">CRIE SUA SENHA (MÍN. 6 DÍGITOS)</label>
             <input type="password" id="nova-senha" class="senha-field" placeholder="Digite sua senha">

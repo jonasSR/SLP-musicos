@@ -431,18 +431,25 @@ document.getElementById('btn-retomar-sim').onclick = () => {
 
 // --- LÓGICA DE PÓS-VENDA (MODAL DE SENHA) ---
 document.addEventListener("DOMContentLoaded", () => {
-    const params = new URLSearchParams(window.location.search);
-    const emailPagante = params.get('email'); // O Python precisa enviar isso!
-
     const inputOculto = document.getElementById('email-venda');
     const displayTexto = document.getElementById('display-email-venda');
 
-    if (emailPagante) {
-        if (inputOculto) inputOculto.value = emailPagante;
-        if (displayTexto) displayTexto.innerText = emailPagante;
-        console.log("✅ E-mail capturado:", emailPagante);
+    // Primeiro tenta pegar do input oculto (Flask)
+    let email = inputOculto ? inputOculto.value : "";
+
+    // Se não tiver, pega da URL
+    if (!email) {
+        const params = new URLSearchParams(window.location.search);
+        email = params.get('email');
+    }
+
+    // Preenche modal e input
+    if (email) {
+        if (inputOculto) inputOculto.value = email;
+        if (displayTexto) displayTexto.innerText = email;
+        console.log("✅ E-mail preenchido na modal:", email);
     } else {
-        console.error("❌ E-mail não encontrado na URL. Verifique a success_url no Python.");
+        console.error("❌ E-mail não encontrado na modal!");
     }
 });
 

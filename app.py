@@ -250,9 +250,8 @@ def login_page():
     # Detecta se veio do Stripe (página de vendas ou link fixo)
     veio_da_venda = request.args.get('pago') == 'true'
     email_logado = session.get('user_email')
-    email_url = request.args.get('email', '') 
+    email_url = request.args.get('email', '')  # ✅ Pegando o email da URL
     
-
     # 🚀 FLUXO SISTEMA: Se já está logado e pagou, pula o login e vai pro Dash
     if veio_da_venda and email_logado:
         return redirect(url_for('dashboard', sucesso_pagamento='true'))
@@ -276,9 +275,9 @@ def login_page():
         'login.html',
         firebase_config=config,
         confirmacao_venda=mostrar_modal,
-        email_pagamento=email_url
-        
+        email_pagamento=email_url  # ✅ Passando email para modal
     )
+
 
 
 @app.route('/dashboard')
@@ -286,7 +285,7 @@ def login_page():
 def dashboard():
     email_logado = session.get('user_email')
     
-    # 🟢 NOVO: Detecta se o usuário está voltando do checkout (via nosso redirecionamento do login)
+    # 🟢 Detecta se o usuário está voltando do checkout (via nosso redirecionamento do login)
     veio_do_checkout_interno = request.args.get('sucesso_pagamento') == 'true'
     
     # 🔍 1. BUSCA DADOS DA CONTA DO USUÁRIO
@@ -299,7 +298,8 @@ def dashboard():
         return redirect(url_for('login'))
 
     dados_usuario = user_docs[0].to_dict()
-    tipo_usuario = dados_usuario.get('tipo')
+    # 🔹 Ajuste: garante que tipo_usuario nunca seja None
+    tipo_usuario = dados_usuario.get('tipo') or 'musico'
     pagou = dados_usuario.get('acesso_pago', False)
 
     # 🔍 2. BUSCA DADOS DO PERFIL DO ARTISTA
@@ -311,7 +311,17 @@ def dashboard():
 
     # 🛑 REGRA 1: Se ainda não escolheu o tipo
     if not tipo_usuario:
-        return render_template('dashboard.html', pedidos=[], musico=None, agenda=[], feedbacks=[], notificacoes_fas=0, total_cliques=0, media_estrelas=0, bloqueado=False)
+        return render_template(
+            'dashboard.html',
+            pedidos=[],
+            musico=None,
+            agenda=[],
+            feedbacks=[],
+            notificacoes_fas=0,
+            total_cliques=0,
+            media_estrelas=0,
+            bloqueado=False
+        )
     
     # 🛑 REGRA 2: LÓGICA DE ACESSO PARA MÚSICO
     if tipo_usuario == 'musico':
@@ -319,7 +329,7 @@ def dashboard():
         if pagou == True or veio_do_checkout_interno == True:
             bloqueado = False
         else:
-            return redirect(url_for('checkout')) # Força a ida para o pagamento
+            return redirect(url_for('checkout'))  # Força a ida para o pagamento
             
     # 🟢 SE FOR ESTABELECIMENTO
     if tipo_usuario == 'estabelecimento':
@@ -389,12 +399,13 @@ def dashboard():
         total_cliques=total_cliques,
         media_estrelas=media_estrelas,
         bloqueado=bloqueado,
-        exibir_boas_vindas_interno=veio_do_checkout_interno, # Ativa a modal no HTML
+        exibir_boas_vindas_interno=veio_do_checkout_interno,  # Ativa a modal no HTML
         data_ativacao=data_ativacao,
         data_vencimento=data_vencimento,
         dias_restantes=dias_restantes,
         pagou=pagou
     )
+
 
 
 @app.route('/checkout')
@@ -403,12 +414,15 @@ def checkout():
     email_usuario = session.get('user_email')
     dominio_producao = "https://slp-musicos-1.onrender.com"
     
-    # ADICIONADO: &email={email_usuario} para a modal conseguir ler
+    # Mandamos para o /login?pago=true. 
+    # Se o cara estiver logado (nosso caso aqui), a rota /login joga ele pro Dash.
     link_stripe = (
         f"https://buy.stripe.com/test_5kQ8wO90m6yWbRl0I5gIo00"
         f"?prefilled_email={email_usuario}"
         f"&success_url={dominio_producao}/login?confirmacao_venda=true&email={email_usuario}"
+
     )
+    
     return redirect(link_stripe)
 
 
@@ -434,22 +448,25 @@ def webhook_stripe():
     # 1. ✅ PAGAMENTO APROVADO
     if tipo_evento == 'checkout.session.completed':
         if user_docs:
+            # USUÁRIO JÁ EXISTE: Apenas atualiza
             user_ref = user_docs[0].reference
             user_ref.update({
                 'acesso_pago': True,
                 'status_financeiro': 'pago',
-                'tipo': 'musico', # GARANTE QUE NÃO FICA NONE
                 'data_pagamento': firestore.SERVER_TIMESTAMP
             })
         else:
+            # USUÁRIO NÃO EXISTE (Vindo da página de vendas): Cria o documento prévio
             db.collection('usuarios').document(email_cliente).set({
                 'email': email_cliente,
                 'acesso_pago': True,
                 'status_financeiro': 'pago',
-                'tipo': 'musico', # AQUI ESTAVA NONE, AGORA É MUSICO
+                'tipo': 'musico',  # Define já como músico para o fluxo
                 'data_pagamento': firestore.SERVER_TIMESTAMP,
                 'criado_via': 'pagina_vendas'
             })
+
+
     # 2. ❌ PAGAMENTO FALHOU / EXPIROU
     elif tipo_evento in ['checkout.session.async_payment_failed', 'checkout.session.expired']:
         if user_docs:
