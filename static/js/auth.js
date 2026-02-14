@@ -256,57 +256,41 @@ async function verificarStatusCadastro(email) {
 
 
 
-
-
-
-
 // 🆕 CADASTRO (UNIFICADO)
 let dadosTemporarios = { email: "", senha: "" };
 
-// 🆕 CADASTRO (FLUXO OTIMIZADO)
 if (btnSignup) {
+    // Mudamos para ASYNC para poder esperar a resposta do Firebase antes de abrir a modal
     btnSignup.addEventListener("click", async (e) => {
         const email = emailInput.value.trim();
         const password = passwordInput.value;
-        
-        // Verifica se é um usuário vindo da venda (Stripe)
-        const params = new URLSearchParams(window.location.search);
-        const veioDaVenda = params.get('pago') === 'true';
 
         if (!email || !password) {
-            exibirPopup("Atenção", "Preencha todos os campos.");
+            exibirPopup("Atenção", "Preencha os campos antes de continuar.");
             return; 
         }
 
         try {
-            // 1. Cria a conta no Firebase Auth
+            // 🔥 TRAVA AQUI: Tenta criar a conta ANTES de abrir a modal
+            // Se o e-mail já existir, o Firebase vai dar erro e pular direto para o 'catch'
             await createUserWithEmailAndPassword(auth, email, password);
 
-            if (veioDaVenda) {
-                // CAMINHO A: Vindo do Stripe (Já é músico no banco pelo Webhook)
-                console.log("Usuário pago detectado. Vinculando sessão...");
-                
-                await iniciarSessao(email); 
-                
-                // Redireciona direto com o token de sucesso para abrir a modal de parabéns no Dash
-                window.location.href = "/dashboard?sucesso_pagamento=true";
-                
-            } else {
-                // CAMINHO B: Cadastro Orgânico (Precisa escolher quem é)
-                dadosTemporarios.email = email;
-                dadosTemporarios.senha = password;
+            // Se chegou aqui, a conta é NOVA e foi criada. Agora guardamos e abrimos a modal.
+            dadosTemporarios.email = email;
+            dadosTemporarios.senha = password;
 
-                const modalEscolha = document.getElementById('modal-escolha-perfil');
-                if (modalEscolha) {
-                    modalEscolha.style.display = "flex";
-                }
+            const modalEscolha = document.getElementById('modal-escolha-perfil');
+            if (modalEscolha) {
+                modalEscolha.style.display = "flex";
             }
         } catch (error) {
-            console.error("Erro no cadastro:", error.code);
+            console.error("Erro na verificação inicial:", error.code);
+            
+            // Se o e-mail já existe, ele barra aqui e a modal nem chega a abrir
             if (error.code === 'auth/email-already-in-use') {
-                exibirPopup("E-mail já cadastrado", "Este e-mail já possui uma conta. Tente fazer login.");
+                exibirPopup("Erro", "Este e-mail já está cadastrado.");
             } else {
-                exibirPopup("Erro", "Não conseguimos criar sua conta: " + error.message);
+                exibirPopup("Erro", "Erro ao validar cadastro: " + error.message);
             }
         }
     });
@@ -449,3 +433,33 @@ document.getElementById('btn-retomar-nao').onclick = async () => {
         window.location.href = "/";
     }
 };
+
+const btnFinalizar = document.getElementById('btn-finalizar-cadastro');
+
+if (btnFinalizar) {
+    btnFinalizar.addEventListener('click', async () => {
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+
+        if (password.length < 7) {
+            exibirPopup("Atenção", "A senha deve ter no mínimo 7 caracteres.");
+            return;
+        }
+
+        try {
+            // 1. Cria o usuário no Firebase Auth
+            await createUserWithEmailAndPassword(auth, email, password);
+
+            // 2. Avisa o servidor para criar a sessão Flask
+            await iniciarSessao(email);
+
+            // 3. Joga direto para o Dashboard com sinal de sucesso
+            // Não passa pela tela de login!
+            window.location.href = "/dashboard?sucesso_pagamento=true";
+
+        } catch (error) {
+            console.error("Erro ao finalizar:", error);
+            exibirPopup("Erro", "Não foi possível criar seu acesso: " + error.message);
+        }
+    });
+}

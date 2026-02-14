@@ -865,3 +865,10 @@ background: rgba(255, 255, 255, 0.05); /* Fundo sutil */
     background: #00ffcc;
     transform: translateY(-1px);
 }
+
+.input-readonly {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid #333;
+    color: #888;
+    cursor: not-allowed;
+}
