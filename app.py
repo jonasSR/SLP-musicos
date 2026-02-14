@@ -400,14 +400,12 @@ def checkout():
     email_usuario = session.get('user_email')
     dominio_producao = "https://slp-musicos-1.onrender.com"
     
-    # Mandamos para o /login?pago=true. 
-    # Se o cara estiver logado (nosso caso aqui), a rota /login joga ele pro Dash.
+    # Passamos o email_venda direto via Python, sem depender das chaves do Stripe
     link_stripe = (
         f"https://buy.stripe.com/test_5kQ8wO90m6yWbRl0I5gIo00"
         f"?prefilled_email={email_usuario}"
-        f"&success_url={dominio_producao}/login?pago=true"
+        f"&success_url={dominio_producao}/login?pago=true&email_venda={email_usuario}"
     )
-    
     return redirect(link_stripe)
 
 
