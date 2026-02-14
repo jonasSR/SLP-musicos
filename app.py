@@ -14,6 +14,7 @@ from firebase_admin import credentials, initialize_app
 from dotenv import load_dotenv
 load_dotenv()
 from datetime import datetime, timedelta
+from flask import jsonify
 
 
 # ======================================================
@@ -243,8 +244,6 @@ def check_user_type():
 
 
 
-from flask import jsonify
-
 @app.route('/login_session')
 def login_session():
     email = request.args.get('email')
@@ -345,13 +344,22 @@ def dashboard():
     if not tipo_usuario:
         return render_template('dashboard.html', pedidos=[], musico=None, agenda=[], feedbacks=[], notificacoes_fas=0, total_cliques=0, media_estrelas=0, bloqueado=False)
     
-    # 🛑 REGRA 2: LÓGICA DE ACESSO PARA MÚSICO
+    """# 🛑 REGRA 2: LÓGICA DE ACESSO PARA MÚSICO
     if tipo_usuario == 'musico':
         # Só libera se acesso_pago for True OU se acabou de voltar com o token de sucesso
         if pagou == True or veio_do_checkout_interno == True:
             bloqueado = False
         else:
-            return redirect(url_for('checkout')) # Força a ida para o pagamento
+            return redirect(url_for('checkout')) # Força a ida para o pagamento"""
+    
+    # 🛑 REGRA 2: LÓGICA DE ACESSO PARA MÚSICO (CORRIGIDA)
+    if tipo_usuario == 'musico':
+        # Se pagou OU se acabou de voltar do checkout, liberado.
+        if pagou == True or veio_do_checkout_interno == True:
+            bloqueado = False
+        else:
+            # EM VEZ DE REDIRECT, apenas marcamos como bloqueado para o HTML mostrar a barra
+            bloqueado = True
             
     # 🟢 SE FOR ESTABELECIMENTO
     if tipo_usuario == 'estabelecimento':

@@ -246,15 +246,18 @@ body {
 .nebula-form .input-modern input,
 .nebula-form .input-modern textarea,
 .nebula-form .input-modern select {
+    background: rgba(0, 0, 0, 0.3) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    border-radius: 10px !important;
+    padding: 12px 15px !important;
+    color: #fff !important;
+    font-size: 0.9rem;
     width: 100%;
-    background: transparent;
-    border: none;
-    border-bottom: 1px solid var(--border);
-    padding: 15px 0;
-    color: white;
-    outline: none;
-    font-family: inherit;
+    box-sizing: border-box;
+    transition: all 0.3s ease;
+    cursor: text;
 }
+
 option {
     background-color: #121212; /* Cor escura do seu site */
     color: white;
@@ -265,6 +268,7 @@ option {
     color: var(--accent);
     letter-spacing: 2px;
     margin-top: 10px;
+    margin-left: 5px;
 }
 
 .inbox-section {
@@ -349,14 +353,14 @@ option {
 }
 
 .btn-glow-action {
-    width: 70%;
-    padding: 20px;
+    width: 50%;
+    padding: 15px;
     background: #fff;
     color: #000;
     border: none;
     border-radius: 10px;
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    font-weight: 900;
+    font-weight: 800;
     cursor: pointer;
     position: relative;
     overflow: hidden;
@@ -370,7 +374,6 @@ option {
 
 .btn-glow-action:hover {
     background: var(--accent);
-    box-shadow: 0 0 30px rgba(0, 242, 255, 0.4);
 }
 
 .btn-show-add {
@@ -1208,7 +1211,6 @@ option {
         margin-top: 80px !important; /* Ajuste este valor (ex: 40px, 50px) para descer o quanto precisar */
     }
 
-    /* --- NOVAS REGRAS DE SCROLL PARA MOBILE --- */
 
     /* Define uma altura máxima baseada na altura da tela (Viewport Height) */
     .messages-list, .fan-list, .agenda-items-list {
@@ -1255,24 +1257,26 @@ option {
         padding: 30px !important; 
     }
     
-    #aba-agenda .input-modern input {
+    #aba-agenda .input-modern-agenda input {
         height: 50px !important; 
     }
 }
-
+/*###########################################################################################################################################*/
 /* ##########################################################################
-   2. ESTILIZAÇÃO DA AGENDA & CALENDÁRIO PREMIUM
+   2. GESTÃO DE AGENDA PREMIUM - MINI CARDS GRID (INPUTS ORIGINAIS)
    ########################################################################## */
+
 .agenda-manager-section {
     background: rgba(255, 255, 255, 0.02);
-    padding: 30px;
-    border-radius: 10px;
+    padding: 20px;
+    border-radius: 12px;
     border: 1px solid rgba(255, 255, 255, 0.05);
-    margin-top: 50px;
+    margin-top: 30px;
+    color-scheme: dark;
 }
 
 .section-label {
-    font-size: 0.9rem;
+    font-size: 0.8rem;
     font-weight: 700;
     color: #4facfe;
     letter-spacing: 2px;
@@ -1281,139 +1285,131 @@ option {
     display: block;
 }
 
-.glass-card {
-    background: rgba(255, 255, 255, 0.03);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 10px;
-    transition: 0.3s;
-    overflow: hidden;
+/* --- SEUS INPUTS ORIGINAIS (NÃO MEXI EM NADA AQUI) --- */
+.agenda-grid-form {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    align-items: end;
+    margin-bottom: 20px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
 
-/* --- ESTILO DOS INPUTS (CALENDÁRIO E TEXTO) --- */
-.input-modern {
-    margin-bottom: 15px;
-    position: relative;
-}
-
-.input-modern input {
-    background: rgba(0, 0, 0, 0.3) !important;
+.input-modern-agenda input {
+    background: rgba(0, 0, 0, 0.4) !important;
     border: 1px solid rgba(255, 255, 255, 0.1) !important;
-    border-radius: 10px !important;
-    padding: 12px 15px !important;
+    border-radius: 6px !important;
+    padding: 8px 12px !important;
     color: #fff !important;
-    font-size: 0.9rem;
-    width: 100%;
+    font-size: 0.8rem !important;
+    width: 100% !important;
+    height: 38px;
     box-sizing: border-box;
-    transition: all 0.3s ease;
-    cursor: text;
-}
-
-/* Efeito especial para Data e Hora */
-.input-modern input[type="date"], 
-.input-modern input[type="time"] {
-    cursor: pointer;
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    color-scheme: dark; /* Força o calendário do sistema a ser dark mode */
-}
-
-.input-modern input:focus {
-    border-color: #00f2fe !important;
-    background: rgba(0, 242, 254, 0.05) !important;
-    box-shadow: 0 0 15px rgba(0, 242, 254, 0.2);
-    outline: none;
+    color-scheme: dark !important;
 }
 
 .label-fixed {
-    font-size: 0.6rem;
+    font-size: 0.55rem;
     color: #888;
-    margin-bottom: 6px;
+    margin-bottom: 4px;
     font-weight: 700;
-    letter-spacing: 1.5px;
     text-transform: uppercase;
-    display: block;
 }
 
-/* --- RESET E CUSTOMIZAÇÃO DO CALENDÁRIO NATIVO --- */
-/* Esconde os ícones originais feios */
-input::-webkit-calendar-picker-indicator,
-input::-webkit-inner-spin-button,
-input::-webkit-clear-button {
-    display: none !important;
-    -webkit-appearance: none !important;
-}
-
-/* Torna o campo inteiro clicável para abrir o calendário */
-.input-modern input[type="date"]::-webkit-calendar-picker-indicator,
-.input-modern input[type="time"]::-webkit-calendar-picker-indicator {
-    position: absolute;
-    top: 0; left: 0; right: 0; bottom: 0;
-    width: 100%; height: 100%;
-    opacity: 0 !important;
-    cursor: pointer;
-    display: block !important;
-}
-
-/* --- BOTÕES E LISTA --- */
 .btn-agenda-add {
-    width: 100%;
-    padding: 16px;
+    height: 38px;
     background: #fff;
     color: #000;
     border: none;
-    border-radius: 10px;
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    border-radius: 6px;
     font-weight: 800;
-    font-size: 0.8rem;
+    font-size: 0.65rem;
     cursor: pointer;
-    transition: 0.4s;
-    margin-top: 10px;
-    letter-spacing: 2px;
-}
-
-.btn-agenda-add:hover {
-    background: #00f2fe;
-    box-shadow: 0 0 25px rgba(0, 242, 254, 0.4);
-    transform: translateY(-2px);
-}
-
-.agenda-items-list { margin-top: 25px; }
-
-.agenda-item-card {
-    background: rgba(255, 255, 255, 0.02);
-    border-radius: 10px;
-    padding: 18px;
-    margin-bottom: 12px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    border-left: 4px solid #4facfe;
     transition: 0.3s;
 }
 
-.agenda-item-card:hover { background: rgba(255, 255, 255, 0.05); }
+.btn-agenda-add:hover { background: #4facfe; color: #fff; }
 
-.agenda-item-info { display: flex; flex-direction: column; gap: 5px; }
-.agenda-date-place { font-weight: 700; font-size: 0.95rem; color: #fff; }
-.agenda-city { font-size: 0.75rem; color: #4facfe; font-weight: 600; text-transform: uppercase; }
+/* --- CONTAINER EM GRID --- */
+.agenda-items-list {
+    margin-top: 20px;
+    padding-right: 8px;
+    max-height: 500px; 
+    overflow-y: auto;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); 
+    gap: 15px;
+}
+
+/* CARD QUADRADO ESTILO KANBAN */
+.agenda-item-card {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-top: 4px solid #4facfe;
+    border-radius: 10px;
+    padding: 15px;
+    
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between; /* Empurra o botão para o fim do quadrado */
+    
+    /* A MÁGICA DO QUADRADO */
+    aspect-ratio: 2 / 1; 
+    
+    transition: 0.3s;
+    box-sizing: border-box;
+}
+
+.agenda-item-card:hover { 
+    background: rgba(255, 255, 255, 0.06); 
+    transform: scale(1.02);
+    border-color: rgba(79, 172, 254, 0.4);
+}
+
+/* BLOCOS INTERNOS */
+.info-block {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden; /* Garante que o texto não saia do quadrado */
+}
+
+.info-label {
+    font-size: 0.5rem;
+    color: #4facfe;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.info-value {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #fff;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis; /* Se o nome for grande, ele coloca "..." */
+}
 
 .btn-agenda-delete {
     background: rgba(255, 0, 84, 0.1);
     color: #ff0054;
     border: 1px solid rgba(255, 0, 84, 0.2);
-    padding: 8px 14px;
-    border-radius: 8px;
-    font-size: 0.65rem;
+    padding: 6px;
+    border-radius: 4px;
+    font-size: 0.55rem;
     font-weight: 800;
     cursor: pointer;
-    transition: 0.3s;
+    transition: 0.2s;
+    width: 50%;
+    text-transform: uppercase;
 }
 
-.btn-agenda-delete:hover {
-    background: #ff0054;
-    color: #fff;
+.btn-agenda-delete:hover { 
+    background: #ff0054; 
+    color: #fff; 
 }
+/*###########################################################################################################################################*/
 
 
 
@@ -1695,27 +1691,29 @@ input::-webkit-clear-button {
 
 
 
-/* Container Principal - Estilo Pílula */
 .network-presence-pill {
-    /* MUDANÇA PARA NÃO SAIR DO LUGAR: */
-    position: absolute; 
-    top: 90px;
-    /* Em vez de 'left', usamos uma posição relativa ao centro para não fugir no zoom */
-    left: 41%;
-    transform: translateX(-480px); /* Isso trava ele exatamente à esquerda do seu painel central */
+    position: relative;
+    top: -150px;
+    left: 50%;
     
+    /* SOLUÇÃO: Remova o -50% do translate. 
+       Usamos apenas a margem negativa fixa para empurrar do centro para a esquerda. */
+    transform: translateX(-610px); 
+    
+    /* Garante que o elemento cresça para a DIREITA sem mover a base esquerda */
     display: inline-flex;
+    justify-content: flex-start; 
+    
     align-items: center;
-    gap: 8px; /* Reduzido de 12px */
+    gap: 8px;
     background: rgba(255, 255, 255, 0.03);
-    padding: 5px 12px; /* Reduzido de 8px 18px */
-    border-radius: 6px; /* Reduzido de 10px */
+    padding: 5px 12px;
+    border-radius: 6px;
     border: 1px solid rgba(255, 255, 255, 0.05);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
     z-index: 999;
     white-space: nowrap;
-    margin-bottom: 200px;
 }
 
 /* Bolinha de Status - Diminuída */
@@ -1747,8 +1745,8 @@ input::-webkit-clear-button {
 }
 
 .presence-info { 
-    color: rgba(255, 255, 255, 0.4); 
-    font-size: 0.65rem; /* Reduzido de 0.75rem */
+    color: rgb(255, 255, 255); 
+    font-size: 0.8rem; /* Reduzido de 0.75rem */
 }
 
 .presence-info strong { 

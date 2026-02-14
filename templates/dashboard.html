@@ -12,7 +12,7 @@
     {% if exibir_boas_vindas_interno %}
     <div id="modal-boas-vindas-sistema" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 9999; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(5px);">
         <div style="background: #1a1a1a; padding: 40px; border-radius: 10px; border: 1px solid #00ffcc; text-align: center; max-width: 400px;">
-            <h2 style="color: #00ffcc; font-family: 'Syne', sans-serif;">BEM-VINDO! 🚀</h2>
+            <h2 style="color: #00ffcc; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; ">BEM-VINDO! 🚀</h2>
             <p style="color: white; margin: 20px 0;">Sua assinatura foi confirmada. Seu painel de músico já está liberado!</p>
             <button onclick="fecharBoasVindas()" style="background: #00ffcc; color: black; border: none; padding: 12px 30px; border-radius: 5px; font-weight: bold; cursor: pointer; width: 100%;">
                 COMEÇAR AGORA
@@ -31,51 +31,45 @@
     {% endif %}
 
 
-    {% if bloqueado %}
-    <div style="
-        position: absolute;
-        top: 90px;
-        right: 70px;
-        z-index: 999;
-        /* ESTRUTURA COMPACTA HORIZONTAL */
-        display: flex;
-        align-items: center;
-        gap: 15px;
-        background: rgba(15, 0, 0, 0.96); /* Um tom mais escuro para ficar mais fino */
-        padding: 8px 18px; /* Padding reduzido para achatar a barra */
-        border-radius: 6px;
-        backdrop-filter: blur(15px);
-        box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-        animation: fadeInRight 0.6s ease-out;
-        border: 1px solid rgba(255,0,0,0.2);
-        border-left: 4px solid #ff0000;
-        white-space: nowrap; /* Impede que o texto quebre e aumente a altura */
-    ">
+{% if bloqueado %}
+<div style="
+    position: fixed; /* Troque para fixed para garantir que ele ignore outras divs */
+    top: 90px;
     
+    /* AQUI ESTÁ A SOLUÇÃO: */
+    left: 50%; /* Ele nasce no meio da tela */
+    transform: translateX(95px); /* Ele anda 180px para a DIREITA do meio */
+    /* Ajuste o 180px para mais ou menos até ele 'colar' onde você quer */
+    
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    background: rgba(15, 0, 0, 0.98);
+    padding: 8px 18px;
+    border-radius: 6px;
+    backdrop-filter: blur(15px);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+    border: 1px solid rgba(255,0,0,0.3);
+    border-left: 4px solid #ff0000;
+    white-space: nowrap;
+">
     <div style="display: flex; align-items: center; flex-shrink: 0;">
         <i class="fas fa-exclamation-circle" style="color: #ff4d4d; margin-right: 8px; font-size: 1rem;"></i>
-        <h4 style="color: #fff; margin: 0; font-family: 'Orbitron', sans-serif; font-size: 0.7rem; letter-spacing: 1px;">PERFIL OFFLINE</h4>
+        <p style="color: white; font-size: 0.8rem; margin: 0; font-family: 'Inter', sans-serif;">
+            Sua assinatura <strong>Pulsa Music</strong> expirou. Seu perfil está invisível para contratantes.
+        </p>
     </div>
 
-    <div style="width: 1px; height: 15px; background: rgba(255,255,255,0.1);"></div>
-
-    <p style="color: rgba(255,255,255,0.7); font-size: 0.7rem; margin: 0; font-family: 'Syne', sans-serif; flex-grow: 1;">
-        Sua assinatura <strong>Pulsa Music</strong> expirou. Seu perfil está invisível para contratantes.
-    </p>
-
     <a href="/checkout" style="
-        display: inline-block; 
         background: #00b818; 
         color: white; 
-        text-align: center; 
         padding: 5px 15px; 
         border-radius: 4px; 
         text-decoration: none; 
         font-weight: bold; 
         font-size: 0.65rem; 
-        transition: 0.3s; 
         text-transform: uppercase;
-        flex-shrink: 0;
     ">
         Reativar
     </a>
@@ -301,18 +295,18 @@
             <div class="input-modern" style="border: 1px dashed rgba(0, 242, 255, 0.3); padding: 10px; border-radius: 10px; margin-bottom: 20px;">
                 <input type="url" name="vibracao_link" id="input-vibracao" placeholder="https://open.spotify.com/track/..." value="{{ musico.vibracao_link or '' }}" data-lpignore="true">
                 <label><i class="fas fa-play-circle"></i> LINK DA MÚSICA (SPOTIFY, SOUNDCLOUD, ETC)</label>
-                <small style="color: rgba(255,255,255,0.5); font-size: 0.6rem; margin-top: 5px; display: block;">
+                <small style="color: rgba(255,255,255,0.5); font-size: 0.9rem; margin-top: 5px; display: block;">
                     Cole aqui o link da música que aparecerá no seu "Preview Sonoro".
                 </small>
             </div>
 
-            <div class="input-modern">
-                <input type="text" name="nome" id="input-name" required placeholder=" " value="{{ musico.nome or '' }}" data-lpignore="true">
+            <div class="input-modern" style="width: 50%;">
+                <input type="text" name="nome" id="input-name" required placeholder=" " value="{{ musico.nome or '' }}" data-lpignore="true" maxlength="30">
                 <label>NOME DA BANDA / ARTISTA</label>
             </div>
 
             <div style="display: grid; grid-template-columns: 3fr 1fr; gap: 15px;">
-                <div class="input-modern">
+                <div class="input-modern" style="width: 69%";>
                     <input type="text" name="cidade" id="input-cidade" required placeholder=" " value="{{ musico.cidade or '' }}" data-lpignore="true">
                     <label>CIDADE</label>
                 </div>
@@ -390,7 +384,7 @@
             </div>
         </div>
 
-        <button type="submit" class="btn-glow-action" style="margin-top: 20px; width: 100%;">
+        <button type="submit" class="btn-glow-action">
             <span>SALVAR ALTERAÇÕES</span>
         </button>
     </form>
@@ -405,27 +399,27 @@
     <div class="agenda-form-container glass-card">
         <form action="/adicionar_agenda" method="POST" autocomplete="off" class="agenda-grid-form">
             <div class="input-group-row">
-                <div class="input-modern">
+                <div class="input-modern-agenda">
                     <label class="label-fixed">DATA</label>
                     <input type="date" name="data_show" required>
                 </div>
-                <div class="input-modern">
+                <div class="input-modern-agenda">
                     <label class="label-fixed">HORÁRIO</label>
                     <input type="time" name="horario_show" required> 
                 </div>
             </div>
 
-            <div class="input-modern">
+            <div class="input-modern-agenda">
                 <label class="label-fixed">NOME DA FESTA</label>
                 <input type="text" name="nome_festa" placeholder="Ex: Festival..."> 
             </div>
 
-            <div class="input-modern">
+            <div class="input-modern-agenda">
                 <label class="label-fixed">LOCAL</label>
                 <input type="text" name="local" placeholder="Ex: Praça..." required>
             </div>
 
-            <div class="input-modern">
+            <div class="input-modern-agenda">
                 <label class="label-fixed">CIDADE</label>
                 <input type="text" name="cidade" placeholder="Ex: São Luiz..." required>
             </div>
@@ -437,21 +431,33 @@
     </div>
 
     <div class="agenda-items-list">
-        {% for show in agenda %}
-        <div class="agenda-item-card">
-            <div class="agenda-item-info">
-                <span class="agenda-date-place">{{ show.data_dia }}/{{ show.data_mes }} - {{ show.local }}</span>
-                <span class="agenda-city">{{ show.cidade }}</span>
-            </div>
-            <form action="/remover_agenda/{{ show.id }}" method="POST">
-                <button type="submit" class="btn-agenda-delete">EXCLUIR</button>
-            </form>
+    {% for show in agenda %}
+    <div class="agenda-item-card">
+        <div class="info-block">
+            <span class="info-label">Data</span>
+            <span class="info-value">{{ show.data_dia }}/{{ show.data_mes }}</span>
         </div>
-        {% else %}
-        <div class="agenda-empty">Nenhum show na agenda ainda.</div>
-        {% endfor %}
+
+        <div class="info-block">
+            <span class="info-label">Local / Festa</span>
+            <span class="info-value">{{ show.local }}</span>
+        </div>
+
+        <div class="info-block">
+            <span class="info-label">Cidade</span>
+            <span class="info-value info-value-city">{{ show.cidade }}</span>
+        </div>
+
+        <form action="/remover_agenda/{{ show.id }}" method="POST" style="margin-top: auto;">
+            <button type="submit" class="btn-agenda-delete">Excluir Show</button>
+        </form>
     </div>
-</section>
+    {% else %}
+    <div style="grid-column: 1/-1; text-align: center; padding: 40px; color: #555;">
+        Nenhum show na agenda ainda.
+    </div>
+    {% endfor %}
+</div>
 
 <section id="aba-inbox" class="inbox-section glass-card">
     <div class="section-header">
