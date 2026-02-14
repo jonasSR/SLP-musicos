@@ -181,11 +181,13 @@ if (formLogin) {
 }
 
 
-// 🆕 CADASTRO (UNIFICADO)
+// ============================================================================
+// CADASTRO NORMAL (PARA QUEM NÃO PAGOU)
+// ============================================================================
+
 let dadosTemporarios = { email: "", senha: "" };
 
 if (btnSignup) {
-    // Mudamos para ASYNC para poder esperar a resposta do Firebase antes de abrir a modal
     btnSignup.addEventListener("click", async (e) => {
         const email = emailInput.value.trim();
         const password = passwordInput.value;
@@ -196,14 +198,14 @@ if (btnSignup) {
         }
 
         try {
-            // 🔥 TRAVA AQUI: Tenta criar a conta ANTES de abrir a modal
-            // Se o e-mail já existir, o Firebase vai dar erro e pular direto para o 'catch'
+            // Tenta criar a conta
             await createUserWithEmailAndPassword(auth, email, password);
 
-            // Se chegou aqui, a conta é NOVA e foi criada. Agora guardamos e abrimos a modal.
+            // Se chegou aqui, a conta é NOVA
             dadosTemporarios.email = email;
             dadosTemporarios.senha = password;
 
+            // Abre modal para escolher perfil
             const modalEscolha = document.getElementById('modal-escolha-perfil');
             if (modalEscolha) {
                 modalEscolha.style.display = "flex";
@@ -211,7 +213,6 @@ if (btnSignup) {
         } catch (error) {
             console.error("Erro na verificação inicial:", error.code);
             
-            // Se o e-mail já existe, ele barra aqui e a modal nem chega a abrir
             if (error.code === 'auth/email-already-in-use') {
                 exibirPopup("Erro", "Este e-mail já está cadastrado.");
             } else {
@@ -222,39 +223,39 @@ if (btnSignup) {
 }
 
 
+// ============================================================================
+// ESCOLHA DE PERFIL (MÚSICO OU ESTABELECIMENTO)
+// ============================================================================
+
 document.addEventListener("DOMContentLoaded", () => {
     const btnMusico = document.getElementById('btn-escolha-musico');
     const btnEmpresa = document.getElementById('btn-escolha-empresa');
 
     async function executarCadastroFinal(tipoPerfil) {
         try {
-            // 1. O usuário JÁ FOI CRIADO no clique do btnSignup.
-            // Aqui apenas salvamos as preferências no Firestore.
-
-            // 2. Salva os dados no Firestore
+            // Salva os dados no Firestore
             await setDoc(doc(db, "usuarios", dadosTemporarios.email), {
                 email: dadosTemporarios.email,
                 tipo: tipoPerfil,
-                acesso_pago: false,
-                criado_via: 'sistema', // Adicionado conforme solicitado
+                acesso_pago: (tipoPerfil === 'estabelecimento'), // Estabelecimento tem acesso free
+                criado_via: 'sistema',
                 data_cadastro: serverTimestamp()
             }, { merge: true });
 
             console.log("Dados salvos. Iniciando sessão no servidor...");
 
-            // 3. Cria a sessão no Flask
+            // Cria a sessão no Flask
             await iniciarSessao(dadosTemporarios.email); 
 
-            // 4. REDIRECIONAMENTO
+            // Redirecionamento
             if (tipoPerfil === 'musico') {
-                window.location.href = "/checkout";
+                window.location.href = "/checkout"; // Músico precisa pagar
             } else {
-                window.location.href = "/dashboard";
+                window.location.href = "/dashboard"; // Estabelecimento vai direto
             }
 
         } catch (error) {
             console.error("Erro detalhado no salvamento:", error);
-            // Se der erro aqui, fechamos a modal para o usuário ver o erro
             const modalEscolha = document.getElementById('modal-escolha-perfil');
             if (modalEscolha) modalEscolha.style.display = "none";
             
@@ -343,7 +344,10 @@ async function verificarStatusCadastro(email) {
 }
 
 
-// 🎯 INTERCEPTAR O CLIQUE NO BOTÃO "PAINEL" (Menu Superior)
+// ============================================================================
+// INTERCEPTAR CLIQUE NO BOTÃO "PAINEL"
+// ============================================================================
+
 document.addEventListener('click', function(e) {
     if (e.target.id === 'btn-menu-painel' || e.target.innerText === 'Painel') {
         const status = window.statusUsuario;
@@ -362,7 +366,10 @@ document.addEventListener('click', function(e) {
 });
 
 
-// 🎯 CÉREBRO DO LOGIN (Página de Login)
+// ============================================================================
+// CÉREBRO DO LOGIN
+// ============================================================================
+
 window.acaoPosLogin = async function() {
     const user = auth.currentUser;
     const email = (user ? user.email : null) || (document.getElementById('email') ? document.getElementById('email').value : "");
@@ -390,11 +397,14 @@ window.acaoPosLogin = async function() {
 };
 
 
-// 🎯 AÇÃO: SIM (CONTINUAR CADASTRO)
+
+// ============================================================================
+// AÇÕES DA MODAL DE RETOMAR CADASTRO
+// ============================================================================
+
 document.getElementById('btn-retomar-sim').onclick = () => {
     document.getElementById('modal-retomar-cadastro').style.display = "none";
     
-    // 🔥 SEM TRAVA: Músico vai para o Dashboard, Estabelecimento vai para o form de cadastro
     if (perfilPendente.tipo === 'estabelecimento') {
         window.location.href = "/cadastro-estabelecimento";
     } else {
@@ -403,27 +413,90 @@ document.getElementById('btn-retomar-sim').onclick = () => {
 };
 
 
-// 🎯 AÇÃO: NÃO (APENAS SAIR E SALVAR PROGRESSO)
 document.getElementById('btn-retomar-nao').onclick = async () => {
-    // 1. Fecha a modal
     document.getElementById('modal-retomar-cadastro').style.display = "none";
-
-    // 2. Avisa que os dados estão salvos
     exibirPopup("Até breve!", "Seu progresso foi salvo. Você pode continuar quando quiser, basta fazer login novamente.");
 
     try {
-        // 3. Desloga do Firebase
         await auth.signOut();
-
-        // 4. Limpa a sessão no Flask
         await fetch('/logout'); 
-
-        // 5. Manda para a home
         setTimeout(() => { window.location.href = "/"; }, 2500);
-
     } catch (error) {
         console.error("Erro ao sair:", error);
         window.location.href = "/";
     }
 };
 
+// ============================================================================
+// MODAL DE BOAS-VINDAS (PÓS-PAGAMENTO) - CADASTRO DIRETO
+// ============================================================================
+
+// Quando a página carregar com confirmacao_venda=true
+document.addEventListener("DOMContentLoaded", () => {
+    const modalBoasVindas = document.getElementById('modal-boas-vindas');
+    const emailPagamento = document.getElementById('email-do-pagamento'); // Vem hidden do backend
+    
+    // Se a modal de boas-vindas existir (veio da página de vendas)
+    if (modalBoasVindas && emailPagamento) {
+        const btnConfirmar = document.getElementById('btn-confirmar-cadastro-pago');
+        const inputSenha = document.getElementById('input-senha-boas-vindas');
+        const inputConfirmaSenha = document.getElementById('input-confirma-senha-boas-vindas');
+        
+        if (btnConfirmar) {
+            btnConfirmar.addEventListener('click', async () => {
+                const email = emailPagamento.value;
+                const senha = inputSenha.value;
+                const confirmaSenha = inputConfirmaSenha.value;
+                
+                // Validações
+                if (!senha || senha.length < 6) {
+                    exibirPopup("Atenção", "A senha deve ter no mínimo 6 caracteres.");
+                    return;
+                }
+                
+                if (senha !== confirmaSenha) {
+                    exibirPopup("Atenção", "As senhas não coincidem.");
+                    return;
+                }
+                
+                try {
+                    // 1. Cria a conta no Firebase
+                    await createUserWithEmailAndPassword(auth, email, senha);
+                    
+                    // 2. Atualiza o Firestore com tipo=musico
+                    await setDoc(doc(db, "usuarios", email), {
+                        email: email,
+                        tipo: 'musico', // 🎯 FIXO COMO MÚSICO
+                        acesso_pago: true,
+                        criado_via: 'pagina_vendas',
+                        data_cadastro: serverTimestamp()
+                    }, { merge: true });
+                    
+                    console.log("Cadastro pós-pagamento concluído!");
+                    
+                    // 3. Inicia sessão no Flask
+                    await iniciarSessao(email);
+                    
+                    // 4. Redireciona DIRETO para o dashboard
+                    window.location.href = "/dashboard?sucesso_pagamento=true";
+                    
+                } catch (error) {
+                    console.error("Erro no cadastro pós-pagamento:", error);
+                    
+                    if (error.code === 'auth/email-already-in-use') {
+                        // Se já existe, apenas faz login
+                        try {
+                            await signInWithEmailAndPassword(auth, email, senha);
+                            await iniciarSessao(email);
+                            window.location.href = "/dashboard?sucesso_pagamento=true";
+                        } catch (loginError) {
+                            exibirPopup("Erro", "Este e-mail já está cadastrado. Use a senha correta ou recupere sua senha.");
+                        }
+                    } else {
+                        exibirPopup("Erro", "Erro ao criar conta: " + error.message);
+                    }
+                }
+            });
+        }
+    }
+});
