@@ -440,28 +440,42 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (btnFinalizar) {
         btnFinalizar.addEventListener('click', async () => {
-            const email = document.getElementById('email_final').value;
-            const password = document.getElementById('senha_final').value;
+            const emailInput = document.getElementById('email_final');
+            const passwordInput = document.getElementById('senha_final');
 
-            // Validação simples de segurança
+            const email = emailInput.value.trim();
+            const password = passwordInput.value;
+
+            // 🛑 FILTRO CONTRA O ERRO DO STRIPE
+            // Se o e-mail contiver a tag do Stripe ou for inválido, paramos aqui
+            if (email.includes("{CHECKOUT_SESSION") || !email.includes("@")) {
+                alert("O e-mail não foi carregado corretamente pelo Stripe. Verifique o link ou digite seu e-mail novamente.");
+                console.error("Erro: E-mail capturado é uma variável não processada:", email);
+                return;
+            }
+
+            // Validação de senha
             if (!password || password.length < 7) {
                 alert("Por favor, digite uma senha com pelo menos 7 caracteres.");
                 return;
             }
 
             try {
-                console.log("Iniciando criação de conta para:", email);
+                console.log("Tentando criar conta para:", email);
 
                 // 1. Cria a conta no Firebase Auth
-                // (Certifique-se que 'auth' e 'createUserWithEmailAndPassword' estão disponíveis)
                 await createUserWithEmailAndPassword(auth, email, password);
 
                 // 2. Sincroniza a sessão com o Flask
-                // Usamos o endpoint que você já tem ou um similar para logar no servidor
-                await fetch(`/login_session?email=${email}`); 
+                // Importante: Aguarda o fetch terminar para garantir que a sessão existe
+                const response = await fetch(`/login_session?email=${email}`);
+                
+                if (!response.ok) {
+                    throw new Error("Falha ao iniciar sessão no servidor.");
+                }
 
-                // 3. Redirecionamento Direto
-                // Enviamos o parâmetro sucesso_pagamento para o Dashboard exibir o parabéns
+                // 3. Redirecionamento Direto para o Dashboard
+                console.log("Sucesso! Redirecionando...");
                 window.location.href = "/dashboard?sucesso_pagamento=true";
 
             } catch (error) {
@@ -469,6 +483,8 @@ document.addEventListener("DOMContentLoaded", () => {
                 
                 if (error.code === 'auth/email-already-in-use') {
                     alert("Este e-mail já possui conta. Tente fazer login normalmente.");
+                } else if (error.code === 'auth/invalid-email') {
+                    alert("O e-mail fornecido é inválido. Verifique se há caracteres extras.");
                 } else {
                     alert("Erro técnico: " + error.message);
                 }
