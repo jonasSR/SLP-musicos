@@ -479,7 +479,7 @@ def webhook_stripe():
                 'email': email_cliente,
                 'acesso_pago': True,
                 'status_financeiro': 'pago',
-                'tipo': None, # Já pré-define como músico
+                'tipo': 'musico', # Já pré-define como músico
                 'data_pagamento': firestore.SERVER_TIMESTAMP,
                 'criado_via': 'pagina_vendas'
             })
