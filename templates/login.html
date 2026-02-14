@@ -14,77 +14,45 @@
 </head>
 
 <body class="login-page-root">
-    {% if confirmacao_venda %}
-<div id="modal-finalizar-cadastro" class="modal-overlay" style="display:flex;">
+{% if confirmacao_venda %}
+<div id="modal-boas-vindas" class="modal-overlay" style="display:flex;">
     <div class="modal-content glass-card">
-        <h3 style="color:#00ffcc;">Obrigado pela compra! 🚀</h3>
+        <h3 style="color:#00ffcc;">Bem-vindo à Pulsa Music Conect!</h3>
 
         <p style="margin-top:15px;">
-            Complete seu cadastro para acessar o Dashboard.
+            Sua assinatura foi confirmada com sucesso para o e-mail:<br>
+            <strong style="color:#fff; font-size:1.1rem;">{{ email_venda }}</strong> 🚀
         </p>
 
-        <form id="form-finalizar-cadastro">
-            <!-- E-mail já preenchido e bloqueado -->
-            <input type="email" id="email_venda" value="{{ session.get('user_email_venda', '') }}" readonly
-                style="margin-top:10px; width:100%; padding:10px; border-radius:5px; border:1px solid #ccc;">
+        <p style="font-size:0.9rem; color:#ccc; margin-top:10px;">
+            Para finalizar seu acesso, basta <strong>cadastrar uma senha</strong> abaixo.
+        </p>
 
-            <!-- Senha -->
-            <input type="password" id="senha_venda" placeholder="Crie sua senha"
-                style="margin-top:10px; width:100%; padding:10px; border-radius:5px; border:1px solid #ccc;">
-
-            <button type="submit" class="log-btn-main" style="margin-top:15px; width:100%;">
-                Finalizar Cadastro e Acessar Dashboard
-            </button>
-        </form>
+        <button class="log-btn-main"
+            onclick="finalizarFluxoVenda('{{ email_venda }}')">
+            ENTENDI, VAMOS COMEÇAR
+        </button>
     </div>
 </div>
-
-<script>
-document.addEventListener('DOMContentLoaded', () => {
-    const form = document.getElementById('form-finalizar-cadastro');
-    const email = document.getElementById('email_venda');
-    const senha = document.getElementById('senha_venda');
-
-    form.addEventListener('submit', async (e) => {
-        e.preventDefault();
-
-        if (!senha.value) {
-            alert("Por favor, crie uma senha antes de continuar.");
-            return;
-        }
-
-        try {
-            // Cria usuário no Firebase
-            await createUserWithEmailAndPassword(auth, email.value, senha.value);
-
-            // Salva no Firestore
-            await setDoc(doc(db, "usuarios", email.value), {
-                email: email.value,
-                tipo: 'musico',  // ou 'estabelecimento' se tiver info
-                acesso_pago: true,
-                criado_via: 'pagina_vendas',
-                data_cadastro: serverTimestamp()
-            });
-
-            // Cria sessão no Flask
-            await fetch('/set_session', {
-                method: 'POST',
-                headers: {'Content-Type':'application/json'},
-                body: JSON.stringify({email: email.value})
-            });
-
-            // Redireciona direto para dashboard
-            window.location.href = "/dashboard";
-
-        } catch (error) {
-            console.error("Erro ao finalizar cadastro:", error);
-            alert("Ocorreu um erro: " + error.message);
-        }
-    });
-});
-</script>
 {% endif %}
-
+<script>
+function finalizarFluxoVenda(email) {
+    // 1. Fecha a modal
+    document.getElementById('modal-boas-vindas').style.display = 'none';
+    
+    // 2. Preenche o campo de e-mail automaticamente
+    const emailInput = document.getElementById('email'); // Verifique se o ID do seu input é 'email'
+    if (emailInput && email !== "") {
+        emailInput.value = email;
+        // Opcional: Bloqueia o campo para ele não errar o e-mail do pagamento
+        emailInput.readOnly = true; 
+        
+        // 3. Foca no campo de senha para facilitar
+        const passwordInput = document.getElementById('password');
+        if (passwordInput) passwordInput.focus();
+    }
+}
+</script>
 
     <div class="log-bg-mesh"></div>
 

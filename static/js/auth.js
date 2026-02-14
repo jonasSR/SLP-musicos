@@ -426,3 +426,4 @@ document.getElementById('btn-retomar-nao').onclick = async () => {
         window.location.href = "/";
     }
 };
+

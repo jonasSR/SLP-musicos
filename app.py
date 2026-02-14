@@ -242,27 +242,28 @@ def check_user_type():
     return jsonify({"status": "novo"})
 
 
+# ======================================================
+# 🔐 AUTENTICAÇÃOdef login_page():
+# ======================================================
 @app.route('/login')
 def login_page():
-    # Detecta se veio do Stripe (página de vendas ou link fixo)
+    # Detecta se veio do Stripe
     veio_da_venda = request.args.get('pago') == 'true'
+    # Captura o e-mail vindo da URL (Stripe redireciona com ele)
+    email_venda = request.args.get('prefilled_email', '') 
+    
     email_logado = session.get('user_email')
 
-    # 🚀 FLUXO SISTEMA: Se já está logado e pagou, vai direto pro Dashboard
+    # 🚀 FLUXO SISTEMA: Se já está logado e pagou, pula o login e vai pro Dash
     if veio_da_venda and email_logado:
         return redirect(url_for('dashboard', sucesso_pagamento='true'))
 
-    # 🟢 FLUXO PÁGINA DE VENDA: Se pagou mas não está logado
-    email_venda = request.args.get('email')  # 🔹 Espera que o link Stripe passe ?email=usuario@exemplo.com
-    if veio_da_venda and email_venda:
-        # Guarda o e-mail da compra na sessão para preencher o formulário
-        session['user_email_venda'] = email_venda
-        mostrar_modal = True
-    else:
-        mostrar_modal = False
-        session.pop('user_email_venda', None)  # Limpa se não veio da venda
+    # 🟢 FLUXO PÁGINA DE VENDA
+    if veio_da_venda:
+        session['mostrar_boas_vindas'] = True
 
-    # Config Firebase
+    mostrar_modal = session.pop('mostrar_boas_vindas', False)
+
     config = {
         "apiKey": os.getenv("FIREBASE_API_KEY"),
         "authDomain": os.getenv("FIREBASE_AUTH_DOMAIN"),
@@ -275,9 +276,9 @@ def login_page():
     return render_template(
         'login.html',
         firebase_config=config,
-        confirmacao_venda=mostrar_modal
+        confirmacao_venda=mostrar_modal,
+        email_venda=email_venda  # <-- Enviando o e-mail para o HTML
     )
-
 
 
 @app.route('/dashboard')
@@ -399,20 +400,17 @@ def dashboard():
 @app.route('/checkout')
 @login_required
 def checkout():
-    email_usuario = session.get('user_email')  # Usuário logado
+    email_usuario = session.get('user_email')
     dominio_producao = "https://slp-musicos-1.onrender.com"
     
-    # Inclui o e-mail no success_url
-    success_url = f"{dominio_producao}/login?pago=true&email={email_usuario}"
-
+    # Adicionamos o prefilled_email na success_url para capturá-lo no retorno
     link_stripe = (
         f"https://buy.stripe.com/test_5kQ8wO90m6yWbRl0I5gIo00"
         f"?prefilled_email={email_usuario}"
-        f"&success_url={success_url}"
+        f"&success_url={dominio_producao}/login?pago=true&prefilled_email={email_usuario}"
     )
-
+    
     return redirect(link_stripe)
-
 
 
 @app.route('/webhook-stripe', methods=['POST'])
