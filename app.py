@@ -247,51 +247,55 @@ def check_user_type():
 # ======================================================
 @app.route('/login')
 def login_page():
-    # 1. Verifica se o usuário veio do redirecionamento de sucesso do Stripe
     veio_da_venda = request.args.get('pago') == 'true'
     email_logado = session.get('user_email')
     email_encontrado = ""
 
-    # 🚀 FLUXO SISTEMA: Se já está logado e pagou, pula o login e vai direto pro Dash
     if veio_da_venda and email_logado:
         return redirect(url_for('dashboard', sucesso_pagamento='true'))
 
-    # 🟢 FLUXO PÁGINA DE VENDA: Se acabou de pagar, buscamos o e-mail no Firestore
     if veio_da_venda:
         session['mostrar_boas_vindas'] = True
         
         try:
-            # 🔍 BUSCA AUTOMÁTICA: Localiza o último usuário marcado como 'pago' pelo Webhook
-            # Isso garante que o e-mail apareça na modal mesmo sem o Stripe enviar via URL
-            recent_users = db.collection('usuarios')\
+            # Busca simples apenas pelo status (não exige índice extra)
+            # Pegamos os últimos 5 para garantir que o seu esteja ali
+            usuarios_pagos = db.collection('usuarios')\
                 .where('status_financeiro', '==', 'pago')\
-                .order_by('data_pagamento', direction=firestore.Query.DESCENDING)\
-                .limit(1).stream()
+                .limit(5).stream()
             
-            for user in recent_users:
-                email_encontrado = user.to_dict().get('email', "")
-                print(f"DEBUG: E-mail de venda localizado automaticamente: {email_encontrado}")
+            # Ordenamos manualmente no Python para evitar o erro 500
+            lista_usuarios = []
+            for u in usuarios_pagos:
+                d = u.to_dict()
+                if 'data_pagamento' in d:
+                    lista_usuarios.append(d)
+            
+            if lista_usuarios:
+                # Pega o que tem a data mais recente
+                lista_usuarios.sort(key=lambda x: x['data_pagamento'], reverse=True)
+                email_encontrado = lista_usuarios[0].get('email', "")
+                
         except Exception as e:
-            print(f"Erro ao buscar último pagamento: {e}")
+            print(f"Erro na busca de segurança: {e}")
 
-    # Recupera o estado da modal e limpa a sessão
     mostrar_modal = session.pop('mostrar_boas_vindas', False)
 
-    # Configurações do Firebase para o Frontend
+    # Garante que o config não quebre se faltar variável de ambiente
     config = {
-        "apiKey": os.getenv("FIREBASE_API_KEY"),
-        "authDomain": os.getenv("FIREBASE_AUTH_DOMAIN"),
-        "projectId": os.getenv("FIREBASE_PROJECT_ID"),
-        "storageBucket": os.getenv("FIREBASE_STORAGE_BUCKET"),
-        "messagingSenderId": os.getenv("FIREBASE_MESSAGING_SENDER_ID"),
-        "appId": os.getenv("FIREBASE_APP_ID")
+        "apiKey": os.getenv("FIREBASE_API_KEY", ""),
+        "authDomain": os.getenv("FIREBASE_AUTH_DOMAIN", ""),
+        "projectId": os.getenv("FIREBASE_PROJECT_ID", ""),
+        "storageBucket": os.getenv("FIREBASE_STORAGE_BUCKET", ""),
+        "messagingSenderId": os.getenv("FIREBASE_MESSAGING_SENDER_ID", ""),
+        "appId": os.getenv("FIREBASE_APP_ID", "")
     }
 
     return render_template(
         'login.html',
         firebase_config=config,
         confirmacao_venda=mostrar_modal,
-        email_preenchido=email_encontrado  # 👈 Injeta o e-mail achado no Firestore
+        email_preenchido=email_encontrado
     )
 
 
