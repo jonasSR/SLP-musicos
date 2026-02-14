@@ -447,10 +447,8 @@ document.addEventListener("DOMContentLoaded", () => {
             const password = passwordInput.value;
 
             // 🛑 FILTRO CONTRA O ERRO DO STRIPE
-            // Se o e-mail contiver a tag do Stripe ou for inválido, paramos aqui
             if (email.includes("{CHECKOUT_SESSION") || !email.includes("@")) {
-                alert("O e-mail não foi carregado corretamente pelo Stripe. Verifique o link ou digite seu e-mail novamente.");
-                console.error("Erro: E-mail capturado é uma variável não processada:", email);
+                alert("O e-mail não foi carregado corretamente. Por favor, digite o e-mail manualmente.");
                 return;
             }
 
@@ -467,24 +465,26 @@ document.addEventListener("DOMContentLoaded", () => {
                 await createUserWithEmailAndPassword(auth, email, password);
 
                 // 2. Sincroniza a sessão com o Flask
-                // Importante: Aguarda o fetch terminar para garantir que a sessão existe
-                const response = await fetch(`/login_session?email=${email}`);
+                // Usamos encodeURIComponent para evitar erros com caracteres especiais no e-mail
+                const response = await fetch(`/login_session?email=${encodeURIComponent(email)}`);
                 
                 if (!response.ok) {
-                    throw new Error("Falha ao iniciar sessão no servidor.");
+                    throw new Error("O servidor não reconheceu a rota de sessão (Erro 404). Verifique se a rota /login_session existe no Python.");
                 }
 
-                // 3. Redirecionamento Direto para o Dashboard
-                console.log("Sucesso! Redirecionando...");
-                window.location.href = "/dashboard?sucesso_pagamento=true";
+                console.log("Sessão criada! Redirecionando para o Dashboard...");
+
+                // 3. Redirecionamento Direto
+                // Pequeno delay para garantir que o Flask gravou o cookie de sessão
+                setTimeout(() => {
+                    window.location.href = "/dashboard?sucesso_pagamento=true";
+                }, 500);
 
             } catch (error) {
                 console.error("Erro ao finalizar cadastro:", error);
                 
                 if (error.code === 'auth/email-already-in-use') {
                     alert("Este e-mail já possui conta. Tente fazer login normalmente.");
-                } else if (error.code === 'auth/invalid-email') {
-                    alert("O e-mail fornecido é inválido. Verifique se há caracteres extras.");
                 } else {
                     alert("Erro técnico: " + error.message);
                 }

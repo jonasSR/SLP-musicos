@@ -242,6 +242,20 @@ def check_user_type():
     return jsonify({"status": "novo"})
 
 
+
+from flask import jsonify
+
+@app.route('/login_session')
+def login_session():
+    email = request.args.get('email')
+    if email:
+        # Define as variáveis que o seu Dashboard espera encontrar
+        session['user_email'] = email
+        session['logado'] = True 
+        print(f"✅ Sessão Flask iniciada para: {email}")
+        return jsonify({"status": "success"}), 200
+    
+    return jsonify({"status": "error", "message": "Email faltando"}), 400
 # ======================================================
 # 🔐 AUTENTICAÇÃOdef login_page():
 # ======================================================
