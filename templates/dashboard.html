@@ -300,9 +300,21 @@
                 </small>
             </div>
 
-            <div class="input-modern" style="width: 50%;">
-                <input type="text" name="nome" id="input-name" required placeholder=" " value="{{ musico.nome or '' }}" data-lpignore="true" maxlength="30">
-                <label>NOME DA BANDA / ARTISTA</label>
+            <div class="input-group-row" style="display: flex; gap: 15px; width: 100%;">
+                
+                <div class="input-modern" style="flex: 1;">
+                    <input type="text" name="nome" id="input-name" required placeholder=" " value="{{ musico.nome or '' }}" data-lpignore="true" maxlength="30">
+                    <label>NOME DA BANDA / ARTISTA</label>
+                </div>
+
+                <div class="input-modern" style="flex: 1;">
+                    <input type="text" name="contato" id="input-contact" required 
+                        placeholder="(00) 00000-0000" 
+                        value="{{ musico.contato or '' }}" 
+                        oninput="mascaraTelefone(this)" 
+                        maxlength="15">
+                    <label>CONTATO</label>
+                </div>
             </div>
 
             <div style="display: grid; grid-template-columns: 3fr 1fr; gap: 15px;">
@@ -411,17 +423,17 @@
 
             <div class="input-modern-agenda">
                 <label class="label-fixed">NOME DA FESTA</label>
-                <input type="text" name="nome_festa" placeholder="Ex: Festival..."> 
+                <input type="text" name="nome_festa" placeholder="Ex: Festival..." maxlength="25"> 
             </div>
 
             <div class="input-modern-agenda">
                 <label class="label-fixed">LOCAL</label>
-                <input type="text" name="local" placeholder="Ex: Praça..." required>
+                <input type="text" name="local" placeholder="Ex: Praça..." required maxlength="25">
             </div>
 
             <div class="input-modern-agenda">
                 <label class="label-fixed">CIDADE</label>
-                <input type="text" name="cidade" placeholder="Ex: São Luiz..." required>
+                <input type="text" name="cidade" placeholder="Ex: São Luiz..." required maxlength="25">
             </div>
 
             <button type="submit" class="btn-agenda-add">
@@ -431,33 +443,48 @@
     </div>
 
     <div class="agenda-items-list">
-    {% for show in agenda %}
-    <div class="agenda-item-card">
-        <div class="info-block">
-            <span class="info-label">Data</span>
-            <span class="info-value">{{ show.data_dia }}/{{ show.data_mes }}</span>
-        </div>
+        {% for show in agenda %}
+        <div class="agenda-item-card">
+            <div class="agenda-item-info">
+                <div class="info-row">
+                    <div class="info-block">
+                        <span class="info-label">DATA</span>
+                        <span class="info-value">{{ show.data_dia }}/{{ show.data_mes }}</span>
+                    </div>
+                    <div class="info-block">
+                        <span class="info-label">HORÁRIO</span>
+                        <span class="info-value">{{ show.horario }}</span>
+                    </div>
+                    <div class="info-block">
+                        <span class="info-label">SHOW</span>
+                        <span class="info-value">{{ show.nome_festa | truncate(12, True) }}</span>
+                    </div>
+                </div>
 
-        <div class="info-block">
-            <span class="info-label">Local / Festa</span>
-            <span class="info-value">{{ show.local }}</span>
-        </div>
+                <div class="info-block">
+                    <span class="info-label">LOCAL</span>
+                    <span class="info-value">{{ show.local | truncate(25, True) }}</span>
+                </div>
 
-        <div class="info-block">
-            <span class="info-label">Cidade</span>
-            <span class="info-value info-value-city">{{ show.cidade }}</span>
-        </div>
+                <div class="info-row">
+                    <div class="info-block">
+                        <span class="info-label">CIDADE</span>
+                        <span class="info-value">{{ show.cidade | truncate(20, True) }}</span>
+                    </div>
+                </div>
+            </div>
 
-        <form action="/remover_agenda/{{ show.id }}" method="POST" style="margin-top: auto;">
-            <button type="submit" class="btn-agenda-delete">Excluir Show</button>
-        </form>
+            <div class="btn-container">
+                <form action="/remover_agenda/{{ show.id }}" method="POST">
+                    <button type="submit" class="btn-agenda-delete">EXCLUIR</button>
+                </form>
+            </div>
+        </div>
+        {% else %}
+        <div class="agenda-empty">Nenhum show na agenda ainda.</div>
+        {% endfor %}
     </div>
-    {% else %}
-    <div style="grid-column: 1/-1; text-align: center; padding: 40px; color: #555;">
-        Nenhum show na agenda ainda.
-    </div>
-    {% endfor %}
-</div>
+</section>
 
 <section id="aba-inbox" class="inbox-section glass-card">
     <div class="section-header">
@@ -586,7 +613,7 @@
     </div>
 </div>
 
-
+    
     <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
 </body>
 </html>

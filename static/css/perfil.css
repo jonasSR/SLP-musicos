@@ -773,86 +773,68 @@ body {
 
 
 /* =========================================================
-   AGENDA - GRID DE RETÂNGULOS VERTICAIS
+   AGENDA - GRID QUADRADO E INFOS LADO A LADO
 ========================================================= */
 
 .agenda-list {
     display: flex;
-    flex-wrap: wrap;       /* Essencial para os cards ficarem lado a lado */
-    gap: 12px;             /* Espaço entre os cards */
+    flex-wrap: wrap;
+    gap: 12px;
     justify-content: flex-start;
 }
 
 .agenda-item {
     display: flex;
-    flex-direction: column; /* Conteúdo empilhado verticalmente */
+    flex-direction: column;
     align-items: center;
     text-align: center;
-    width: 110px;           /* Largura fixa para o retângulo em pé */
-    padding: 15px 8px;
+    
+    /* Formato Quadrado */
+    width: 160px;           
+    aspect-ratio: 1 / 1;    
+    
+    padding: 12px;
     background: rgba(255, 255, 255, 0.02);
     border: 1px solid rgba(255, 255, 255, 0.05);
     border-radius: 10px;
     transition: 0.3s ease;
+    box-sizing: border-box;
+    justify-content: space-between;
 }
 
-.agenda-item:hover {
-    background: rgba(255, 255, 255, 0.05);
-    border-color: var(--accent);
-    transform: translateY(-3px);
+/* Força as informações a ficarem lado a lado dentro do card */
+.agenda-info, .venue-meta {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
 }
 
-/* Data no Topo */
-.agenda-date-box {
-    margin-bottom: 8px;
+.info-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 60px; /* Garante que fiquem pareados */
 }
 
-.agenda-date-box .day {
+/* Títulos das informações */
+.label-fixed {
     display: block;
-    font-size: 1.5rem;
+    font-size: 0.5rem;
     font-weight: 800;
     color: var(--accent);
-    line-height: 1;
-}
-
-.agenda-date-box .month {
-    font-size: 0.6rem;
+    margin-bottom: 2px;
     text-transform: uppercase;
-    font-weight: 700;
-    color: #666;
 }
 
-/* Info Central */
-.agenda-info {
-    flex: 1;
-    width: 100%;
-    margin-bottom: 8px;
-}
+/* Ajustes de texto para caber no quadrado */
+.day { font-size: 1rem; font-weight: 800; color: var(--accent); }
+.month { font-size: 0.6rem; }
+.event-highlight { font-size: 0.6rem; color: #fff; }
+.venue-name, .city-tag, .time-tag { font-size: 0.55rem; color: #888; }
 
-.event-highlight {
-    font-size: 0.65rem;
-    color: #fff;
-    
-    /* Configuração para truncar texto em múltiplas linhas */
-    display: -webkit-box;
-    -webkit-box-orient: vertical;
-    -webkit-line-clamp: 2; /* Suporte para a maioria dos navegadores atuais */
-    
-    /* Propriedade padrão para compatibilidade futura (resolve o aviso do editor) */
-    line-clamp: 2; 
-    
-    overflow: hidden;
-    line-height: 1.2;
-}
-
-.venue-name {
-    font-size: 0.55rem;
-    color: #555;
-    display: block;
-    margin-top: 4px;
-}
-
-/* Status no Rodapé */
 .agenda-status {
     font-size: 0.5rem;
     font-weight: 800;
@@ -860,7 +842,6 @@ body {
     display: flex;
     align-items: center;
     gap: 4px;
-    opacity: 0.8;
 }
 
 .pulse-dot {
@@ -868,14 +849,7 @@ body {
     height: 4px;
     background: #00ff88;
     border-radius: 50%;
-    box-shadow: 0 0 5px #00ff88;
 }
-
-/* Esconder detalhes extras no card vertical para manter curto */
-.venue-meta {
-    display: none; 
-}
-
 
 /*######################################################################################################################*/
 

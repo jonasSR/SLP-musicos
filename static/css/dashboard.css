@@ -248,7 +248,7 @@ body {
 .nebula-form .input-modern select {
     background: rgba(0, 0, 0, 0.3) !important;
     border: 1px solid rgba(255, 255, 255, 0.1) !important;
-    border-radius: 10px !important;
+    border-radius: 4px !important;
     padding: 12px 15px !important;
     color: #fff !important;
     font-size: 0.9rem;
@@ -1342,44 +1342,57 @@ option {
     gap: 15px;
 }
 
-/* CARD QUADRADO ESTILO KANBAN */
+/* CARD - MANTÉM O FORMATO RETANGULAR */
 .agenda-item-card {
     background: rgba(255, 255, 255, 0.03);
     border: 1px solid rgba(255, 255, 255, 0.08);
     border-top: 4px solid #4facfe;
     border-radius: 10px;
     padding: 15px;
-    
     display: flex;
     flex-direction: column;
-    justify-content: space-between; /* Empurra o botão para o fim do quadrado */
-    
-    /* A MÁGICA DO QUADRADO */
-    aspect-ratio: 2 / 1; 
-    
+    justify-content: space-between;
+    min-height: 150px; /* Garante o formato de card */
     transition: 0.3s;
-    box-sizing: border-box;
 }
 
-.agenda-item-card:hover { 
-    background: rgba(255, 255, 255, 0.06); 
-    transform: scale(1.02);
-    border-color: rgba(79, 172, 254, 0.4);
+/* Garante que o container interno não quebre o layout flex do card */
+.agenda-item-info {
+    width: 100%;
 }
 
-/* BLOCOS INTERNOS */
+/* Garante que as linhas de informação ocupem toda a largura */
+.info-row {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 12px;
+    width: 100%;
+}
+
+/* Evita que textos muito longos deformem o card */
+.info-value {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #fff;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis; /* Adiciona "..." se o texto for muito grande */
+}
+
 .info-block {
     display: flex;
     flex-direction: column;
-    overflow: hidden; /* Garante que o texto não saia do quadrado */
+    flex: 1; /* Faz com que as colunas dividam o espaço igualmente */
 }
 
+/* Ajuste das fontes para caberem lado a lado */
 .info-label {
     font-size: 0.5rem;
     color: #4facfe;
     font-weight: 800;
     text-transform: uppercase;
     letter-spacing: 1px;
+    margin-bottom: 2px;
 }
 
 .info-value {
@@ -1388,27 +1401,29 @@ option {
     color: #fff;
     white-space: nowrap;
     overflow: hidden;
-    text-overflow: ellipsis; /* Se o nome for grande, ele coloca "..." */
+    text-overflow: ellipsis;
+}
+
+/* Centraliza o botão de exclusão no final do card */
+.btn-container {
+    margin-top: auto;
+    width: 100%;
 }
 
 .btn-agenda-delete {
-    background: rgba(255, 0, 84, 0.1);
-    color: #ff0054;
-    border: 1px solid rgba(255, 0, 84, 0.2);
-    padding: 6px;
+    background: #ff0000;
+    color: #fff;
+    border: none;
+    padding: 8px 12px;
     border-radius: 4px;
-    font-size: 0.55rem;
-    font-weight: 800;
+    font-size: 0.7rem;
+    font-weight: 700;
     cursor: pointer;
-    transition: 0.2s;
-    width: 50%;
+    width: 100%; /* Botão ocupa a largura do card */
     text-transform: uppercase;
+    transition: 0.2s;
 }
 
-.btn-agenda-delete:hover { 
-    background: #ff0054; 
-    color: #fff; 
-}
 /*###########################################################################################################################################*/
 
 

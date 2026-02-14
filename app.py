@@ -602,6 +602,7 @@ def api_enviar_feedback():
 @login_required
 def cadastrar_musico():
     nome = request.form.get('nome')
+    contato = request.form.get('contato')
     
     # --- AJUSTADO: SALVAR SEM ACENTO ("musico") ---
     tipo_input = request.form.get('tipo', '') 
@@ -668,6 +669,7 @@ def cadastrar_musico():
     # Dicionário de dados atualizado
     dados = {
         'nome': nome,
+        'contato': contato,
         'tipo': tipo, # Aqui agora entra "musico" (sem acento)
         'cidade': cidade,
         'estado': estado,

@@ -223,19 +223,35 @@
                             {% for show in agenda %}
                             <div class="agenda-item">
                                 <div class="agenda-date-box">
-                                    <span class="day">{{ show.data_dia }}</span>
-                                    <span class="month">{{ show.data_mes }}</span>
+                                    <span class="label-fixed">DATA</span>
+                                    <span class="day">{{ show.data_dia }} / <span class="month">{{ show.data_mes }}</span></span>
                                 </div>
+
                                 <div class="agenda-info">
                                     {% if show.nome_festa %}
-                                    <strong class="event-highlight">{{ show.nome_festa | upper }}</strong>
+                                    <div class="info-wrapper">
+                                        <span class="label-fixed">FESTA</span>
+                                        <strong class="event-highlight">{{ show.nome_festa | upper }}</strong>
+                                    </div>
                                     {% endif %}
-                                    <span class="venue-name">{{ show.local }}</span>
+
+                                    <div class="info-wrapper">
+                                        <span class="label-fixed">LOCAL</span>
+                                        <span class="venue-name">{{ show.local }}</span>
+                                    </div>
+
                                     <div class="venue-meta">
-                                        <span class="city-tag">{{ show.cidade }}</span>
-                                        <span class="time-tag">🕒 {{ show.horario }}</span>
+                                        <div class="info-wrapper">
+                                            <span class="label-fixed">CIDADE</span>
+                                            <span class="city-tag">{{ show.cidade }}</span>
+                                        </div>
+                                        <div class="info-wrapper">
+                                            <span class="label-fixed">HORÁRIO</span>
+                                            <span class="time-tag">🕒 {{ show.horario }}</span>
+                                        </div>
                                     </div>
                                 </div>
+
                                 <div class="agenda-status">
                                     <div class="pulse-dot"></div> CONFIRMADO
                                 </div>

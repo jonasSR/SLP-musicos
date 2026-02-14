@@ -269,3 +269,25 @@ document.addEventListener('DOMContentLoaded', () => {
         showSection('aba-perfil');
     }
 });
+
+
+function mascaraTelefone(input) {
+    let value = input.value;
+    
+    // Remove tudo que não for número
+    value = value.replace(/\D/g, "");
+    
+    // Formata: (XX) XXXXX-XXXX
+    if (value.length > 0) {
+        value = "(" + value;
+    }
+    if (value.length > 3) {
+        value = value.slice(0, 3) + ") " + value.slice(3);
+    }
+    if (value.length > 10) {
+        value = value.slice(0, 10) + "-" + value.slice(10);
+    }
+    
+    // Limita a 15 caracteres: (11) 99999-9999
+    input.value = value.slice(0, 15);
+}
