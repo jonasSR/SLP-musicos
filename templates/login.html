@@ -14,65 +14,28 @@
 </head>
 
 <body class="login-page-root">
+<input type="email" id="email" 
+       value="{{ email_preenchido or '' }}" 
+       {% if email_preenchido %} readonly style="opacity: 0.7; cursor: not-allowed;" {% endif %} 
+       placeholder="Seu e-mail">
+
 {% if confirmacao_venda %}
-<!-- MODAL DE BOAS-VINDAS - CADASTRO PÓS-PAGAMENTO -->
 <div id="modal-boas-vindas" class="modal-overlay" style="display:flex;">
-    <div class="modal-content glass-card" style="max-width: 480px;">
-        <h3 style="color:#00ffcc;">🎉 Pagamento Confirmado!</h3>
-        
-        <p style="margin-top:15px; font-size: 1rem;">
-            Bem-vindo à <strong>Pulsa Music Connect</strong>!
+    <div class="modal-content glass-card">
+        <h3 style="color:#00ffcc;">Pagamento Confirmado! 🚀</h3>
+
+        <p style="margin-top:15px;">
+            Identificamos sua assinatura. Agora é só definir sua senha de acesso abaixo.
         </p>
-        
+
         <p style="font-size:0.9rem; color:#ccc; margin-top:10px;">
-            Seu e-mail já está registrado. Agora escolha uma senha para acessar o painel:
+            O e-mail <strong>{{ email_preenchido }}</strong> já foi vinculado ao seu plano de Músico.
         </p>
-        
-        <!-- E-mail fixo (hidden, vem do backend) -->
-        <input type="hidden" id="email-do-pagamento" value="{{ email_pagamento }}">
-        
-        <!-- Campo de e-mail (somente leitura para mostrar ao usuário) -->
-        <div style="margin-top: 20px;">
-            <label style="display:block; margin-bottom:5px; color:#ccc; font-size:0.85rem;">
-                📧 E-mail usado no pagamento:
-            </label>
-            <input type="email" 
-                   value="{{ email_pagamento }}" 
-                   readonly 
-                   style="width:100%; padding:12px; background:#1a1a2e; border:1px solid #444; border-radius:8px; color:#aaa; cursor:not-allowed;">
-        </div>
-        
-        <!-- Campo de senha -->
-        <div style="margin-top: 15px;">
-            <label style="display:block; margin-bottom:5px; color:#ccc; font-size:0.85rem;">
-                🔒 Escolha sua senha (mínimo 6 caracteres):
-            </label>
-            <input type="password" 
-                   id="input-senha-boas-vindas" 
-                   placeholder="Digite sua senha"
-                   style="width:100%; padding:12px; background:#1a1a2e; border:1px solid #444; border-radius:8px; color:#fff;">
-        </div>
-        
-        <!-- Confirmar senha -->
-        <div style="margin-top: 15px;">
-            <label style="display:block; margin-bottom:5px; color:#ccc; font-size:0.85rem;">
-                🔒 Confirme sua senha:
-            </label>
-            <input type="password" 
-                   id="input-confirma-senha-boas-vindas" 
-                   placeholder="Digite novamente"
-                   style="width:100%; padding:12px; background:#1a1a2e; border:1px solid #444; border-radius:8px; color:#fff;">
-        </div>
-        
-        <button id="btn-confirmar-cadastro-pago" 
-                class="log-btn-main" 
-                style="margin-top: 25px; width:100%;">
-            CRIAR MINHA CONTA E ACESSAR
+
+        <button class="log-btn-main"
+            onclick="document.getElementById('modal-boas-vindas').style.display='none'">
+            DEFINIR MINHA SENHA
         </button>
-        
-        <p style="font-size:0.75rem; color:#888; margin-top:15px; text-align:center;">
-            Ao criar sua conta, você concorda com nossos Termos de Uso
-        </p>
     </div>
 </div>
 {% endif %}
