@@ -247,15 +247,15 @@ def check_user_type():
 # ======================================================
 @app.route('/login')
 def login_page():
-    # Detecta se veio do Stripe (página de vendas ou link fixo)
+    # 🔍 CAPTURA O EMAIL DA URL (Stripe envia de volta)
+    email_checkout = request.args.get('email_venda') or ""
+    
     veio_da_venda = request.args.get('pago') == 'true'
-    email_preenchido = request.args.get('email') or ""
+    email_logado = session.get('user_email')
 
-    # 🚀 FLUXO SISTEMA: Se já está logado e pagou, pula o login e vai pro Dash
-    if veio_da_venda and email_preenchido:
+    if veio_da_venda and email_logado:
         return redirect(url_for('dashboard', sucesso_pagamento='true'))
 
-    # 🟢 FLUXO PÁGINA DE VENDA: Se pagou mas não está logado, fica aqui para criar conta
     if veio_da_venda:
         session['mostrar_boas_vindas'] = True
 
@@ -274,7 +274,7 @@ def login_page():
         'login.html',
         firebase_config=config,
         confirmacao_venda=mostrar_modal,
-        email_preenchido=email_preenchido
+        email_preenchido=email_checkout  # 👈 ENVIA PARA O HTML
     )
 
 
@@ -405,7 +405,7 @@ def checkout():
     link_stripe = (
         f"https://buy.stripe.com/test_5kQ8wO90m6yWbRl0I5gIo00"
         f"?prefilled_email={email_usuario}"
-        f"&success_url={dominio_producao}/login?pago=true&tipo=musico"  
+        f"&success_url={dominio_producao}/login?pago=true"
     )
     
     return redirect(link_stripe)
@@ -446,7 +446,7 @@ def webhook_stripe():
                 'email': email_cliente,
                 'acesso_pago': True,
                 'status_financeiro': 'pago',
-                'tipo': 'musico', # Já pré-define como músico
+                'tipo': None, # Já pré-define como músico
                 'data_pagamento': firestore.SERVER_TIMESTAMP,
                 'criado_via': 'pagina_vendas'
             })

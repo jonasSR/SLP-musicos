@@ -256,6 +256,7 @@ async function verificarStatusCadastro(email) {
 
 
 
+
 // 🆕 CADASTRO (UNIFICADO)
 let dadosTemporarios = { email: "", senha: "" };
 
@@ -434,32 +435,44 @@ document.getElementById('btn-retomar-nao').onclick = async () => {
     }
 };
 
-const btnFinalizar = document.getElementById('btn-finalizar-cadastro');
+document.addEventListener("DOMContentLoaded", () => {
+    const btnFinalizar = document.getElementById('btn-finalizar-venda');
 
-if (btnFinalizar) {
-    btnFinalizar.addEventListener('click', async () => {
-        const email = document.getElementById('email').value;
-        const password = document.getElementById('password').value;
+    if (btnFinalizar) {
+        btnFinalizar.addEventListener('click', async () => {
+            const email = document.getElementById('email_final').value;
+            const password = document.getElementById('senha_final').value;
 
-        if (password.length < 7) {
-            exibirPopup("Atenção", "A senha deve ter no mínimo 7 caracteres.");
-            return;
-        }
+            // Validação simples de segurança
+            if (!password || password.length < 7) {
+                alert("Por favor, digite uma senha com pelo menos 7 caracteres.");
+                return;
+            }
 
-        try {
-            // 1. Cria o usuário no Firebase Auth
-            await createUserWithEmailAndPassword(auth, email, password);
+            try {
+                console.log("Iniciando criação de conta para:", email);
 
-            // 2. Avisa o servidor para criar a sessão Flask
-            await iniciarSessao(email);
+                // 1. Cria a conta no Firebase Auth
+                // (Certifique-se que 'auth' e 'createUserWithEmailAndPassword' estão disponíveis)
+                await createUserWithEmailAndPassword(auth, email, password);
 
-            // 3. Joga direto para o Dashboard com sinal de sucesso
-            // Não passa pela tela de login!
-            window.location.href = "/dashboard?sucesso_pagamento=true";
+                // 2. Sincroniza a sessão com o Flask
+                // Usamos o endpoint que você já tem ou um similar para logar no servidor
+                await fetch(`/login_session?email=${email}`); 
 
-        } catch (error) {
-            console.error("Erro ao finalizar:", error);
-            exibirPopup("Erro", "Não foi possível criar seu acesso: " + error.message);
-        }
-    });
-}
+                // 3. Redirecionamento Direto
+                // Enviamos o parâmetro sucesso_pagamento para o Dashboard exibir o parabéns
+                window.location.href = "/dashboard?sucesso_pagamento=true";
+
+            } catch (error) {
+                console.error("Erro ao finalizar cadastro:", error);
+                
+                if (error.code === 'auth/email-already-in-use') {
+                    alert("Este e-mail já possui conta. Tente fazer login normalmente.");
+                } else {
+                    alert("Erro técnico: " + error.message);
+                }
+            }
+        });
+    }
+});
