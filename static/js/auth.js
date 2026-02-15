@@ -41,32 +41,6 @@ const emailInput = document.getElementById("email");
 const passwordInput = document.getElementById("password");
 
 
-// 🌐 GOOGLE
-const provider = new GoogleAuthProvider();
-provider.setCustomParameters({ prompt: 'select_account' });
-window.loginComGoogle = async function() {
-    try {
-        const result = await signInWithPopup(auth, provider);
-        const idToken = await result.user.getIdToken();
-        const response = await fetch('/login_google', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ idToken: idToken })
-        });
-        const data = await response.json();
-        if (data.status === 'success') {
-            acaoPosLogin();
-        } else {
-            alert("Erro ao sincronizar: " + data.message);
-        }
-    } catch (error) {
-        if (error.code !== 'auth/cancelled-popup-request' && error.code !== 'auth/popup-closed-by-user') {
-            exibirPopup("Erro Google", traduzirErroFirebase(error));
-        }
-    }
-}
-
-
 // --- FUNÇÕES AUXILIARES ---
 function traduzirErroFirebase(error) {
     console.log("Código do erro:", error.code); // Útil para debug
@@ -253,6 +227,71 @@ async function verificarStatusCadastro(email) {
 
 
 
+
+
+
+
+// 🌐 GOOGLE
+const provider = new GoogleAuthProvider();
+provider.setCustomParameters({ prompt: 'select_account' });
+// 🌐 FLUXO EXCLUSIVO GOOGLE
+window.loginComGoogle = async function() {
+    try {
+        const result = await signInWithPopup(auth, provider);
+        const idToken = await result.user.getIdToken();
+        const emailGoogle = result.user.email; // Captura direta do provedor
+
+        // 1. Avisa o Python que o cara logou pelo Google
+        const response = await fetch('/login_google', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ idToken: idToken })
+        });
+        
+        const data = await response.json();
+
+        if (data.status === 'success') {
+            // 2. Chama a verificação exclusiva para o Google
+            // Passamos o email direto para não depender de campos da tela
+            fluxoVerificacaoExclusivoGoogle(emailGoogle);
+        } else {
+            alert("Erro no servidor: " + data.message);
+        }
+    } catch (error) {
+        if (error.code !== 'auth/cancelled-popup-request' && error.code !== 'auth/popup-closed-by-user') {
+            exibirPopup("Erro Google", "Falha na autenticação");
+        }
+    }
+}
+
+// 🛡️ FUNÇÃO DE APOIO SÓ PARA O GOOGLE (Não mexe no login normal)
+async function fluxoVerificacaoExclusivoGoogle(email) {
+    try {
+        const response = await fetch(`/check_user_type?email=${email}`);
+        const statusData = await response.json();
+
+        // Guardamos o email na variável global que sua modal já usa
+        dadosTemporarios.email = email;
+
+        if (statusData.status === 'completo') {
+            // Se já tem perfil pronto, vai embora pro dash dele
+            window.location.href = statusData.redirect;
+        } 
+        else if (statusData.status === 'pendente') {
+            // Se escolheu tipo mas não terminou o cadastro
+            const tipoTexto = statusData.tipo === 'musico' ? 'MÚSICO / BANDA' : 'ESTABELECIMENTO';
+            document.getElementById('tipo-pendente').innerText = tipoTexto;
+            document.getElementById('modal-retomar-cadastro').style.display = "flex";
+        } 
+        else {
+            // STATUS NOVO: É aqui que a modal de escolha abre para o usuário do Google
+            document.getElementById('modal-escolha-perfil').style.display = "flex";
+        }
+    } catch (e) {
+        console.error("Erro no fluxo Google:", e);
+        window.location.href = "/dashboard";
+    }
+}
 
 
 

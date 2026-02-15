@@ -255,6 +255,8 @@ def login_session():
         return jsonify({"status": "success"}), 200
     
     return jsonify({"status": "error", "message": "Email faltando"}), 400
+
+
 # ======================================================
 # 🔐 AUTENTICAÇÃOdef login_page():
 # ======================================================
@@ -513,30 +515,49 @@ def login_google():
     id_token = data.get('idToken')
     
     try:
-        # Valida o token vindo do front-end
+        # 1. Validação rigorosa do Token do Google
         decoded_token = firebase_auth.verify_id_token(id_token)
-        email = decoded_token['email']
-        nome = decoded_token.get('name', 'Usuário Google')
-        foto = decoded_token.get('picture', '')
+        email_google = decoded_token['email']
 
-        # Inicia a sessão
-        session['user_email'] = email
+        if not email_google:
+            return jsonify({"status": "error", "message": "Email não verificado pelo Google"}), 401
+
+        # 2. CAMADA DE SEGURANÇA TOTAL: Limpa qualquer rastro de sessões anteriores
+        # Isso garante que se outra pessoa usou o PC antes, os dados dela sumiram agora.
+        session.clear() 
         
-        # Verifica se o usuário já existe na coleção 'usuarios'
-        user_ref = db.collection('usuarios').document(email)
-        if not user_ref.get().exists:
+        # 3. Define a nova sessão vinculada EXCLUSIVAMENTE ao ID único do Google
+        session['user_email'] = email_google
+        session.permanent = True # Faz a sessão expirar se o navegador fechar
+
+        # 4. Busca ou Cria o usuário com base no Email ÚNICO
+        user_ref = db.collection('usuarios').document(email_google)
+        doc = user_ref.get()
+        
+        if not doc.exists:
             user_ref.set({
-                'email': email,
-                'nome': nome,
-                'foto_google': foto,
+                'email': email_google,
+                'nome': decoded_token.get('name'),
                 'tipo': None,
+                'acesso_pago': False,
                 'criado_em': firestore.SERVER_TIMESTAMP
             })
-            
-        return jsonify({"status": "success"}), 200
-        
+            destino = url_for('dashboard')
+        else:
+            dados = doc.to_dict()
+            # Redirecionamento baseado estritamente nos dados do documento encontrado
+            if dados.get('tipo') == 'musico' and not dados.get('acesso_pago'):
+                destino = url_for('checkout')
+            elif dados.get('tipo') == 'estabelecimento':
+                destino = url_for('dashboard_estabelecimento')
+            else:
+                destino = url_for('dashboard')
+
+        return jsonify({"status": "success", "redirect": destino}), 200
+
     except Exception as e:
-        return jsonify({"status": "error", "message": "Token inválido"}), 401
+        session.clear() # Se der erro, por segurança limpa tudo
+        return jsonify({"status": "error", "message": "Falha crítica de segurança"}), 401
 
 
 # 🔔 ROTA: Marcar como lido
@@ -868,13 +889,11 @@ def excluir_pedidos():
         return jsonify({'status': 'error', 'message': str(e)}), 500
 
 
-
 # 1. ROTA PARA EXIBIR O FORMULÁRIO DE CADASTRO
 @app.route('/cadastro-estabelecimento')
 @login_required
 def abrir_pagina_estabelecimento():
     return render_template('cadastro_estabelecimento.html')
-
 
 
 # 2. ROTA QUE PROCESSA O CADASTRO (API)
