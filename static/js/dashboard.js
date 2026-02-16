@@ -291,3 +291,26 @@ function mascaraTelefone(input) {
     // Limita a 15 caracteres: (11) 99999-9999
     input.value = value.slice(0, 15);
 }
+
+
+function compartilharPerfil(elemento) {
+    const nomeUrl = elemento.getAttribute('data-nome-url');
+    const nomeReal = elemento.getAttribute('data-nome-exibicao');
+    
+    // Certifique-se que essa URL pública é a página que tem as METATAGS configuradas
+    const urlPublica = window.location.protocol + "//" + window.location.host + "/musico/" + nomeUrl;
+
+    if (navigator.share) {
+        navigator.share({
+            title: 'Perfil de ' + nomeReal,
+            text: 'Confira o trabalho de ' + nomeReal,
+            url: urlPublica // O app de destino lerá a foto através desta URL
+        }).catch(err => {
+            console.log("Erro ao compartilhar: ", err);
+        });
+    } else {
+        navigator.clipboard.writeText(urlPublica).then(() => {
+            alert("Link de " + nomeReal + " copiado!");
+        });
+    }
+}

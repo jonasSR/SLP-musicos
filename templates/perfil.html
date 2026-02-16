@@ -11,6 +11,11 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/perfil.css') }}">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+
+    <meta property="og:title" content="Perfil de {{ musico.nome }}">
+    <meta property="og:description" content="Confira o trabalho de {{ musico.nome }} no nosso portal.">
+    <meta property="og:image" content="{{ musico.foto_url }}"> <meta property="og:type" content="profile">
 </head>
 
 <body class="profile-body">
@@ -34,6 +39,15 @@
                 <a href="#reserve" class="btn-nav-link" onclick="showMobileTab(event, 'reserve')">CONTATO</a>
                 <a href="#agenda" class="btn-nav-link" onclick="showMobileTab(event, 'agenda')">AGENDA</a>
                 <a href="#mensagens" class="btn-nav-link" onclick="showMobileTab(event, 'mensagens')">COMUNIDADE</a>
+                
+                <a href="javascript:void(0)" 
+                id="link-compartilhar"
+                onclick="compartilharPerfil(this)" 
+                data-nome-url="{{ musico.nome | replace(' ', '-') | lower }}" 
+                data-nome-exibicao="{{ musico.nome }}"
+                class="btn-nav-link">
+                    <i class="fas fa-share-alt"></i> <span>COMPARTILHAR PERFIL</span>
+                </a>
             </nav>
 
             <nav class="mobile-tabs">
@@ -92,6 +106,13 @@
                                 <i class="fab fa-youtube"></i>
                             </a>
                             {% endif %}
+                            <a href="javascript:void(0)" 
+                            onclick="compartilharPerfil(this)" 
+                            data-nome-url="{{ musico.nome | replace(' ', '-') | lower }}" 
+                            data-nome-exibicao="{{ musico.nome }}"
+                            class="social-icon-link share-mobile-only" title="Compartilhar">
+                                <i class="fas fa-share-alt"></i>
+                            </a>
                         </div>
                     </div>
 
@@ -250,10 +271,6 @@
                                             <span class="time-tag">🕒 {{ show.horario }}</span>
                                         </div>
                                     </div>
-                                </div>
-
-                                <div class="agenda-status">
-                                    <div class="pulse-dot"></div> CONFIRMADO
                                 </div>
                             </div>
                             {% else %}

@@ -7,7 +7,12 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <meta property="og:title" content="Perfil de {{ musico.nome }}">
+    <meta property="og:description" content="Confira o trabalho de {{ musico.nome }} no nosso portal.">
+    <meta property="og:image" content="{{ musico.foto_url }}"> <meta property="og:type" content="profile">
 </head>
+
 <body>
     {% if exibir_boas_vindas_interno %}
     <div id="modal-boas-vindas-sistema" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 9999; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(5px);">
@@ -100,6 +105,17 @@
                 <span class="tag">{{ musico.estilo or 'Estilo' }}</span>
             </li>
         {% endif %}
+
+        <li>
+            <a href="javascript:void(0)" 
+               onclick="compartilharPerfil(this)" 
+               data-nome-url="{{ musico.nome | replace(' ', '-') | lower }}" 
+               data-nome-exibicao="{{ musico.nome }}"
+               class="btn-nav-link" 
+               style="color: #00fd15; border: none; background: none; cursor: pointer;">
+                <i class="fas fa-share-alt"></i> <span>COMPARTILHAR PERFIL</span>
+            </a>
+        </li>
 
         <li><a href="/" class="btn-nav-link"><i class="fas fa-home"></i> <span>HOME</span></a></li>
         
@@ -217,6 +233,7 @@
                 </div>
             </div>
         </aside>
+        
 
 
         <!-- VISTAS DO MêS -->

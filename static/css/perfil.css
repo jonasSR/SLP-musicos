@@ -290,7 +290,7 @@ body {
     transition: transform 0.1s ease-out;
 }
 
-/* --- Titles --- */
+
 
 .artist-titles {
     position: absolute;
@@ -304,15 +304,23 @@ body {
     font-size: clamp(2.5rem, 5vw, 4rem);
     line-height: 0.9;
     text-transform: uppercase;
-    text-shadow: 0 10px 30px rgba(0,0,0,0.5);
-    white-space: normal; /* Permite quebrar linha se o zoom for muito alto */
+    font-weight: 900; /* Um peso maior ajuda a ver o degradê */
+    
+    /* Efeito de Degradê de baixo para cima */
+    background: linear-gradient(to top, rgba(255,255,255,0.2) 0%, rgba(255,255,255,1) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+
+    /* Sombra externa para destacar do fundo */
+    filter: drop-shadow(0 10px 20px rgba(0,0,0,0.8));
+    
+    white-space: normal;
     word-wrap: break-word;
 }
 
-/* --- Details --- */
+
 
 .artist-details {
-  
     width: 700px; /* Largura fixa para o painel não "expandir" infinitamente */
     min-width: 400px;
     background: #050505;
@@ -844,12 +852,6 @@ body {
     gap: 4px;
 }
 
-.pulse-dot {
-    width: 4px;
-    height: 4px;
-    background: #00ff88;
-    border-radius: 50%;
-}
 
 /*######################################################################################################################*/
 
@@ -1112,21 +1114,39 @@ body {
 
 
 /* =========================================================
-   REDES SOCIAIS
+   REDES SOCIAIS - ESTILO CIRCULAR
 ========================================================= */
+.artist-social-links {
+    display: flex;
+    gap: 10px; /* Espaçamento entre os círculos */
+    flex-wrap: wrap;
+}
+
 .social-icon-link {
-    font-size: 1.8rem;
+    display: flex; /* Necessário para centralizar o ícone */
+    align-items: center;
+    justify-content: center;
+    
+    width: 40px;  /* Tamanho do círculo */
+    height: 40px; /* Tamanho do círculo */
+    
+    font-size: 1.4rem; /* Ajuste o tamanho do ícone dentro do círculo */
     color: #fff;
-    opacity: 0.7;
+    background: rgba(255, 255, 255, 0.1); /* Fundo leve para o círculo */
+    border: 2px solid rgba(255, 255, 255, 0.3); /* Borda opcional */
+    border-radius: 50%; /* Faz o círculo */
+    
     text-decoration: none;
-    transition: 0.3s ease;
+    transition: all 0.3s ease;
 }
 
 .social-icon-link:hover {
+    color: #fff;
+    background: #00d2ff; /* Cor de fundo no hover */
+    border-color: #00d2ff;
     opacity: 1;
-    color: #00d2ff;
     transform: translateY(-5px);
-    text-shadow: 0 0 15px rgba(0,210,255,0.5);
+    box-shadow: 0 0 20px rgba(0, 210, 255, 0.1);
 }
 
 
@@ -1169,6 +1189,59 @@ html {
     scroll-behavior: smooth;
 }
 
+
+#link-compartilhar {
+    color: #00fd15 !important;
+}
+
+#link-compartilhar i {
+    color: #00fd15 !important;
+}
+
+#link-compartilhar span {
+    color: #00fd15 !important;
+}
+
+/* Efeito ao passar o mouse apenas neste botão */
+#link-compartilhar:hover, 
+#link-compartilhar:hover i, 
+#link-compartilhar:hover span {
+    color: #ffffff !important;
+    text-shadow: 0 0 10px #00fd15;
+}
+
+/* Esconde o botão de ícone por padrão (Desktop) */
+.share-mobile-only {
+    display: none !important;
+    color: #00fd15 !important;
+}
+
+/* --- Dispositivos Móveis (Geralmente abaixo de 768px) --- */
+@media (max-width: 768px) {
+    
+    /* Esconde o botão de texto do menu lateral */
+    .share-desktop-only {
+        display: none !important;
+    }
+
+    /* Mostra o botão de ícone ao lado das redes sociais */
+    .share-mobile-only {
+        display: flex !important;
+        align-items: center;
+        justify-content: center;
+        width: 45px; /* Tamanho igual aos outros ícones */
+        height: 45px;
+        border-radius: 50%;
+    }
+
+    /* Ajuste para os ícones ficarem em linha se o container for pequeno */
+    .artist-social-links {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 15px;
+        align-items: center;
+    }
+}
 /* ==========================================================================
    CONFIGURAÇÃO GLOBAL (DESKTOP)
    ========================================================================== */

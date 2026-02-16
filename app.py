@@ -144,14 +144,27 @@ def index():
 @app.route('/musico/<musico_id>')
 def perfil_musico(musico_id):
     """Página detalhada de cada artista"""
-    doc_ref = db.collection('artistas').document(musico_id)
     
+    # --- INÍCIO DA PEQUENA ALTERAÇÃO ---
+    # Tenta buscar pelo ID primeiro, se falhar, busca pelo campo 'nome'
+    doc_ref = db.collection('artistas').document(musico_id)
+    musico = doc_ref.get()
+
+    if not musico.exists:
+        # Se não achou pelo ID, tenta buscar pelo nome formatado da URL
+        nome_busca = musico_id.replace('-', ' ')
+        query = db.collection('artistas').where('nome', '==', nome_busca).limit(1).get()
+        if query:
+            musico = query[0]
+            doc_ref = musico.reference # Atualiza a referência para o documento real
+            musico_id = musico.id      # Atualiza o ID para o real do Firebase
+        else:
+            return "Músico não encontrado", 404
+    # --- FIM DA ALTERAÇÃO ---
+
+    # Daqui para baixo, o código continua EXATAMENTE como o seu original
     # Incrementa cliques
     doc_ref.update({'cliques': firestore.Increment(1)})
-
-    musico = doc_ref.get()
-    if not musico.exists:
-        return "Músico não encontrado", 404
 
     dados = musico.to_dict()
     
@@ -181,9 +194,9 @@ def perfil_musico(musico_id):
         'perfil.html',
         musico=dados,
         agenda=agenda,
-        feedbacks=feedbacks_aprovados, # Lista para o Mural
-        qtd_fas=qtd_fas,               # Contador de fãs
-        media_estrelas=media_estrelas, # Média de estrelas
+        feedbacks=feedbacks_aprovados,
+        qtd_fas=qtd_fas,
+        media_estrelas=media_estrelas,
         id=musico_id
     )
 
@@ -681,7 +694,13 @@ def cadastrar_musico():
     if foto_url:
         final_path = foto_url
 
-    # --- UPLOAD PARA VERCEL BLOB (SUBSTITUINDO O SALVAMENTO LOCAL) ---
+    """if file and file.filename != '' and allowed_file(file.filename):
+        filename = secure_filename(file.filename)
+        filename = f"upload_{filename}"
+        file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+        final_path = f"/static/img/{filename}"""
+
+        # --- UPLOAD PARA VERCEL BLOB (SUBSTITUINDO O SALVAMENTO LOCAL) ---
     if file and file.filename != '' and allowed_file(file.filename):
         import requests
         import os
@@ -708,7 +727,6 @@ def cadastrar_musico():
             final_path = response.json().get('url')
         else:
             print("Erro no upload:", response.text)
-    # ---------------------------------------------------------------
 
     # Dicionário de dados atualizado
     dados = {
