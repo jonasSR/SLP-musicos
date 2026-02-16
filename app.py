@@ -681,11 +681,34 @@ def cadastrar_musico():
     if foto_url:
         final_path = foto_url
 
+    # --- UPLOAD PARA VERCEL BLOB (SUBSTITUINDO O SALVAMENTO LOCAL) ---
     if file and file.filename != '' and allowed_file(file.filename):
+        import requests
+        import os
+        from werkzeug.utils import secure_filename
+
         filename = secure_filename(file.filename)
-        filename = f"upload_{filename}"
-        file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-        final_path = f"/static/img/{filename}"
+        # Lê o conteúdo da imagem
+        conteudo = file.read()
+        
+        # Pega o Token do seu arquivo .env
+        token = os.getenv("BLOB_READ_WRITE_TOKEN")
+        
+        # Faz o upload para a Vercel
+        url_vercel = f"https://blob.vercel-storage.com/artistas/{filename}"
+        headers = {
+            "Authorization": f"Bearer {token}",
+            "x-content-type": file.content_type
+        }
+        
+        response = requests.put(url_vercel, data=conteudo, headers=headers)
+        
+        if response.status_code == 200:
+            # SUCESSO: Agora final_path terá o link https://...
+            final_path = response.json().get('url')
+        else:
+            print("Erro no upload:", response.text)
+    # ---------------------------------------------------------------
 
     # Dicionário de dados atualizado
     dados = {

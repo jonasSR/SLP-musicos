@@ -19,15 +19,17 @@ import {
     serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
+
 // 🔐 BUSCA AS CONFIGURAÇÕES INJETADAS PELO FLASK NO HTML
 // Não coloque as chaves aqui! Elas vêm do window.firebaseConfig
 const firebaseConfig = window.firebaseConfig;
 
+
 // 🛡️ VERIFICAÇÃO DE SEGURANÇA
-// Se as chaves não existirem (erro de carregamento), o código avisa em vez de travar
 if (!firebaseConfig || !firebaseConfig.apiKey) {
     console.error("❌ Erro: As chaves do Firebase não foram encontradas. Verifique o arquivo .env e o app.py.");
 }
+
 
 // 🔥 INICIALIZAÇÃO
 const app = initializeApp(firebaseConfig);
@@ -223,14 +225,6 @@ async function verificarStatusCadastro(email) {
 }
 
 
-
-
-
-
-
-
-
-
 // 🌐 GOOGLE
 const provider = new GoogleAuthProvider();
 provider.setCustomParameters({ prompt: 'select_account' });
@@ -264,6 +258,7 @@ window.loginComGoogle = async function() {
     }
 }
 
+
 // 🛡️ FUNÇÃO DE APOIO SÓ PARA O GOOGLE (Não mexe no login normal)
 async function fluxoVerificacaoExclusivoGoogle(email) {
     try {
@@ -292,8 +287,6 @@ async function fluxoVerificacaoExclusivoGoogle(email) {
         window.location.href = "/dashboard";
     }
 }
-
-
 
 
 // 🆕 CADASTRO (UNIFICADO)
@@ -473,6 +466,7 @@ document.getElementById('btn-retomar-nao').onclick = async () => {
         window.location.href = "/";
     }
 };
+
 
 document.addEventListener("DOMContentLoaded", () => {
     const btnFinalizar = document.getElementById('btn-finalizar-venda');
