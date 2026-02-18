@@ -15,6 +15,11 @@ from dotenv import load_dotenv
 load_dotenv()
 from datetime import datetime, timedelta
 from flask import jsonify
+import re
+from markupsafe import Markup
+from num2words import num2words
+import uuid
+
 
 
 # ======================================================
@@ -1073,6 +1078,75 @@ def termos():
 @app.route('/privacidade')
 def privacidade():
     return render_template('privacidade.html')    
+
+
+@app.route('/gerar_proposta', methods=['POST'])
+@login_required
+def gerar_proposta():
+    email_logado = session.get('user_email')
+    artista_docs = list(db.collection('artistas').where('dono_email', '==', email_logado).limit(1).stream())
+    
+    if not artista_docs:
+        return redirect(url_for('dashboard'))
+    
+    m = artista_docs[0].to_dict()
+    auth_id = str(uuid.uuid4())[:13].upper()
+    agora = datetime.now().strftime('%d/%m/%Y às %H:%M')
+
+    # --- TRATAMENTO DA DATA VINDA DO CALENDÁRIO ---
+    data_festa_raw = request.form.get('data_festa', '')
+    try:
+        # O input type="date" envia AAAA-MM-DD, aqui transformamos em DD/MM/AAAA
+        data_festa = datetime.strptime(data_festa_raw, '%Y-%m-%d').strftime('%d/%m/%Y')
+    except:
+        # Se por algum motivo não vier no formato de data, mantém o que vier
+        data_festa = data_festa_raw
+
+    # --- LÓGICA DO VALOR (MOEDA E EXTENSO) ---
+    valor_input = request.form.get('valor_cache', '0')
+    try:
+        limpo_v = re.sub(r'[^\d,]', '', valor_input).replace(',', '.')
+        valor_float = float(limpo_v)
+        valor_cache_formatado = "{:,.2f}".format(valor_float).replace(',', 'X').replace('.', ',').replace('X', '.')
+        valor_extenso = num2words(valor_float, to='currency', lang='pt_BR').capitalize()
+    except:
+        valor_cache_formatado = valor_input
+        valor_extenso = "Valor não identificado"
+
+    # --- LÓGICA CPF / CNPJ ---
+    doc_input = request.form.get('documento_artista', '')
+    doc_numeros = re.sub(r'\D', '', doc_input)
+    if len(doc_numeros) == 11:
+        doc_formatado = f"{doc_numeros[:3]}.{doc_numeros[3:6]}.{doc_numeros[6:9]}-{doc_numeros[9:]}"
+    elif len(doc_numeros) == 14:
+        doc_formatado = f"{doc_numeros[:2]}.{doc_numeros[2:5]}.{doc_numeros[5:8]}/{doc_numeros[8:12]}-{doc_numeros[12:]}"
+    else:
+        doc_formatado = doc_input
+
+    dados_proposta = {
+        'nome_festa': request.form.get('nome_festa'),
+        'data_festa': data_festa, # Envia a data formatada para o HTML
+        'hora_festa': request.form.get('hora_festa'),
+        'local_festa': request.form.get('local_festa'),
+        'valor_cache': valor_cache_formatado,
+        'valor_extenso': valor_extenso, 
+        'detalhes_show': request.form.get('detalhes_show'),
+        'cor_proposta': request.form.get('cor_proposta', '#00f2ff'),
+        'documento_artista': doc_formatado,
+        'auth_id': auth_id,
+        'data_emissao': agora
+    }
+
+    return render_template('proposta_template.html', m=m, p=dados_proposta)
+
+
+@app.template_filter('nl2br')
+def nl2br_filter(s):
+    if not s:
+        return ""
+    # Substitui quebras de linha por <br>\n e marca como seguro para o HTML
+    result = re.sub(r'\r\n|\r|\n', '<br>\n', s)
+    return Markup(result)
 
 
 if __name__ == '__main__':

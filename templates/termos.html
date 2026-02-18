@@ -1,43 +1,270 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-    <meta charset="UTF-8">
-    <title>Termos de Uso | Pulsa Music Conect</title>
-    <link rel="stylesheet" href="static/css/style.css"> 
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Termos de Uso | Pulsa Music Conect</title>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+<style>
+
+/* ============================= */
+/* BASE */
+/* ============================= */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: linear-gradient(135deg, #0f0f11, #141418);
+    color: #fff;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* ============================= */
+/* WRAPPER */
+/* ============================= */
+
+.legal-wrapper {
+    max-width: 1200px;
+    margin: auto;
+    padding: 60px 20px;
+}
+
+.legal-flex {
+    display: flex;
+    gap: 60px;
+    align-items: flex-start;
+}
+
+/* ============================= */
+/* SIDEBAR */
+/* ============================= */
+
+.legal-sidebar {
+    flex: 0 0 320px;
+    position: sticky;
+    top: 40px;
+}
+
+.back-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 25px;
+    background: rgba(255,255,255,0.06);
+    border-radius: 12px;
+    text-decoration: none;
+    color: #fff;
+    font-size: 0.75rem;
+    font-weight: 700;
+    transition: 0.3s ease;
+}
+
+.back-btn:hover {
+    background: rgba(0,255,136,0.15);
+    transform: translateY(-2px);
+}
+
+.title-main {
+    font-size: 2.6rem;
+    font-weight: 800;
+    line-height: 1.1;
+    margin: 30px 0 15px;
+}
+
+.subtitle-main {
+    opacity: 0.7;
+    font-size: 0.95rem;
+}
+
+.meta-box {
+    margin-top: 30px;
+    padding: 25px;
+    background: rgba(255,255,255,0.04);
+    border-radius: 18px;
+    backdrop-filter: blur(15px);
+    border: 1px solid rgba(255,255,255,0.08);
+    font-size: 0.75rem;
+    opacity: 0.8;
+}
+
+/* ============================= */
+/* CARD */
+/* ============================= */
+
+.legal-card {
+    flex: 1;
+    padding: 50px;
+    border-radius: 25px;
+    background: rgba(255,255,255,0.04);
+    backdrop-filter: blur(25px);
+    border: 1px solid rgba(255,255,255,0.08);
+    box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+}
+
+.legal-card h3 {
+    margin-top: 35px;
+    margin-bottom: 15px;
+    font-size: 1.1rem;
+    color: #00ff88;
+}
+
+.legal-card p,
+.legal-card li {
+    font-size: 0.9rem;
+    line-height: 1.8;
+    opacity: 0.85;
+}
+
+.legal-card ul {
+    margin-left: 20px;
+}
+
+/* ============================= */
+/* FOOTER */
+/* ============================= */
+
+.footer-legal {
+    margin-top: 60px;
+    padding-top: 25px;
+    border-top: 1px solid rgba(255,255,255,0.1);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.7rem;
+    opacity: 0.5;
+}
+
+/* ============================= */
+/* MOBILE */
+/* ============================= */
+
+@media (max-width: 992px) {
+
+    .legal-flex {
+        flex-direction: column;
+        gap: 40px;
+    }
+
+    .legal-sidebar {
+        position: relative;
+        top: 0;
+        width: 100%;
+    }
+
+    .title-main {
+        font-size: 2rem;
+    }
+
+    .legal-card {
+        padding: 30px;
+    }
+
+}
+
+/* Animação suave */
+
+.legal-card,
+.meta-box {
+    animation: fadeUp 0.6s ease forwards;
+}
+
+@keyframes fadeUp {
+    from {
+        opacity: 0;
+        transform: translateY(15px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+</style>
 </head>
-<body class="legal-page">
 
-    <main class="gallery-section">
-        <div class="container">
-            <div class="discovery-header-saas">
-                <h2 class="local-title">Termos de Uso</h2>
-                <p class="local-subtitle">Última atualização: Fevereiro de 2026</p>
-            </div>
+<body>
 
-            <div class="modern-card legal-container">
-                <div class="legal-content">
-                    <h3>1. Aceitação dos Termos</h3>
-                    <p>Ao acessar a plataforma Pulsa Music Conect, você concorda em cumprir estes termos de serviço e todas as leis aplicáveis.</p>
+<div class="legal-wrapper">
+<div class="legal-flex">
 
-                    <h3>2. Cadastro e Uso</h3>
-                    <p>A plataforma funciona como um Web Service de conexão entre músicos e contratantes. O usuário é responsável pela veracidade das informações em seu perfil.</p>
+<!-- SIDEBAR -->
 
-                    <h3>3. Propriedade Intelectual</h3>
-                    <p>Todo o conteúdo visual, códigos e marcas são de propriedade da Pulsa Music. Os artistas mantêm os direitos sobre suas obras e fotos enviadas.</p>
+<aside class="legal-sidebar">
 
-                    <h3>4. Limitação de Responsabilidade</h3>
-                    <p>A Pulsa Music Conect não se responsabiliza por acordos diretos, pagamentos ou condutas durante eventos realizados fora da plataforma.</p>
-                </div>
-                
-                <div class="glass-footer">
-                    <div class="footer-line">
-                        <span class="tag-genre">DOCUMENTO OFICIAL</span>
-                        <a href="/" class="btn-profile-link">VOLTAR PARA HOME</a>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </main>
+<a href="javascript:void(0)" onclick="history.back()" class="back-btn" style="outline: none; box-shadow: none;">
+    <i class="fas fa-chevron-left"></i> VOLTAR
+</a>
+
+<h1 class="title-main">Termos de Uso</h1>
+<p class="subtitle-main">Regras e diretrizes para utilização da plataforma.</p>
+
+<div class="meta-box">
+<strong>VERSÃO:</strong> 2.0<br>
+<strong>ÚLTIMA ATUALIZAÇÃO:</strong> FEVEREIRO 2026<br>
+<strong>STATUS:</strong> DOCUMENTO OFICIAL
+</div>
+
+</aside>
+
+<!-- MAIN CONTENT -->
+
+<section class="legal-card">
+
+<h3>1. Aceitação dos Termos</h3>
+<p>Ao acessar ou utilizar o Pulsa Music Conect, você declara ter lido, compreendido e concordado integralmente com estes Termos de Uso.</p>
+
+<h3>2. Cadastro e Responsabilidades</h3>
+<p>O usuário compromete-se a fornecer informações verdadeiras, completas e atualizadas. É proibido criar perfis falsos, utilizar dados de terceiros ou praticar qualquer ato que comprometa a integridade da plataforma.</p>
+
+<h3>3. Natureza da Plataforma</h3>
+<p>O Pulsa Music Conect atua como intermediador digital para conexões entre músicos e contratantes. A plataforma não participa diretamente de negociações, pagamentos ou execução de eventos.</p>
+
+<h3>4. Propriedade Intelectual</h3>
+<ul>
+<li>O código, layout e identidade visual pertencem à Pulsa Music.</li>
+<li>Os artistas mantêm direitos autorais sobre suas obras.</li>
+<li>É proibida a reprodução não autorizada da marca ou sistema.</li>
+</ul>
+
+<h3>5. Conduta do Usuário</h3>
+<ul>
+<li>Não utilizar a plataforma para fins ilícitos.</li>
+<li>Não publicar conteúdo ofensivo, discriminatório ou ilegal.</li>
+<li>Não tentar invadir, hackear ou comprometer o sistema.</li>
+</ul>
+
+<h3>6. Suspensão ou Cancelamento</h3>
+<p>A Pulsa Music Conect poderá suspender ou remover contas que violem estes termos, sem aviso prévio, em caso de descumprimento.</p>
+
+<h3>7. Limitação de Responsabilidade</h3>
+<p>A plataforma não se responsabiliza por acordos financeiros, cancelamentos, atrasos ou danos decorrentes de eventos realizados entre usuários.</p>
+
+<h3>8. Alterações dos Termos</h3>
+<p>Estes termos podem ser atualizados a qualquer momento. O uso contínuo da plataforma após alterações implica concordância com a nova versão.</p>
+
+<h3>9. Foro e Legislação Aplicável</h3>
+<p>Este documento é regido pela legislação brasileira. Fica eleito o foro da comarca da sede da empresa para dirimir quaisquer controvérsias.</p>
+
+<div class="footer-legal">
+<span>DOC-TERMOS-2026</span>
+<span>© Pulsa Music Conect</span>
+</div>
+
+</section>
+
+</div>
+</div>
 
 </body>
 </html>

@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Proposta Comercial - {{ m.nome }}</title>
+    <style>
+        /* Importação de Fontes */
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&family=Righteous&family=Dancing+Script:wght@600&display=swap');
+
+        :root { 
+            --accent: {{ p.cor_proposta|default('#f2a900') }}; 
+        }
+
+        body { 
+            background: #e0e0e0; 
+            margin: 0; 
+            padding: 20px; 
+            font-family: 'Montserrat', sans-serif; 
+            color: #333; 
+        }
+
+        /* CONFIGURAÇÃO DE IMPRESSÃO AUTOMÁTICA */
+        @media print {
+            @page { margin: 0; }
+            body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .folha-a4 { box-shadow: none; margin: 0; width: 100%; }
+        }
+
+        .folha-a4 {
+            background: #fff;
+            width: 210mm;
+            min-height: 297mm;
+            margin: auto;
+            padding: 30mm 20mm;
+            box-shadow: 0 0 20px rgba(0,0,0,0.2);
+            position: relative;
+            box-sizing: border-box;
+            overflow: hidden; 
+        }
+
+        /* --- ELEMENTOS VISUAIS --- */
+        .decoracao-topo {
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 300px;
+            height: 100px;
+            background: linear-gradient(135deg, transparent 70%, var(--accent) 100%);
+            opacity: 0.6;
+            z-index: 0;
+        }
+
+        .decoracao-base {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: var(--accent);
+            opacity: 0.6;
+            z-index: 0;
+        }
+
+        .nota-musical {
+            position: absolute;
+            font-size: 40px;
+            color: var(--accent);
+            opacity: 0.5;
+            z-index: 0;
+            user-select: none;
+        }
+
+        .watermark {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-45deg);
+            font-size: 110px;
+            font-weight: 900;
+            color: rgba(0, 0, 0, 0.05); 
+            z-index: 0;
+            pointer-events: none;
+            text-transform: uppercase;
+            text-align: center;
+            line-height: 0.9;
+            width: 100%;
+            white-space: nowrap;
+            user-select: none;
+        }
+
+        /* HEADER COM A NOVA ONDA EM DEGRADÊ */
+        .header { 
+            margin-bottom: 60px; 
+            position: relative; 
+            z-index: 1; 
+            padding-bottom: 25px; /* Espaço para a onda */
+        }
+
+        .header::after {
+            content: "";
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 18px;
+            background: linear-gradient(90deg, var(--accent) 0%, #1a1a1a 100%);
+            -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 120' preserveAspectRatio='none'%3E%3Cpath d='M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V0H0V27.35A600.21,600.21,0,0,0,321.39,56.44Z'%3E%3C/path%3E%3C/svg%3E");
+            mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 120' preserveAspectRatio='none'%3E%3Cpath d='M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V0H0V27.35A600.21,600.21,0,0,0,321.39,56.44Z'%3E%3C/path%3E%3C/svg%3E");
+            -webkit-mask-size: cover;
+            mask-size: cover;
+            -webkit-mask-repeat: no-repeat;
+            mask-repeat: no-repeat;
+        }
+
+        .logo-text { 
+            font-family: 'Righteous', cursive;
+            font-size: 32px; 
+            font-weight: 400; 
+            text-transform: uppercase; 
+            letter-spacing: 2px;
+            color: #1a1a1a;
+        }
+
+        .corpo { 
+            position: relative; 
+            z-index: 1; 
+            font-size: 15px; 
+            width: 100%; 
+        }
+
+        .campo-info { margin-bottom: 5px; }
+        .negrito { font-weight: 700; }
+
+        .texto-principal { 
+            margin: 30px 0; 
+            text-indent: 40px; 
+            text-align: justify; 
+            line-height: 1.6; 
+        }
+
+        .sobre-show { 
+            display: block;
+            width: 100%;
+            max-width: 170mm;
+            white-space: pre-wrap; 
+            word-wrap: break-word;
+            overflow-wrap: anywhere;
+            text-align: justify;
+            line-height: 1.6;
+            margin-top: 10px;
+            color: #444;
+        }
+
+        .footer { 
+            margin-top: 80px; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: flex-end; 
+            position: relative; 
+            z-index: 1; 
+        }
+
+        .contatos p { margin: 2px 0; font-size: 14px; }
+
+        .assinatura-box {
+            text-align: center;
+            width: 300px;
+        }
+
+        .nome-manuscrito {
+            font-family: 'Dancing Script', cursive;
+            font-size: 32px;
+            color: #1a1a1a;
+            margin-bottom: -3px; 
+            line-height: 1;
+        }
+
+        .nome-impresso {
+            margin: 0; 
+            font-size: 11px; 
+            font-weight: bold; 
+            text-transform: uppercase;
+            border-top: 1px solid #333; 
+            padding-top: 5px;
+        }
+
+        .hash-validacao {
+            font-family: monospace;
+            font-size: 9px;
+            color: #666;
+            text-transform: uppercase;
+            margin-top: 8px;
+            line-height: 1.2;
+        }
+
+    </style>
+</head>
+<body>
+
+<div class="folha-a4">
+    <div class="decoracao-topo"></div>
+    <div class="decoracao-base"></div>
+    
+    <div class="nota-musical" style="top: 10%; left: 5%;">♪</div>
+    <div class="nota-musical" style="top: 85%; right: 10%; transform: rotate(15deg);">♫</div>
+    <div class="nota-musical" style="top: 40%; right: 5%; font-size: 30px; opacity: 0.04;">♩</div>
+
+    <div class="watermark">{{ m.nome }}<br>{{ m.nome }}</div>
+
+    <div class="header">
+        <div class="logo-text">{{ m.nome }}</div>
+    </div>
+
+    <div class="corpo">
+        <div class="campo-info">De: <span class="negrito">{{ m.nome }}</span></div>
+        
+        {% if p.documento_artista %}
+            <div class="campo-info">CPF/CNPJ: <span class="negrito">{{ p.documento_artista }}</span></div>
+        {% endif %}
+
+        <p class="texto-principal">
+            Orçamento de show de <span class="negrito">{{ m.nome }}</span> para a festa 
+            <span class="negrito">{{ p.nome_festa }}</span> a ser realizada na data do dia 
+            <span class="negrito">{{ p.data_festa }}</span>, no local: 
+            <span class="negrito">{{ p.local_festa }}</span> às <span class="negrito">{{ p.hora_festa }}</span>.
+        </p>
+
+        <p>Valor: <span class="negrito">R$ {{ p.valor_cache }} ({{ p.valor_extenso }})</span>.</p>
+
+        <div style="margin-top: 30px;">
+            <span class="negrito">Sobre o show:</span>
+            <div class="sobre-show">{{ p.detalhes_show | nl2br }}</div>
+        </div>
+    </div>
+
+    <div class="footer">
+        <div class="contatos">
+            <p class="negrito">Contato:</p>
+            <p>Tel: {{ m.contato }}</p>
+            <p>E-mail: {{ m.dono_email }}</p>
+        </div>
+
+        <div class="assinatura-box">
+            <p class="nome-manuscrito">{{ m.nome }}</p>
+            <p class="nome-impresso">{{ m.nome }}</p>
+            
+            <div class="hash-validacao">
+                ID: AUTH-{{ p.auth_id }}<br>
+                Emissão: {{ p.data_emissao }}<br>
+                VALIDADO VIA PULSA MUSIC CONNECT
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

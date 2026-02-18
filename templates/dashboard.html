@@ -97,6 +97,7 @@
     <div class="menu-toggle" id="mobile-menu">
         <span class="bar"></span><span class="bar"></span><span class="bar"></span>
     </div>
+    
     <ul class="nav-links" id="nav-links">
         {% if session.get('user_email') %}
             <li class="mobile-only-item profile-card-mobile">
@@ -105,34 +106,49 @@
                 <span class="tag">{{ musico.estilo or 'Estilo' }}</span>
             </li>
         {% endif %}
-
         <li>
             <a href="javascript:void(0)" 
                onclick="compartilharPerfil(this)" 
+               onfocus="this.blur()"
                data-nome-url="{{ musico.nome | replace(' ', '-') | lower }}" 
                data-nome-exibicao="{{ musico.nome }}"
                class="btn-nav-link" 
-               style="color: #00fd15; border: none; background: none; cursor: pointer;">
+               style="color: #00fd15; border: none; background: none; cursor: pointer; outline: none; box-shadow: none;">
                 <i class="fas fa-share-alt"></i> <span>COMPARTILHAR PERFIL</span>
             </a>
         </li>
 
-        <li><a href="/" class="btn-nav-link"><i class="fas fa-home"></i> <span>HOME</span></a></li>
+        <li><a href="/" class="btn-nav-link" onfocus="this.blur()" style="outline: none; box-shadow: none;"><i class="fas fa-home"></i> <span>HOME</span></a></li>
         
         {% if session.get('user_email') %}
-            <li class="desktop-only-menu"><a href="javascript:void(0)" onclick="showSection('aba-perfil')" class="btn-nav-link"><i class="fas fa-user"></i> <span>PERFIL</span></a></li>
-            <li class="desktop-only-menu"><a href="javascript:void(0)" onclick="showSection('aba-agenda')" class="btn-nav-link"><i class="fas fa-calendar-alt"></i> <span>AGENDA</span></a></li>
-            <li class="desktop-only-menu"><a href="javascript:void(0)" onclick="showSection('aba-inbox')" class="btn-nav-link"><i class="fas fa-envelope"></i> <span>INBOX</span></a></li>
-            <li class="desktop-only-menu"><a href="javascript:void(0)" onclick="showSection('aba-fas')" class="btn-nav-link"><i class="fas fa-users"></i> <span>COMUNIDADE</span></a></li>
+            <li class="desktop-only-menu"><a href="javascript:void(0)" onclick="showSection('aba-perfil')" onfocus="this.blur()" class="btn-nav-link" style="outline: none; box-shadow: none;"><i class="fas fa-user"></i> <span>PERFIL</span></a></li>
+            <li class="desktop-only-menu"><a href="javascript:void(0)" onclick="showSection('aba-agenda')" onfocus="this.blur()" class="btn-nav-link" style="outline: none; box-shadow: none;"><i class="fas fa-calendar-alt"></i> <span>AGENDA</span></a></li>
+            <li class="desktop-only-menu"><a href="javascript:void(0)" onclick="showSection('aba-inbox')" onfocus="this.blur()" class="btn-nav-link" style="outline: none; box-shadow: none;"><i class="fas fa-envelope"></i> <span>INBOX</span></a></li>
+            <li class="desktop-only-menu"><a href="javascript:void(0)" onclick="showSection('aba-fas')" onfocus="this.blur()" class="btn-nav-link" style="outline: none; box-shadow: none;"><i class="fas fa-users"></i> <span>COMUNIDADE</span></a></li>
+            
+            <li id="container-seguranca" class="desktop-only-menu" style="position: relative;">
+                <a href="javascript:void(0)" onclick="toggleSeguranca(event)" onfocus="this.blur()" class="btn-nav-link" style="display: flex; align-items: center; gap: 8px; outline: none; box-shadow: none;">
+                    <i class="fas fa-shield-alt"></i> 
+                    <span>SEGURANÇA E PRIVACIDADE</span>
+                    <i class="fas fa-chevron-down" id="seta-seguranca" style="font-size: 0.8em; transition: transform 0.3s;"></i>
+                </a>
+                <ul id="lista-seguranca" style="display: none; list-style: none; position: absolute; top: 100%; left: 0; min-width: 220px; z-index: 999; margin-top: 10px; background-color: #1a1a1a; padding: 10px; border-radius: 8px; box-shadow: 0 8px 16px rgba(0,0,0,0.3);">
+                    <li style="margin-bottom: 5px;"><a href="javascript:void(0)" onclick="abrirModalSenha()" class="btn-nav-link" style="color: #fff !important;"><i class="fas fa-lock"></i> <span>ALTERAR SENHA</span></a></li>
+                    <li style="margin-bottom: 5px;"><a href="/termos" class="btn-nav-link" style="color: #fff !important;"><i class="fas fa-file-alt"></i> <span>TERMOS</span></a></li>
+                    <li><a href="/privacidade" class="btn-nav-link" style="color: #fff !important;"><i class="fas fa-user-shield"></i> <span>PRIVACIDADE</span></a></li>
+                </ul>
+            </li>
 
-            <li><a href="javascript:void(0)" onclick="abrirModalSenha()" class="btn-nav-link"><i class="fas fa-lock"></i> <span>ALTERAR SENHA</span></a></li>
-            <li><a href="/logout" class="btn-logout"><i class="fas fa-sign-out-alt"></i> <span>SAIR</span></a></li>
+            <li class="mobile-only-item"><a href="javascript:void(0)" onclick="abrirModalSenha()" onfocus="this.blur()" class="btn-nav-link" style="outline: none; box-shadow: none;"><i class="fas fa-lock"></i> <span>ALTERAR SENHA</span></a></li>
+            
+            <li><a href="/logout" class="btn-logout" onfocus="this.blur()" style="outline: none; box-shadow: none;"><i class="fas fa-sign-out-alt"></i> <span>SAIR</span></a></li>
         {% endif %}
 
-        <li class="mobile-only-item"><a href="/termos" class="btn-nav-link"><i class="fas fa-file-alt"></i> <span>TERMOS</span></a></li>
-        <li class="mobile-only-item"><a href="/privacidade" class="btn-nav-link"><i class="fas fa-shield-alt"></i> <span>PRIVACIDADE</span></a></li>
+        <li class="mobile-only-item"><a href="/termos" class="btn-nav-link" onfocus="this.blur()" style="outline: none; box-shadow: none;"><i class="fas fa-file-alt"></i> <span>TERMOS</span></a></li>
+        <li class="mobile-only-item"><a href="/privacidade" class="btn-nav-link" onfocus="this.blur()" style="outline: none; box-shadow: none;"><i class="fas fa-shield-alt"></i> <span>PRIVACIDADE</span></a></li>
     </ul>
 </nav>
+
 
 <div id="modal-senha" class="modal-overlay">
     <div class="modal-content glass-card">
@@ -154,7 +170,6 @@
     </div>
 </div>
 
-
 <main class="dash-main">
     <header class="dash-intro" style="margin-bottom: 40px;">
         <h1 class="reveal-text" style="font-family: 'Orbitron', sans-serif; letter-spacing: 4px; display: flex; align-items: center; gap: 15px;">
@@ -165,6 +180,21 @@
             </span>
         </h1>
         <p style="opacity: 0.6; font-size: 0.9rem; margin-top: 5px;">Bem-vindo de volta! Gerencie seus pedidos e sua presença digital.</p>
+        
+
+<div class="dashboard-right-align desktop-only-menu"> 
+    <div class="tool-card-simple">
+        <div class="tool-content">
+            <i data-lucide="briefcase" class="icon-tool"></i>
+            <div class="tool-text">
+                <h4>Proposta de Show</h4>
+                <p>Envie orçamentos personalizados.</p>
+            </div>
+        </div>
+        <button onclick="openModal('modalProposta')" class="btn-card-action">CRIAR PROPOSTA</button>
+    </div>
+</div>
+
     </header>
 
     <div class="network-presence-pill">
@@ -196,6 +226,13 @@
         <button class="tab-btn" onclick="showMobileTab(event, 'agenda')">
             <i class="icon-calendar"></i>
             <span>Agenda</span>
+        </button>
+
+        <button class="tab-btn" onclick="openModal('modalProposta')">
+            <div class="circle-neon-proposta">
+                <i class="icon-plus"></i>
+            </div>
+            <span>Proposta</span>
         </button>
 
         <button class="tab-btn" onclick="showMobileTab(event, 'mensagens')">
@@ -458,97 +495,121 @@
             </button>
         </form>
     </div>
+    
+    <div class="agenda-header">
+        <h2 class="agenda-title">Agenda de Shows</h2>
+        <div class="agenda-subtitle">Clique no X para excluir</div>
+    </div>
 
     <div class="agenda-items-list">
-        {% for show in agenda %}
-        <div class="agenda-item-card">
-            <div class="agenda-item-info">
-                <div class="info-row">
-                    <div class="info-block">
-                        <span class="info-label">DATA</span>
-                        <span class="info-value">{{ show.data_dia }}/{{ show.data_mes }}</span>
-                    </div>
-                    <div class="info-block">
-                        <span class="info-label">HORÁRIO</span>
-                        <span class="info-value">{{ show.horario }}</span>
-                    </div>
-                    <div class="info-block">
-                        <span class="info-label">SHOW</span>
-                        <span class="info-value">{{ show.nome_festa | truncate(12, True) }}</span>
-                    </div>
-                </div>
+    {% for show in agenda %}
+    <div class="agenda-item-card">
+        <div class="card-side-date">
+            <span class="date-number">{{ show.data_dia }}</span>
+            <span class="date-month">FEV</span>
+        </div>
 
-                <div class="info-block">
-                    <span class="info-label">LOCAL</span>
-                    <span class="info-value">{{ show.local | truncate(25, True) }}</span>
-                </div>
-
-                <div class="info-row">
-                    <div class="info-block">
-                        <span class="info-label">CIDADE</span>
-                        <span class="info-value">{{ show.cidade | truncate(20, True) }}</span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="btn-container">
-                <form action="/remover_agenda/{{ show.id }}" method="POST">
-                    <button type="submit" class="btn-agenda-delete">EXCLUIR</button>
-                </form>
+        <div class="card-main-content">
+            <div class="show-title">{{ show.nome_festa }}</div>
+            
+            <div class="show-details">
+                <span>📍 {{ show.local }}</span>
+                <span>🏙️ {{ show.cidade }} • {{ show.horario }}</span>
             </div>
         </div>
-        {% else %}
-        <div class="agenda-empty">Nenhum show na agenda ainda.</div>
-        {% endfor %}
+
+        <form action="/remover_agenda/{{ show.id }}" method="POST">
+            <button type="submit" class="btn-delete-minimal">✕</button>
+        </form>
     </div>
+    {% endfor %}
+</div>
 </section>
 
-<section id="aba-inbox" class="inbox-section glass-card">
-    <div class="section-header">
-        <div>
-            <h2 class="section-label">📩 CAIXA DE ENTRADA</h2>
-            <span class="count-badge">{{ pedidos|length }} Mensagens</span>
+<section id="aba-inbox" class="inbox-container glass-card">
+    <div class="inbox-header">
+        <div class="header-info">
+            <h2 class="header-title">CAIXA DE ENTRADA</h2>
+            {% set novas = pedidos | selectattr('lido', 'equalto', false) | list | length %}
+            <span class="count-badge">
+                {% if novas > 0 %}
+                    {{ novas }} NOVAS SOLICITAÇÕES
+                {% else %}
+                    NENHUMA SOLICITAÇÃO NOVA
+                {% endif %}
+            </span>
         </div>
         
-        <div id="bulk-actions" style="display: none;">
-            <button onclick="excluirSelecionados()" class="btn-delete-small">
-                🗑️ EXCLUIR SELECIONADOS (<span id="selected-count">0</span>)
+        <div id="bulk-actions" class="bulk-actions-floating" style="display: none;">
+            <button onclick="excluirSelecionados()" class="btn-delete-bulk">
+                EXCLUIR SELECIONADOS <span id="selected-count">0</span>
             </button>
         </div>
     </div>
 
-    <div class="messages-list">
+    <div class="messages-list-wrapper">
         {% if pedidos|length > 0 %}
         <div class="select-all-bar">
-            <input type="checkbox" id="select-all-messages" onclick="toggleSelectAll(this)">
-            <label for="select-all-messages">SELECIONAR TUDO</label>
+            <label class="custom-checkbox">
+                <input type="checkbox" id="select-all-messages" onclick="toggleSelectAll(this)">
+                <span class="checkmark"></span>
+                <span class="label-text">MARCAR TODAS AS MENSAGENS</span>
+            </label>
+        </div>
+
+        <div class="messages-stack">
+            {% for pedido in pedidos %}
+            <div class="message-card {% if not pedido.lido %}unread{% endif %}">
+                <div class="msg-check-area">
+                    <label class="custom-checkbox">
+                        <input type="checkbox" class="msg-checkbox" value="{{ pedido.id }}" onclick="event.stopPropagation(); updateBulkUI()">
+                        <span class="checkmark"></span>
+                    </label>
+                </div>
+                
+                <div class="msg-status-dot"></div>
+
+                <div class="msg-main-content" 
+                     onclick="abrirMensagem('{{ pedido.id }}', '{{ pedido.nome_contratante }}', '{{ pedido.email_contratante }}', '{{ pedido.telefone_contratante }}', '{{ pedido.data_evento }}', '{{ pedido.local_evento }}', '{{ pedido.tipo_evento }}')">
+                    
+                    <div class="msg-details">
+                        <div class="msg-column">
+                            <span class="msg-label">CONTRATANTE</span>
+                            <span class="msg-sender">{{ pedido.nome_contratante if pedido.nome_contratante else pedido.cliente_email }}</span>
+                        </div>
+                        
+                        <div class="msg-column">
+                            <span class="msg-label">TIPO DE FESTA</span>
+                            <span class="msg-event-type">{{ pedido.tipo_evento }}</span>
+                        </div>
+                    </div>
+
+                    <div class="msg-date-area">
+                        <span class="msg-label">DATA</span>
+                        <span class="msg-date-tag">{{ pedido.data_evento }}</span>
+                    </div>
+                </div>
+
+                <div class="msg-actions">
+                    <button onclick="abrirMensagem('{{ pedido.id }}', '{{ pedido.nome_contratante }}', '{{ pedido.email_contratante }}', '{{ pedido.telefone_contratante }}', '{{ pedido.data_evento }}', '{{ pedido.local_evento }}', '{{ pedido.tipo_evento }}')" 
+                            class="btn-view-more">
+                        VER DETALHES
+                    </button>
+                    
+                    <button onclick="event.stopPropagation(); excluirMensagemIndividual('{{ pedido.id }}')" 
+                            class="btn-item-delete-text">
+                        REMOVER
+                    </button>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        {% else %}
+        <div class="empty-inbox-state">
+            <p class="empty-text">NÃO HÁ NOVAS SOLICITAÇÕES NA SUA FILA</p>
         </div>
         {% endif %}
-
-        {% for pedido in pedidos %}
-        <div class="message-item {% if not pedido.lido %}unread{% endif %}">
-            <input type="checkbox" class="msg-checkbox" value="{{ pedido.id }}" onclick="event.stopPropagation(); updateBulkUI()">
-            
-            <div class="msg-clickable-area" 
-                 onclick="abrirMensagem('{{ pedido.id }}', '{{ pedido.nome_contratante }}', '{{ pedido.email_contratante }}', '{{ pedido.telefone_contratante }}', '{{ pedido.data_evento }}', '{{ pedido.local_evento }}', '{{ pedido.tipo_evento }}')">
-                
-                <div class="msg-status"></div>
-                <div class="msg-info">
-                    <span class="msg-sender">{{ pedido.cliente_email }}</span> 
-                    <span class="msg-preview">Evento: {{ pedido.tipo_evento }}</span>
-                </div>
-                <span class="msg-date">{{ pedido.data_evento }}</span>
-            </div>
-
-            <button onclick="event.stopPropagation(); excluirMensagemIndividual('{{ pedido.id }}')" 
-                    class="btn-msg-close"
-                    title="Excluir">
-                ✕
-            </button>
-        </div>
-        {% else %}
-        <div class="empty-inbox">Nenhuma solicitação recebida ainda.</div>
-        {% endfor %}
     </div>
 </section>
 
@@ -630,6 +691,124 @@
     </div>
 </div>
 
+
+
+<div id="modalProposta" class="modal-overlay">
+    <div class="modal-content-large">
+        <div class="modal-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h2 style="color: #fff; font-size: 1.2rem; margin: 0;">Nova Proposta Comercial</h2>
+            <button onclick="closeModal('modalProposta')" style="background: none; border: none; color: #666; font-size: 1.5rem; cursor: pointer;">&times;</button>
+        </div>
+
+        <form action="{{ url_for('gerar_proposta') }}" method="POST" target="_blank">
+            <div class="modal-body">
+
+                <div class="section-title">A Festa / Evento</div>
+                <div class="input-grid">
+                    <div class="input-item">
+                        <label>Nome da Festa</label>
+                        <input type="text" name="nome_festa" placeholder="Ex: Casamento de Ana e Bruno" required>
+                    </div>
+                    <div class="input-item">
+                        <label>Seu CPF ou CNPJ</label>
+                        <input type="text" name="documento_artista" placeholder="Apenas números">
+                    </div>
+                    <div class="input-item">
+                        <label>Local do Evento</label>
+                        <input type="text" name="local_festa" placeholder="Nome do Buffet ou Clube">
+                    </div>
+                </div>
+
+                <div class="input-grid">
+                    <div class="input-item">
+                        <label>Dia do Evento</label>
+                        <input type="date" name="data_festa" required>
+                    </div>
+                    <div class="input-item">
+                        <label>Hora de Início</label>
+                        <input type="time" name="hora_festa" value="21:00">
+                    </div>
+                    <div class="input-item">
+                        </div>
+                </div>
+
+                <div class="section-title">O Show e Valor</div>
+                <div class="input-grid">
+                    <div class="input-item full-row">
+                        <label>Sobre o Show / Detalhes</label>
+                        <textarea name="detalhes_show" placeholder="Descreva o repertório, duração e diferenciais do seu show..."></textarea>
+                    </div>
+                </div>
+
+                <div class="input-grid">
+                    <div class="input-item">
+                        <label>Cachê Final (R$)</label>
+                        <input type="text" name="valor_cache" id="moeda" placeholder="0.000,00" required>
+                    </div>
+
+                    <div class="input-item">
+                        <label>Clima & Identidade Visual</label>
+                        <div class="visual-selector-container">
+                            <div class="mini-themes-row">
+                                <label class="theme-chip">
+                                    <input type="radio" name="estilo_pdf" value="vip" data-color="#f2a900">
+                                    <div class="chip-inner">
+                                        <span class="icon">🥂</span>
+                                        <span class="text">VIP</span>
+                                    </div>
+                                </label>
+                                <label class="theme-chip">
+                                    <input type="radio" name="estilo_pdf" value="pulse" data-color="#00f2ff" checked>
+                                    <div class="chip-inner">
+                                        <span class="icon">⚡</span>
+                                        <span class="text">PULSA</span>
+                                    </div>
+                                </label>
+                                <label class="theme-chip">
+                                    <input type="radio" name="estilo_pdf" value="acoustic" data-color="#a67c52">
+                                    <div class="chip-inner">
+                                        <span class="icon">🎸</span>
+                                        <span class="text">ACOUS</span>
+                                    </div>
+                                </label>
+                                <label class="theme-chip">
+                                    <input type="radio" name="estilo_pdf" value="pop" data-color="#ff007a">
+                                    <div class="chip-inner">
+                                        <span class="icon">🎤</span>
+                                        <span class="text">POP</span>
+                                    </div>
+                                </label>
+                                <label class="theme-chip">
+                                    <input type="radio" name="estilo_pdf" value="signature" data-color="#333333">
+                                    <div class="chip-inner">
+                                        <span class="icon">✒️</span>
+                                        <span class="text">SIGN</span>
+                                    </div>
+                                </label>
+                            </div>
+
+                            <div class="color-picker-box" id="preview-box">
+                                <input type="color" name="cor_proposta" id="cor_proposta" value="#00f2ff">
+                                <span id="label-cor">🎨 COR</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="btn-footer-container">
+                <button type="submit" class="btn-full-premium">
+                    GERAR PROPOSTA COMERCIAL
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    window.NOME_DO_ARTISTA = "{{ musico.nome if musico else 'Artista' }}";
+</script>
     
     <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
 </body>

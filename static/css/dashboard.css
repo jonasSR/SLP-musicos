@@ -6,7 +6,7 @@
 :root {
     --accent: #00f2ff;
     --accent-2: #ff0054;
-    --bg-dark: #0d0b12;
+    --bg-dark: #121212;
     --glass: rgba(255, 255, 255, 0.03);
     --border: rgba(255, 255, 255, 0.08);
     --primary-glow: #00f2ff;
@@ -21,8 +21,8 @@
     animation: move 25s infinite alternate;
 }
 
-.orb-1 { width: 300px; height: 600px; background: var(--accent); top: -10%; left: -10%; }
-.orb-2 { width: 300px; height: 500px; background: var(--accent-2); bottom: -10%; right: -5%; animation-delay: -5s; }
+.orb-1 { width: 300px; height: 400px; background: var(--accent); top: -10%; left: -10%; }
+.orb-2 { width: 300px; height: 300px; background: var(--accent-2); bottom: -10%; right: -5%; }
 
 * { 
     margin: 0; 
@@ -262,6 +262,7 @@ option {
     background-color: #121212; /* Cor escura do seu site */
     color: white;
 }
+
 .nebula-form .input-modern label {
     display: block;
     font-size: 0.7rem;
@@ -271,20 +272,6 @@ option {
     margin-left: 5px;
 }
 
-.inbox-section {
-    margin-bottom: 60px;
-    background: rgba(255,255,255,0.02);
-    border-radius: 10px;
-    padding: 30px;
-    border: 1px solid var(--border);
-}
-
-.section-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 25px;
-}
 
 .count-badge {
     background: var(--accent);
@@ -332,48 +319,118 @@ option {
 
 .modal-overlay.active { display: flex; }
 
+/* --- MODAL COM DESIGN PREMIUM --- */
 .modal-content {
-    width: 90%;
-    max-width: 500px;
-    background: #0a0a0a;
-    border: 1px solid var(--accent);
-    padding: 40px;
-    border-radius: 10px;
+    width: 95%;
+    max-width: 450px;
+    background: #0f0f0f; /* Fundo levemente mais suave que o preto puro */
+    border: 1px solid rgba(0, 242, 255, 0.3); /* Borda mais sutil */
+    padding: 30px 25px; /* Respiro melhor distribuído */
+    border-radius: 20px; /* Bordas mais arredondadas e modernas */
+    box-shadow: 0 20px 50px rgba(0,0,0,0.5);
     position: relative;
 }
 
-.modal-divider { margin: 20px 0; border: 0; border-top: 1px solid var(--border); }
-
-.alert-info { 
-    background: rgba(0, 242, 255, 0.1); 
-    padding: 15px; 
-    border-radius: 10px; 
-    font-size: 0.8rem; 
-    margin: 20px 0; 
-}
-
-.btn-glow-action {
-    width: 50%;
-    padding: 15px;
-    background: #fff;
-    color: #000;
-    border: none;
-    border-radius: 10px;
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+.modal-content h3 {
+    font-size: 1.2rem;
     font-weight: 800;
-    cursor: pointer;
-    position: relative;
-    overflow: hidden;
-    transition: 0.4s;
-    margin-top: 20px;
-    white-space: nowrap;
+    text-align: center;
+    color: #fff;
+    margin-bottom: 15px;
+}
+
+/* Corpo do Modal mais organizado */
+.modal-body p {
+    margin-bottom: 12px;
+    font-size: 0.95rem;
+    color: rgba(255,255,255,0.8);
     display: flex;
-    align-items: center;
-    justify-content: center;
+    justify-content: space-between; /* Alinha rótulo na esquerda e info na direita */
+}
+
+.modal-body strong {
+    color: var(--accent); /* Dá destaque ao título do dado */
+    font-weight: 600;
+}
+
+/* Divisores elegantes */
+.modal-divider, .modal-divider-vagas {
+    margin: 15px 0;
+    border: 0;
+    border-top: 1px solid rgba(255,255,255,0.05);
+}
+
+/* Alerta de Info - Estilo Minimalista */
+.alert-info { 
+    background: rgba(0, 242, 255, 0.05); 
+    padding: 12px; 
+    border-radius: 12px; 
+    font-size: 0.8rem; 
+    color: #00f2ff;
+    border-left: 3px solid #00f2ff;
+    margin: 20px 0;
+    text-align: center;
+}
+
+/* BOTÕES REFEITOS - LARGURA TOTAL E ESTILO GLOW */
+.btn-glow-action {
+    width: 100% !important;
+    padding: 16px;
+    border-radius: 12px;
+    font-size: 0.85rem;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    transition: all 0.3s ease;
+    margin-top: 10px;
+    
+    /* --- ALINHAMENTO CENTRALIZADO --- */
+    display: flex;
+    justify-content: center; /* Alinha horizontalmente (centro) */
+    align-items: center;     /* Alinha verticalmente (centro) */
+    text-align: center;      /* Garante que o texto interno quebre centralizado se necessário */
+    gap: 10px;               /* Espaço entre o ícone e o texto */
+    
+    border: none;            /* Remove bordas padrão se houver */
+    cursor: pointer;
+    text-decoration: none;   /* Remove sublinhado se for um link <a> */
+    background: var(--primary);
+    font-weight: 800;
+}
+
+/* Botão WhatsApp */
+#btn-whats-action {
+    background: #25d366 !important;
+    color: #fff !important;
+    box-shadow: 0 4px 15px rgba(37, 211, 102, 0.3);
+}
+
+/* Botão E-mail */
+#btn-responder {
+    background: rgba(255,255,255,0.05) !important;
+    color: #fff !important;
+    border: 1px solid rgba(255,255,255,0.1) !important;
 }
 
 .btn-glow-action:hover {
-    background: var(--accent);
+    transform: translateY(-2px);
+    filter: brightness(1.1);
+}
+
+/* Ajuste Mobile para os Cards lá atrás ficarem um do lado do outro sem bugar */
+@media (max-width: 768px) {
+    .dashboard-top-row {
+        display: grid !important;
+        grid-template-columns: 1fr 1fr !important; /* Lado a lado perfeito */
+        gap: 12px !important;
+        margin-top: 20px !important; /* Desgruda do header */
+        padding: 0 15px;
+    }
+
+    .stats-container, .stats-bar-modern.compact {
+        width: 100% !important;
+        margin: 0 !important;
+        display: flex !important;
+    }
 }
 
 .btn-show-add {
@@ -485,15 +542,346 @@ option {
 
 
 
-.inbox-section { margin-bottom: 40px; }
-.messages-list { background: rgba(255,255,255,0.03); border-radius: 10px; overflow: hidden; border: 1px solid rgba(255,255,255,0.05); }
-.message-item { 
-    display: flex; align-items: center; padding: 15px 20px; 
-    border-bottom: 1px solid rgba(255,255,255,0.05); cursor: pointer; transition: 0.2s;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* Container Principal */
+.inbox-container {
+    background: rgba(10, 10, 10, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 15px;
+    padding: 30px;
+    margin-bottom: 40px;
 }
-.message-item:hover { background: rgba(255,255,255,0.07); }
-.message-item.unread { background: rgba(0, 242, 255, 0.05); font-weight: bold; }
-.unread .msg-status { width: 10px; height: 10px; background: #00f2ff; border-radius: 50%; margin-right: 15px; box-shadow: 0 0 10px #00f2ff; }
+
+/* Header */
+.inbox-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.header-title { 
+    font-size: 1.4rem; 
+    font-weight: 900; 
+    color: #FFFFFF; 
+    letter-spacing: 2px;
+}
+
+.count-badge {
+    background: #00f2ff;
+    color: #000;
+    padding: 5px 15px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 900;
+}
+
+/* Lista e Cards */
+.messages-stack { display: flex; flex-direction: column; gap: 12px; }
+
+.message-card {
+    display: flex;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 10px;
+    padding: 20px 25px;
+    transition: 0.2s ease;
+}
+
+.message-card:hover {
+    background: rgba(255, 255, 255, 0.06);
+    border-color: #00f2ff;
+}
+
+.message-card.unread {
+    border-left: 4px solid #00f2ff;
+    background: rgba(0, 242, 255, 0.02);
+}
+
+/* Títulos Internos (Labels) */
+.msg-label {
+    display: block;
+    font-size: 0.6rem;
+    color: #666;
+    font-weight: 800;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+    letter-spacing: 1px;
+}
+
+/* Colunas de Conteúdo */
+.msg-column {
+    display: flex;
+    flex-direction: column;
+}
+
+.msg-details {
+    display: flex;
+    gap: 40px;
+    flex: 1;
+}
+
+/* Status Dot */
+.msg-status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    margin: 0 20px;
+}
+
+.unread .msg-status-dot {
+    background: #00f2ff;
+    box-shadow: 0 0 10px #00f2ff;
+}
+
+/* Conteúdo Principal */
+.msg-main-content {
+    flex: 1;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+}
+
+.msg-sender { 
+    color: #FFFFFF; 
+    font-size: 1.1rem; 
+    font-weight: 800; 
+    text-transform: uppercase; 
+}
+
+.msg-event-type { 
+    color: #00f2ff; 
+    font-size: 0.85rem; 
+    font-weight: 600; 
+    letter-spacing: 1px;
+}
+
+.msg-date-tag { 
+    color: #FFFFFF; 
+    font-size: 0.9rem; 
+    font-weight: 700;
+}
+
+.msg-date-area {
+    text-align: right;
+    min-width: 100px;
+}
+
+/* Botões de Ação */
+.msg-actions {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-left: 30px;
+}
+
+.btn-view-more {
+    background: #FFFFFF;
+    color: #000;
+    border: none;
+    padding: 8px 18px;
+    border-radius: 5px;
+    font-size: 0.75rem;
+    font-weight: 900;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.btn-view-more:hover {
+    background: #00f2ff;
+}
+
+.btn-item-delete-text {
+    background: transparent;
+    border: 1px solid rgba(255, 77, 77, 0.3);
+    color: #ff4d4d;
+    padding: 8px 15px;
+    border-radius: 5px;
+    font-size: 0.7rem;
+    font-weight: 800;
+    cursor: pointer;
+}
+
+.btn-item-delete-text:hover {
+    background: #ff4d4d;
+    color: #fff;
+}
+
+/* Checkbox Customizado - REMOVE O BRANCO */
+.custom-checkbox {
+    position: relative;
+    display: inline-block;
+    width: 18px;
+    height: 18px;
+}
+
+/* Esta regra esconde o quadrado branco padrão do navegador */
+.custom-checkbox input {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+    height: 0;
+    width: 0;
+}
+
+.checkmark {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 18px;
+    width: 18px;
+    background: transparent;
+    border: 2px solid #333;
+    border-radius: 4px;
+}
+
+.custom-checkbox input:checked ~ .checkmark {
+    background: #00f2ff;
+    border-color: #00f2ff;
+}
+
+.select-all-bar {
+    display: flex;             /* Alinha o box e o texto lado a lado */
+    align-items: center;       /* Centraliza verticalmente */
+    white-space: nowrap;       /* Impede que o texto quebre linha */
+    padding: 10px 0;
+    margin-bottom: 10px;
+    color: #666;
+    font-size: 0.75rem;        /* Mantive o tamanho original que você tinha */
+    font-weight: 800;
+}
+.empty-text { text-align: center; color: #444; font-weight: 900; padding: 40px; }
+/* Isso vai afastar o texto do quadradinho */
+.label-text {
+    margin-left: 25px; /* Aumente ou diminua esse valor conforme o seu gosto */
+    display: inline-block;
+    vertical-align: middle;
+}
+
+/* Estilo do Botão de Exclusão */
+.btn-delete-bulk {
+    background: rgba(255, 77, 77, 0.9); /* Vermelho levemente transparente */
+    color: #ffffff;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    padding: 12px 24px;
+    border-radius: 10px; /* Botão arredondado/pílula */
+    font-size: 0.8rem;
+    font-weight: 900;
+    letter-spacing: 1px;
+    cursor: pointer;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3), 0 0 15px rgba(255, 77, 77, 0.4);
+    backdrop-filter: blur(5px); /* Efeito de vidro */
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-delete-bulk:hover {
+    background: #ff4d4d;
+    transform: translateY(-2px);
+    box-shadow: 0 15px 25px rgba(0, 0, 0, 0.4), 0 0 20px rgba(255, 77, 77, 0.6);
+}
+
+.btn-delete-bulk:active {
+    transform: translateY(1px);
+}
+
+/* Contador dentro do botão */
+#selected-count {
+    background: rgba(0, 0, 0, 0.2);
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 0.85rem;
+}
+
+
+
+
+/* --- REFATORAÇÃO MOBILE COMPACTA --- */
+@media screen and (max-width: 600px) {
+    .inbox-container { padding: 15px; }
+
+    /* Card mais estreito */
+    .message-card {
+        padding: 12px;
+        flex-wrap: wrap; /* Permite quebrar se necessário */
+    }
+
+    /* Empilha os dados mas mantém o tamanho original */
+    .msg-main-content {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+
+    .msg-details {
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .msg-date-area {
+        text-align: left;
+        padding-top: 5px;
+    }
+
+    /* Botões menores e lado a lado */
+    .msg-actions {
+        margin-left: 0;
+        margin-top: 15px;
+        width: 100%;
+        justify-content: flex-start;
+        gap: 8px;
+    }
+
+    .btn-view-more, 
+    .btn-item-delete-text {
+        padding: 6px 12px;
+        font-size: 0.65rem;
+        flex: 1; /* Faz os botões dividirem o espaço */
+        max-width: 120px;
+    }
+
+    /* Ponto de status no canto para ganhar espaço */
+    .msg-status-dot {
+        margin: 0 10px 0 10px;
+    }
+
+    /* Botão de exclusão flutuante menor */
+    .bulk-actions-floating {
+        width: auto;
+        bottom: 15px;
+    }
+    
+    .btn-delete-bulk {
+        padding: 10px 18px;
+        font-size: 0.7rem;
+    }
+}
+
+
+
+
+
+
 
 .modal-overlay { 
     position: fixed; top:0; left:0; width:100%; height:100%; 
@@ -787,19 +1175,26 @@ option {
 
 /*#################### DISPOSITIVOS MOVEIS ####################*/
 @media (max-width: 768px) {
+    /* Container que engloba os dois blocos */
     .dashboard-top-row {
-        gap: 15px;
- 
+        display: flex !important;
+        flex-direction: row !important; /* Força um ao lado do outro */
+        align-items: flex-start !important;
+        gap: 10px;
+        padding: 0 10px;
+        margin-top: 20px; /* Ajuste para não cobrir o topo */
     }
 
+    /* Barra de Fãs e Avaliação */
     .stats-bar-modern.compact {
         display: none !important;
-        padding: 20px 15px;
+        padding: 15px 10px; /* Padding ajustado para caber */
+        flex: 1; /* Faz ocupar metade do espaço */
     }
 
     body:has(.tab-btn[onclick*="'perfil'"].active) .stats-bar-modern.compact {
         display: flex !important;
-        margin-top: 83px;
+        margin-top: 0; /* Zerado pois o pai já tem margem */
     }
     
     .tab-content.active .stats-bar-modern.compact,
@@ -815,21 +1210,24 @@ option {
 @media (max-width: 768px) {
     .stats-container { 
         display: none !important; 
+        flex: 1; /* Faz ocupar a outra metade do espaço */
     }
 
     body.tab-perfil .stats-container { 
         display: flex !important; 
-        margin-top: 5px;
+        margin-top: 0;
         margin-bottom: 20px;
         justify-content: center;
     }
 
     .stat-card {
-        max-width: 50%;
-        width: 10%;
+        max-width: 100%; /* Ajustado para preencher o lado dele */
+        width: 100%;     /* Corrigido de 10% para 100% (do espaço dele) */
         padding: 15px;
-        margin-top: 80px;
-        margin-left: -150px;
+        margin-top: 0;   /* Removido margem alta que encavalava */
+        margin-left: 0;  /* REMOVIDO o -150px que jogava o card para fora */
+        display: flex;
+        align-items: center;
     }
 
     .stat-value {
@@ -838,6 +1236,8 @@ option {
 }
 /* Regra para sumir com itens mobile no desktop */
 .mobile-only-item { display: none; }
+
+
 
 @media (max-width: 900px) {
     .config-grid { 
@@ -913,36 +1313,55 @@ option {
         transition: 0.4s ease forwards;
     }
 
-    /* BOTOES DA GRADE DIMINUÍDOS */
+/* BOTOES DA GRADE MAIS BAIXOS */
     .nav-links li a {
         display: flex !important;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        background: rgba(255, 255, 255, 0.05);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        border-radius: 10px;
-        padding: 10px 5px; /* Padding reduzido para diminuir o tamanho total do bloco */
-        text-decoration: none;
-        width: 100%;
-        aspect-ratio: 1.6 / 1; /* Valor aumentado (de 1.2 para 1.5) deixa o bloco mais baixo/achatado */
+        flex-direction: column !important;
+        align-items: center !important;
+        justify-content: center !important;
+        
+        background: rgba(255, 255, 255, 0.05) !important;
+        border: 1px solid rgba(255, 255, 255, 0.08) !important;
+        border-radius: 8px !important;
+        padding: 5px !important; /* Padding mínimo para reduzir altura */
+        
+        text-decoration: none !important;
+        width: 100% !important;
+        /* Aumentar este número achata o botão. 2.2 é bem compacto */
+        aspect-ratio: 2.2 / 1 !important; 
+        
+        outline: none !important;
+        box-shadow: none !important;
+        -webkit-tap-highlight-color: transparent;
     }
 
-    /* ÍCONES PROPORCIONAIS */
+    /* Ajuste para o botão de COMPARTILHAR */
+    .nav-links li a[onclick*="compartilharPerfil"] {
+        background: rgba(255, 255, 255, 0.05) !important;
+        border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    }
+
+    /* ÍCONES MENORES */
     .nav-links li a i {
-        font-size: 1.5rem !important; /* Ícone menor */
-        color: #00d4ff;
-        margin-bottom: 5px;
-        width: 35px; 
-        text-align: center;
+        font-size: 1.1rem !important; /* Reduzido de 1.5rem */
+        color: #00d4ff !important;
+        margin-bottom: 2px !important; /* Espaço mínimo entre ícone e texto */
+        width: auto !important; 
+        text-align: center !important;
     }
 
+    /* Ícone do compartilhar mantém o verde */
+    .nav-links li a[onclick*="compartilharPerfil"] i {
+        color: #00fd15 !important;
+    }
+
+    /* TEXTO DOS BOTÕES PEQUENO */
     .nav-links li a span {
-        font-size: 0.8rem; /* Fonte menor para caber em blocos menores */
-        color: #fff;
-        font-family: 'Orbitron', sans-serif;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
+        font-size: 0.65rem !important; /* Reduzido de 0.8rem */
+        color: rgba(255, 255, 255, 0.9) !important;
+        font-family: 'Orbitron', sans-serif !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.3px !important;
     }
 
     .btn-logout i { color: #ff4444 !important; }
@@ -1031,11 +1450,17 @@ option {
         cursor: pointer;
     }
 
-    .btn-glow-action {
-        width: 100%;
-        padding: 18px;
-        font-weight: bold;
-    }
+.btn-glow-action {
+    width: 100%;
+    padding: 18px;
+    font-weight: bold;
+    
+    /* --- ADICIONE ESTAS LINHAS --- */
+    display: flex;
+    align-items: center;      /* Alinha verticalmente */
+    justify-content: center;   /* Alinha horizontalmente */
+    text-align: center;        /* Garante o alinhamento do texto */
+}
 
     .btn-show-add {
         width: 100%;
@@ -1072,12 +1497,17 @@ option {
     }
 }
 
+/* --- COMPONENTE TABLET/DESKTOP HIDE --- */
 .mobile-tabs { 
     display: none; 
 }
 
 @media (max-width: 768px) {
+    /* 1. CONTAINER PRINCIPAL DA TAB BAR */
     .mobile-tabs {
+        list-style: none; /* Garante que não apareça bolinha de li */
+        padding: 0;
+        margin: 0;
         display: flex !important;
         position: fixed;
         bottom: 0;
@@ -1095,7 +1525,16 @@ option {
         box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.5);
     }
 
+    /* 2. ESTRUTURA DOS ITENS (LI E A) */
+    .mobile-tabs li {
+        flex: 1;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
     .tab-btn {
+        text-decoration: none; /* Para links <a> */
         background: none;
         border: none;
         outline: none;
@@ -1106,20 +1545,19 @@ option {
         gap: 5px;
         color: rgba(255, 255, 255, 0.3); 
         transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        flex: 1;
         cursor: pointer;
     }
 
     .tab-btn span {
-        font-size: 0.65rem;
+        font-size: 0.6rem;
         font-weight: 700;
         text-transform: uppercase;
         letter-spacing: 0.8px;
     }
 
     .tab-btn i {
-        width: 26px;
-        height: 26px;
+        width: 24px;
+        height: 24px;
         display: inline-block;
         background-color: currentColor;
         -webkit-mask-repeat: no-repeat;
@@ -1131,6 +1569,7 @@ option {
         transition: transform 0.3s ease;
     }
 
+    /* 3. ÍCONES (MÁSCARAS SVG) */
     .icon-user { 
         -webkit-mask-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>');
         mask-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>');
@@ -1141,11 +1580,47 @@ option {
         mask-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>');
     }
 
+    .icon-plus { 
+        -webkit-mask-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>');
+        mask-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>');
+    }
+
     .icon-mail { 
         -webkit-mask-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>');
         mask-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>');
     }
 
+    /* 4. ATUALIZAÇÃO: DESTAQUE DA PROPOSTA (BOTÃO CENTRAL) */
+    .item-proposta-destaque {
+        position: relative;
+    }
+
+    .item-proposta-destaque .tab-btn {
+        transform: translateY(-15px); /* Eleva o item central */
+        color: #00f2ff !important;
+        opacity: 1 !important;
+    }
+
+    .circle-neon-proposta {
+        width: 50px;
+        height: 50px;
+        background: #00f2ff;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 4px solid #0a0a0a;
+        box-shadow: 0 4px 15px rgba(0, 242, 255, 0.4);
+        margin-bottom: 2px;
+    }
+
+    .circle-neon-proposta i {
+        background-color: #000 !important; /* Ícone preto no centro neon */
+        width: 22px;
+        height: 22px;
+    }
+
+    /* Estilo Active para os outros botões */
     .tab-btn.active {
         color: #00f2ff !important;
     }
@@ -1155,23 +1630,31 @@ option {
         filter: drop-shadow(0 0 8px rgba(0, 242, 255, 0.8));
     }
 
-    body.tab-perfil #aba-inbox, 
-    body.tab-perfil #aba-agenda { 
-        display: none !important; 
+    /* 5. EXIBIÇÃO CONDICIONAL DE ABAS (Lógica Body Class) */
+    #aba-perfil, #aba-agenda, #aba-inbox, #aba-fas, #aba-stats, #preview-col {
+        display: none !important;
     }
 
-    body.tab-agenda #aba-perfil, 
-    body.tab-agenda #preview-col, 
-    body.tab-agenda #aba-inbox { 
-        display: none !important; 
+    body.tab-perfil #aba-perfil, 
+    body.tab-perfil #aba-stats, 
+    body.tab-perfil #preview-col { display: block !important; }
+    
+    body.tab-agenda #aba-agenda { 
+        display: block !important; 
+        margin-top: 80px !important; 
     }
 
-    body.tab-mensagens #aba-perfil, 
-    body.tab-mensagens #preview-col, 
-    body.tab-mensagens #aba-agenda { 
-        display: none !important; 
+    body.tab-mensagens #aba-inbox { 
+        display: block !important; 
+        margin-top: 80px !important; 
     }
 
+    body.tab-fas #aba-fas { 
+        display: block !important; 
+        margin-top: 80px !important; 
+    }
+
+    /* 6. ESTILOS DE AGENDA E CARDS MOBILE */
     .config-grid { 
         display: block !important; 
         padding-bottom: 120px !important; 
@@ -1182,60 +1665,88 @@ option {
         display: block !important;
         gap: 0 !important;
     }
-}
 
-@media (max-width: 768px) {
-    /* Esconde todas as abas por padrão */
-    #aba-perfil, #aba-agenda, #aba-inbox, #aba-fas, #aba-stats, #preview-col {
-        display: none !important;
+    .agenda-header {
+        padding: 20px 20px 10px 20px;
+        text-align: left;
     }
 
-    /* Exibição Condicional baseada no Body */
-    body.tab-perfil #aba-perfil, 
-    body.tab-perfil #aba-stats, 
-    body.tab-perfil #preview-col { display: block !important; }
-    
-    body.tab-agenda #aba-agenda { 
-        display: block !important; 
-        margin-top: 80px !important; /* Ajuste este valor (ex: 40px, 50px) para descer o quanto precisar */
+    .agenda-title {
+        color: #fff !important;
+        font-size: 1.5rem !important;
+        font-weight: 900 !important;
+        text-transform: uppercase;
+        display: flex;
+        align-items: center;
+        gap: 10px;
     }
 
-    body.tab-mensagens #aba-inbox { 
-        display: block !important; 
-        margin-top: 80px !important; /* Ajuste este valor (ex: 40px, 50px) para descer o quanto precisar */
+    .agenda-items-list {
+        padding: 20px !important;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
     }
 
-    /* No seu trecho de mobile: */
-    body.tab-fas #aba-fas { 
-        display: block !important; 
-        margin-top: 80px !important; /* Ajuste este valor (ex: 40px, 50px) para descer o quanto precisar */
+    .agenda-item-card {
+        display: flex;
+        background: linear-gradient(145deg, rgba(40,40,40,0.9), rgba(20,20,20,0.95)) !important;
+        border-radius: 10px !important;
+        overflow: hidden;
+        position: relative;
+        box-shadow: 0 15px 35px rgba(0,0,0,0.5);
+        border: 1px solid rgba(255,255,255,0.05) !important;
     }
 
-
-    /* Define uma altura máxima baseada na altura da tela (Viewport Height) */
-    .messages-list, .fan-list, .agenda-items-list {
-        max-height: 60vh !important; /* Ocupa no máximo 60% da altura da tela */
-        overflow-y: auto !important;
-        -webkit-overflow-scrolling: touch; /* Rolagem suave no iOS */
-        padding-right: 5px;
-        margin-top: 15px;
+    .card-side-date {
+        background: #00d4ff;
+        min-width: 75px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        color: #000;
     }
 
-    /* Ajuste de largura para mobile (remove as margens negativas do desktop) */
-    .inbox-section, .fan-section-container, .agenda-manager-section {
-        margin-left: 0 !important;
-        width: 100% !important;
-        margin-top: 20px !important;
-        padding: 15px !important; /* Padding menor para ganhar espaço */
+    .date-number { font-size: 1.8rem; font-weight: 900; line-height: 1; }
+    .date-month { font-size: 0.7rem; font-weight: 800; text-transform: uppercase; }
+
+    .card-main-content {
+        padding: 15px 20px;
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
     }
 
-    /* Melhora o toque nos botões mobile */
-    .btn-agenda-delete, .btn-msg-close, .btn-approve-minimal, .btn-delete-minimal {
-        min-width: 44px; /* Tamanho mínimo recomendado para toque/dedo */
-        min-height: 44px;
+    .show-title {
+        font-size: 1.2rem !important;
+        font-weight: 800 !important;
+        color: #fff !important;
+        margin-bottom: 5px;
+        text-transform: uppercase;
+    }
+
+    .btn-delete-minimal {
+        position: absolute;
+        top: 15px;
+        right: 14px;
+        background: #ff4d4d !important;
+        color: white !important;
+        width: 20px !important;
+        height: 20px !important;
+        border-radius: 10% !important;
+        z-index: 999 !important;
         display: flex;
         align-items: center;
         justify-content: center;
+    }
+
+    .inbox-section, .fan-section-container, .agenda-manager-section {
+        margin-left: 0 !important;
+        width: 100% !important;
+        margin-top: 15px !important;
+        padding: 15px !important;
     }
 }
 
@@ -1866,4 +2377,342 @@ option {
         font-size: 0.6rem !important;
         border-radius: 4px !important;
     }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* ==========================================================================
+   CONFIGURAÇÕES GERAIS E VARIÁVEIS
+   ========================================================================== */
+:root {
+  --primary: #00f2ff;
+  --bg-card: #0f0f0f;
+  --bg-input: #151515;
+  --border-color: #282828;
+  --text-muted: #888;
+}
+
+/* TRAVA DEFINITIVA: Impede fundo branco ao digitar ou preenchimento automático */
+input:-webkit-autofill,
+input:-webkit-autofill:hover, 
+input:-webkit-autofill:focus,
+textarea:-webkit-autofill,
+textarea:-webkit-autofill:hover,
+textarea:-webkit-autofill:focus {
+  -webkit-text-fill-color: #ffffff !important;
+  -webkit-box-shadow: 0 0 0px 1000px var(--bg-input) inset !important;
+  transition: background-color 5000s ease-in-out 0s;
+}
+
+.dashboard-right-align {
+  position: absolute;
+  top: 70px;
+  /* Em vez de right fixo, usamos o centro como base */
+  left: 50%; 
+  margin-left: 340px; /* Metade da largura do seu painel + um pouco de respiro */
+  display: flex;
+  z-index: 100;
+}
+
+.tool-card-simple {
+  background: #111;
+  border: 1px solid var(--border-color);
+  padding: 15px;
+  border-radius: 10px;
+  width: 260px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
+}
+
+.btn-card-action {
+  width: 100%;
+  background: var(--primary);
+  color: #000;
+  border: none;
+  padding: 10px;
+  font-weight: 800;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  transition: 0.3s;
+}
+
+.btn-card-action:hover {
+  filter: brightness(1.2);
+  box-shadow: 0 0 15px rgba(0, 242, 255, 0.4);
+}
+
+/* ==========================================================================
+   MODAL E FORMULÁRIO
+   ========================================================================== */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.9);
+  backdrop-filter: blur(8px);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+.modal-content-large {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  width: 95%;
+  max-width: 1000px;
+  max-height: 90vh;
+  border-radius: 16px;
+  padding: 30px;
+  position: relative;
+  overflow-y: auto;
+  box-shadow: 0 0 50px rgba(0,0,0,1);
+}
+
+.section-title {
+  font-size: 0.65rem;
+  color: var(--primary);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 15px;
+  margin-top: 20px;
+  font-weight: 800;
+  opacity: 0.8;
+}
+
+/* GRID DOS INPUTS */
+.input-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 15px;
+  margin-bottom: 15px;
+}
+
+.input-item {
+  display: flex;
+  flex-direction: column;
+}
+
+.input-item label {
+  font-size: 0.6rem;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+/* ESTILIZAÇÃO DOS CAMPOS - FORÇANDO DARK MODE */
+.input-item input, 
+textarea {
+  width: 80%;
+  background: var(--bg-input) !important;
+  border: 1px solid var(--border-color);
+  padding: 12px;
+  color: #fff !important;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  box-sizing: border-box;
+  outline: none;
+  transition: all 0.3s ease;
+  color-scheme: dark; /* Força o sistema a usar widgets dark */
+}
+
+.input-item input:focus, 
+textarea:focus {
+  border-color: var(--primary);
+  background: #1a1a1a !important;
+}
+
+/* DATA E HORA */
+input[type="date"]::-webkit-calendar-picker-indicator,
+input[type="time"]::-webkit-calendar-picker-indicator {
+  filter: invert(1);
+  cursor: pointer;
+  opacity: 0.5;
+}
+
+/* SELETOR DE COR MODERNO */
+.color-picker-modern {
+  display: flex;
+  align-items: center;
+  background: var(--bg-input);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  height: 43px;
+  padding: 0 12px;
+  justify-content: space-between;
+}
+
+.color-picker-modern span {
+  font-size: 0.7rem;
+  color: #555;
+  font-weight: bold;
+}
+
+.color-picker-modern input[type="color"] {
+  -webkit-appearance: none;
+  border: none;
+  width: 24px;
+  height: 24px;
+  background: none;
+  cursor: pointer;
+  padding: 0;
+}
+
+.color-picker-modern input[type="color"]::-webkit-color-swatch {
+  border-radius: 50%;
+  border: 2px solid #333;
+}
+
+.full-row {
+  grid-column: span 3;
+}
+
+textarea {
+  height: 80px;
+  resize: none;
+}
+
+.btn-full-premium {
+  padding: 0 10px;
+  background: var(--primary);
+  color: #000;
+  border: none;
+  height: 40px;
+  font-weight: 900;
+  border-radius: 6px;
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  transition: 0.3s;
+}
+
+@media (max-width: 768px) {
+  .input-grid { grid-template-columns: 1fr; }
+  .full-row { grid-column: span 1; }
+}
+
+
+@media (max-width: 768px) {
+    .btn-footer-container {
+        display: flex;
+        /* Centraliza ou estica o conteúdo no mobile */
+        justify-content: center; 
+        
+        /* Reseta margens para não empurrar demais a barra inferior */
+        margin-top: 20px;
+        padding: 20px 0; 
+        
+        /* Mantém a linha sutil, mas garante que ela respire */
+        border-top: 1px solid rgba(255, 255, 255, 0.05);
+        
+        /* Garante que o botão dentro dele ocupe a largura total */
+        width: 100%;
+    }
+
+    /* Ajuste automático para o botão que estiver dentro desse container */
+    .btn-footer-container button, 
+    .btn-footer-container .btn-full-premium {
+        width: 100% !important;
+        margin: 0 15px; /* Margem nas laterais para não encostar na borda da tela */
+    }
+}
+
+
+:root {
+    --accent-color: #00f2ff;
+}
+
+.visual-selector-container {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    background: #111;
+    padding: 6px;
+    border-radius: 10px;
+    border: 1px solid #333;
+}
+
+.mini-themes-row {
+    display: flex;
+    flex: 1;
+    gap: 4px;
+}
+
+.theme-chip {
+    flex: 1;
+    cursor: pointer;
+}
+
+.theme-chip input { display: none; }
+
+.chip-inner {
+    background: #1a1a1a;
+    padding: 6px 0;
+    border-radius: 8px;
+    text-align: center;
+    border: 1px solid transparent;
+    transition: all 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+}
+
+.chip-inner .icon { font-size: 1rem; }
+.chip-inner .text { 
+    font-size: 0.55rem; 
+    font-weight: 800; 
+    color: #555;
+    text-transform: uppercase;
+}
+
+/* Estado Ativo */
+.theme-chip input:checked + .chip-inner {
+    background: #000;
+    border-color: var(--accent-color);
+    box-shadow: 0 0 10px rgba(var(--accent-rgb), 0.2);
+}
+
+.theme-chip input:checked + .chip-inner .text {
+    color: var(--accent-color);
+}
+
+/* Caixa de Cor */
+.color-picker-box {
+    position: relative;
+    width: 55px;
+    height: 44px;
+    background: #1a1a1a;
+    border-radius: 8px;
+    border: 2px solid var(--accent-color);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+.color-picker-box input[type="color"] {
+    position: absolute;
+    opacity: 0;
+    width: 100%;
+    height: 100%;
+    cursor: pointer;
+}
+
+#label-cor {
+    font-size: 0.55rem;
+    font-weight: bold;
+    color: var(--accent-color);
 }

@@ -1,43 +1,331 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-    <meta charset="UTF-8">
-    <title>Privacidade | Pulsa Music Conect</title>
-    <link rel="stylesheet" href="static/css/style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Privacidade | Pulsa Music Conect</title>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+<style>
+
+/* ============================= */
+/* RESET & BASE */
+/* ============================= */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: linear-gradient(135deg, #0f0f11, #141418);
+    color: #fff;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* ============================= */
+/* CONTAINER */
+/* ============================= */
+
+.legal-wrapper {
+    max-width: 1200px;
+    margin: auto;
+    padding: 60px 20px;
+}
+
+/* ============================= */
+/* LAYOUT FLEX */
+/* ============================= */
+
+.legal-flex {
+    display: flex;
+    gap: 60px;
+    align-items: flex-start;
+}
+
+/* ============================= */
+/* SIDEBAR */
+/* ============================= */
+
+.legal-sidebar {
+    flex: 0 0 320px;
+    position: sticky;
+    top: 40px;
+}
+
+.back-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 25px;
+    background: rgba(255,255,255,0.06);
+    border-radius: 12px;
+    text-decoration: none;
+    color: #fff;
+    font-size: 0.75rem;
+    font-weight: 700;
+    transition: 0.3s ease;
+}
+
+.back-btn:hover {
+    background: rgba(0,255,136,0.15);
+    transform: translateY(-2px);
+}
+
+.title-main {
+    font-size: 2.8rem;
+    font-weight: 800;
+    line-height: 1.1;
+    margin: 30px 0 15px;
+}
+
+.subtitle-main {
+    opacity: 0.7;
+    font-size: 0.95rem;
+}
+
+.meta-box {
+    margin-top: 30px;
+    padding: 25px;
+    background: rgba(255,255,255,0.04);
+    border-radius: 18px;
+    backdrop-filter: blur(15px);
+    border: 1px solid rgba(255,255,255,0.08);
+}
+
+.meta-box span {
+    display: block;
+    margin-bottom: 10px;
+    font-size: 0.75rem;
+    opacity: 0.8;
+}
+
+/* ============================= */
+/* CARD PRINCIPAL */
+/* ============================= */
+
+.legal-card {
+    flex: 1;
+    padding: 50px;
+    border-radius: 25px;
+    background: rgba(255,255,255,0.04);
+    backdrop-filter: blur(25px);
+    border: 1px solid rgba(255,255,255,0.08);
+    box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+}
+
+.legal-card h3 {
+    margin-top: 35px;
+    margin-bottom: 15px;
+    font-size: 1.2rem;
+    color: #00ff88;
+}
+
+.legal-card p,
+.legal-card li {
+    font-size: 0.9rem;
+    line-height: 1.8;
+    opacity: 0.85;
+}
+
+.legal-card ul {
+    margin-left: 20px;
+}
+
+/* ============================= */
+/* GRID DESLIZÁVEL */
+/* ============================= */
+
+.data-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 25px;
+    margin: 30px 0;
+}
+
+.data-card {
+    padding: 25px;
+    border-radius: 18px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.08);
+    transition: 0.3s ease;
+}
+
+.data-card:hover {
+    transform: translateY(-4px);
+    border-color: rgba(0,255,136,0.5);
+}
+
+.data-card h4 {
+    color: #00ff88;
+    margin-bottom: 10px;
+    font-size: 0.95rem;
+}
+
+/* ============================= */
+/* FOOTER */
+/* ============================= */
+
+.footer-legal {
+    margin-top: 60px;
+    padding-top: 25px;
+    border-top: 1px solid rgba(255,255,255,0.1);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.7rem;
+    opacity: 0.5;
+}
+
+/* ============================= */
+/* MOBILE PREMIUM EXPERIENCE */
+/* ============================= */
+
+@media (max-width: 992px) {
+
+    .legal-flex {
+        flex-direction: column;
+        gap: 40px;
+    }
+
+    .legal-sidebar {
+        position: relative;
+        top: 0;
+        width: 100%;
+    }
+
+    .title-main {
+        font-size: 2rem;
+    }
+
+    .legal-card {
+        padding: 30px;
+    }
+
+    /* ✅ Cards um abaixo do outro no mobile */
+
+    .data-grid {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .data-card {
+        width: 100%;
+    }
+
+}
+
+
+
+
+/* Micro animação suave */
+.legal-card,
+.meta-box,
+.data-card {
+    animation: fadeUp 0.6s ease forwards;
+}
+
+@keyframes fadeUp {
+    from {
+        opacity: 0;
+        transform: translateY(15px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+</style>
 </head>
-<body class="legal-page">
 
-    <main class="gallery-section">
-        <div class="container">
-            <div class="discovery-header-saas">
-                <h2 class="local-title">Privacidade</h2>
-                <p class="local-subtitle">Como cuidamos dos seus dados.</p>
-            </div>
+<body>
 
-            <div class="modern-card legal-container">
-                <div class="legal-content">
-                    <h3>1. Coleta de Dados</h3>
-                    <p>Coletamos informações como nome, e-mail e cidade para possibilitar a conexão entre artistas e contratantes no nosso Web Service.</p>
+<div class="legal-wrapper">
+<div class="legal-flex">
 
-                    <h3>2. Uso das Informações</h3>
-                    <p>Seus dados de perfil (nome artístico, gênero musical e fotos) são públicos para que contratantes possam encontrá-lo.</p>
+<!-- SIDEBAR -->
+<aside class="legal-sidebar">
 
-                    <h3>3. Segurança</h3>
-                    <p>Utilizamos protocolos modernos de criptografia para garantir que seus dados privados (senha e e-mail) estejam protegidos.</p>
+<a href="javascript:void(0)" onclick="history.back()" class="back-btn" style="outline: none; box-shadow: none;">
+    <i class="fas fa-chevron-left"></i> VOLTAR
+</a>
 
-                    <h3>4. Seus Direitos</h3>
-                    <p>Você pode solicitar a exclusão de sua conta e de todos os seus dados a qualquer momento através do painel do membro.</p>
-                </div>
+<h1 class="title-main">Aviso de Privacidade</h1>
+<p class="subtitle-main">Transparência e proteção de dados para a comunidade musical.</p>
 
-                <div class="glass-footer">
-                    <div class="footer-line">
-                        <span class="tag-genre">LGPD COMPLIANT</span>
-                        <a href="/" class="btn-profile-link">VOLTAR PARA HOME</a>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </main>
+<div class="meta-box">
+<span><strong>VERSÃO:</strong> 2.0</span>
+<span><strong>ATUALIZADO:</strong> 16 FEV 2026</span>
+<span><strong>STATUS:</strong> LGPD COMPLIANT</span>
+</div>
+
+</aside>
+
+<!-- MAIN -->
+<section class="legal-card">
+
+<h3>1. Nossa Filosofia de Dados</h3>
+<p>No <strong>Pulsa Music Conect</strong>, sua privacidade é um direito fundamental. Operamos com transparência total na coleta, uso e armazenamento de informações.</p>
+
+<h3>2. Dados que Coletamos</h3>
+
+<div class="data-grid">
+
+<div class="data-card">
+<h4>Informações de Perfil</h4>
+<ul>
+<li>Nome e e-mail</li>
+<li>Cidade e Estado</li>
+<li>Portfólio artístico</li>
+<li>Gêneros musicais</li>
+</ul>
+</div>
+
+<div class="data-card">
+<h4>Dados de Navegação</h4>
+<ul>
+<li>IP e geolocalização</li>
+<li>Cookies de sessão</li>
+<li>Interações internas</li>
+<li>Logs técnicos</li>
+</ul>
+</div>
+
+</div>
+
+<h3>3. Bases Legais (LGPD)</h3>
+<ul>
+<li>Execução de contrato</li>
+<li>Consentimento</li>
+<li>Legítimo interesse</li>
+</ul>
+
+<h3>4. Direitos do Usuário</h3>
+<ul>
+<li>Acesso e correção</li>
+<li>Cancelamento sem qualquer custo</li>
+<li>Desativação da Conta</li>
+</ul>
+
+
+<div class="footer-legal">
+<span>DOC-REV-2026</span>
+<span>© Pulsa Music Conect</span>
+</div>
+
+</section>
+
+</div>
+</div>
 
 </body>
 </html>

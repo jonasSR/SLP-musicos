@@ -33,17 +33,28 @@ document.addEventListener('DOMContentLoaded', () => {
 
 document.addEventListener('DOMContentLoaded', function () {
     // ##########################################
-    // 1. FILTRO DE GÊNERO (Seu código original)
+    // 1. FILTRO DE GÊNERO (Com suporte a busca)
     // ##########################################
     const genreContainer = document.getElementById('genreFilterContainer');
-    const genreText = document.getElementById('genre-label');
+    const genreInput = document.getElementById('genre-search'); // Referência ao input
     const genreOptions = document.querySelector('#genreFilterContainer .music-options-list');
 
     if (genreContainer && genreOptions) {
+        // Abre/Fecha a lista
         genreContainer.addEventListener('click', function (e) {
             e.stopPropagation();
-            if (cityContainer) cityContainer.classList.remove('is-active'); // Fecha cidade ao abrir gênero
+            if (cityContainer) cityContainer.classList.remove('is-active');
             this.classList.toggle('is-active');
+        });
+
+        // Lógica de DIGITAÇÃO no Gênero
+        genreInput.addEventListener('input', function() {
+            const filter = this.value.toLowerCase();
+            const items = genreOptions.querySelectorAll('.music-opt-item');
+            items.forEach(item => {
+                const text = item.innerText.toLowerCase();
+                item.style.display = text.includes(filter) ? 'block' : 'none';
+            });
         });
 
         genreOptions.addEventListener('click', function (e) {
@@ -51,9 +62,13 @@ document.addEventListener('DOMContentLoaded', function () {
             if (!option) return;
             e.stopPropagation();
             const filtro = option.dataset.filter;
-            genreText.innerText = option.innerText.toUpperCase();
+            
+            // Atualiza o valor do input e remove a lista
+            genreInput.value = option.innerText.toUpperCase();
             genreOptions.querySelectorAll('.music-opt-item').forEach(opt => opt.classList.remove('active'));
             option.classList.add('active');
+
+            // Filtra os cards na tela
             document.querySelectorAll('.modern-card').forEach(card => {
                 const estilo = card.dataset.estilo;
                 card.style.display = (filtro === 'all' || estilo === filtro) ? 'block' : 'none';
@@ -63,16 +78,28 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     // ##########################################
-    // 2. FILTRO DE CIDADE (Novo - Segue o mesmo jeito)
+    // 2. FILTRO DE CIDADE (Com suporte a busca)
     // ##########################################
     const cityContainer = document.getElementById('cityFilterContainer');
+    const cityInput = document.getElementById('city-search'); // Referência ao input
     const cityOptions = document.querySelector('#cityFilterContainer .music-options-list');
 
     if (cityContainer && cityOptions) {
+        // Abre/Fecha a lista
         cityContainer.addEventListener('click', function (e) {
             e.stopPropagation();
-            if (genreContainer) genreContainer.classList.remove('is-active'); // Fecha gênero ao abrir cidade
+            if (genreContainer) genreContainer.classList.remove('is-active');
             this.classList.toggle('is-active');
+        });
+
+        // Lógica de DIGITAÇÃO na Cidade
+        cityInput.addEventListener('input', function() {
+            const filter = this.value.toLowerCase();
+            const items = cityOptions.querySelectorAll('.music-opt-item');
+            items.forEach(item => {
+                const text = item.innerText.toLowerCase();
+                item.style.display = text.includes(filter) ? 'block' : 'none';
+            });
         });
 
         cityOptions.addEventListener('click', function (e) {
@@ -80,12 +107,11 @@ document.addEventListener('DOMContentLoaded', function () {
             if (!option) return;
             e.stopPropagation();
             
-            // Pega o valor da cidade e envia o formulário
             const form = document.getElementById('cityForm');
             const hiddenInput = document.getElementById('hiddenCityInput');
             
             hiddenInput.value = option.dataset.filter === 'all' ? '' : option.innerText;
-            form.submit(); // Dispara o refresh da página com a nova cidade
+            form.submit(); 
         });
     }
 
@@ -95,6 +121,31 @@ document.addEventListener('DOMContentLoaded', function () {
         if (cityContainer) cityContainer.classList.remove('is-active');
     });
 });
+
+// ##########################################
+// 3. VINCULANDO OS BOTÕES À SUA LÓGICA
+// ##########################################
+document.querySelectorAll('.category-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+        const filtro = this.dataset.filter; // Pega o valor exatamente como o seu dropdown
+
+        // 1. Marca o botão como ativo e limpa os outros
+        document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+
+        // 2. REPLICAÇÃO EXATA DA SUA LÓGICA (Linhas 37-41 do seu código original)
+        document.querySelectorAll('.modern-card').forEach(card => {
+            const estilo = card.dataset.estilo; //
+            card.style.display = (filtro === 'all' || estilo === filtro) ? 'block' : 'none';
+        });
+
+        // 3. Atualiza o texto do seu input de gênero para não dar conflito visual
+        if (genreInput) {
+            genreInput.value = (filtro === 'all') ? "" : this.innerText.trim().toUpperCase();
+        }
+    });
+});
+
 
 
 document.addEventListener("DOMContentLoaded", function() {

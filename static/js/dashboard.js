@@ -117,33 +117,60 @@ if (inputFile) inputFile.addEventListener('change', atualizarCard);
 
 
     function abrirMensagem(id, nome, email, tel, data, local, tipo) {
-        document.getElementById('view-nome').innerText = nome || 'Não informado';
-        document.getElementById('view-email').innerText = email || 'Não informado';
-        document.getElementById('view-telefone').innerText = tel || 'Não informado';
-        document.getElementById('view-data').innerText = data || 'Não informada';
-        document.getElementById('view-local').innerText = local || 'Não informado';
-        document.getElementById('view-tipo').innerText = tipo || 'Não informado';
+    // 1. Preenche o Modal (Visual)
+    document.getElementById('view-nome').innerText = nome || 'Não informado';
+    document.getElementById('view-email').innerText = email || 'Não informado';
+    document.getElementById('view-telefone').innerText = tel || 'Não informado';
+    document.getElementById('view-data').innerText = data || 'Não informada';
+    document.getElementById('view-local').innerText = local || 'Não informado';
+    document.getElementById('view-tipo').innerText = tipo || 'Não informado';
 
-        const nomeDoArtista = "{{ musico.nome }}";
+    // 2. TRATAMENTO DO NOME (Primeira Letra Maiúscula)
+    const rawNome = window.NOME_DO_ARTISTA || "Artista";
+    const nomeDoArtista = rawNome.charAt(0).toUpperCase() + rawNome.slice(1).toLowerCase();
+    
+    // Tratando também o nome do cliente para ficar bonito
+    const nomeCliente = (nome || 'cliente').charAt(0).toUpperCase() + (nome || '').slice(1).toLowerCase();
 
-        if (tel) {
-            const numeroLimpo = tel.replace(/\D/g, "");
-            const msgZap = `Olá ${nome}, aqui é da banda ${nomeDoArtista}. Recebi seu pedido de orçamento via Pulsa Music para o dia ${data}. Podemos conversar?`;
-            const linkZap = `https://wa.me/55${numeroLimpo}?text=${encodeURIComponent(msgZap)}`;
-            document.getElementById('link-telefone-zap').href = linkZap;
-            document.getElementById('btn-whats-action').href = linkZap;
-        }
-
-        if (email) {
-            const assunto = `Orçamento Show: ${nomeDoArtista}`;
-            const linkGmail = `https://mail.google.com/mail/?view=cm&fs=1&to=${email}&su=${encodeURIComponent(assunto)}`;
-            const btnEmail = document.getElementById('btn-responder');
-            if (btnEmail) { btnEmail.href = linkGmail; btnEmail.target = "_blank"; }
-        }
-
-        document.getElementById('modal-leitura')?.classList.add('active');
-        fetch(`/marcar_lido/${id}`, { method: 'POST' }).catch(err => console.error("Erro ao marcar lido:", err));
+    // 3. TEMPLATE WHATSAPP (Direto e Profissional)
+    if (tel) {
+        const numeroLimpo = tel.replace(/\D/g, "");
+        const msgZap = `Olá, ${nomeCliente}!\n\nAqui é ${nomeDoArtista}. Acabei de receber sua solicitação para o evento do dia ${data} em ${local}.\n\nFiquei muito interessado! Podemos conversar sobre os detalhes e o que você planejou para esse dia?`;
+        
+        const linkZap = `https://wa.me/55${numeroLimpo}?text=${encodeURIComponent(msgZap)}`;
+        document.getElementById('link-telefone-zap').href = linkZap;
+        document.getElementById('btn-whats-action').href = linkZap;
     }
+
+    // 4. TEMPLATE E-MAIL TOP (Gmail formatado)
+    if (email) {
+        const assunto = `PROPOSTA COMERCIAL: Show de ${nomeDoArtista} | Evento ${data}`;
+        
+        // Template com estrutura de tópicos para facilitar a leitura do cliente
+        const corpoEmail = 
+            `Olá, ${nomeCliente}.\n\n` +
+            `É um prazer entrar em contato! Sou ${nomeDoArtista} e recebi seu interesse através da plataforma Pulsa Music.\n\n` +
+            `Verifiquei os detalhes da sua solicitação:\n` +
+            `📅 DATA: ${data}\n` +
+            `📍 LOCAL: ${local}\n` +
+            `🎉 TIPO DE EVENTO: ${tipo}\n\n` +
+            `Estou com esta data disponível em minha agenda e adoraria fazer parte deste momento. Gostaria de entender melhor a estrutura do evento para te enviar um orçamento personalizado.\n\n` +
+            `Você prefere seguir por aqui ou podemos agilizar os detalhes via WhatsApp?\n\n` +
+            `Fico no seu aguardo!\n\n` +
+            `Atenciosamente,\n` +
+            `${nomeDoArtista}`;
+
+        const linkGmail = `https://mail.google.com/mail/?view=cm&fs=1&to=${email}&su=${encodeURIComponent(assunto)}&body=${encodeURIComponent(corpoEmail)}`;
+        
+        const btnEmail = document.getElementById('btn-responder');
+        if (btnEmail) { 
+            btnEmail.href = linkGmail; 
+            btnEmail.target = "_blank"; 
+        }
+    }
+
+    document.getElementById('modal-leitura')?.classList.add('active');
+}
 
 
     function fecharModal() {
@@ -314,3 +341,74 @@ function compartilharPerfil(elemento) {
         });
     }
 }
+
+
+
+function toggleSeguranca(event) {
+    event.stopPropagation(); 
+    var lista = document.getElementById('lista-seguranca');
+    var seta = document.getElementById('seta-seguranca');
+    
+    if (lista.style.display === 'none' || lista.style.display === '') {
+        lista.style.display = 'block';
+        seta.style.transform = 'rotate(180deg)'; // Seta vira para cima
+    } else {
+        lista.style.display = 'none';
+        seta.style.transform = 'rotate(0deg)'; // Seta volta ao normal
+    }
+}
+
+document.addEventListener('click', function(e) {
+    var container = document.getElementById('container-seguranca');
+    var lista = document.getElementById('lista-seguranca');
+    var seta = document.getElementById('seta-seguranca');
+    
+    if (container && !container.contains(e.target)) {
+        lista.style.display = 'none';
+        seta.style.transform = 'rotate(0deg)';
+    }
+});
+
+
+// FUNÇÃO MODAL GERAR PROPOSTA
+function openModal(id) {
+    document.getElementById(id).style.display = 'flex'; // Use FLEX aqui
+    document.body.style.overflow = 'hidden'; // Trava o scroll do fundo
+}
+
+function closeModal(id) {
+    document.getElementById(id).style.display = 'none';
+    document.body.style.overflow = 'auto'; // Libera o scroll do fundo
+}
+window.onclick = function(event) {
+    if (event.target.className === 'modal-overlay') { event.target.style.display = "none"; }
+}
+
+
+const colorInput = document.getElementById('cor_proposta');
+    const previewBox = document.getElementById('preview-box');
+    const labelCor = document.getElementById('label-cor');
+    const themeInputs = document.querySelectorAll('input[name="estilo_pdf"]');
+
+    function updateColor(color) {
+        // Atualiza o input de cor
+        colorInput.value = color;
+        // Muda a cor da borda da caixinha de visualização
+        previewBox.style.borderColor = color;
+        labelCor.style.color = color;
+        // Atualiza a variável CSS para os botões acenderem com a cor certa
+        document.documentElement.style.setProperty('--accent-color', color);
+    }
+
+    // Escuta o clique nos botões (VIP, PULSE...)
+    themeInputs.forEach(input => {
+        input.addEventListener('change', (e) => {
+            const selectedColor = e.target.getAttribute('data-color');
+            updateColor(selectedColor);
+        });
+    });
+
+    // Escuta se o usuário mudar a cor manualmente no seletor
+    colorInput.addEventListener('input', (e) => {
+        updateColor(e.target.value);
+    });
