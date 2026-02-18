@@ -172,40 +172,45 @@ def perfil_musico(musico_id):
     agenda_ref = doc_ref.collection('agenda').stream()
     agenda = [show.to_dict() for show in agenda_ref]
 
-    # --- BUSCA DE FEEDBACKS (SEM FILTRO DE STATUS NO BANCO) ---
+    # --- BUSCA DE FEEDBACKS ---
     feedbacks_ref = db.collection('feedbacks')\
         .where('artista_id', '==', musico_id)\
         .stream()
     
     feedbacks_para_exibir = []
     total_estrelas = 0
+    qtd_fas = 0  # Contador real de documentos no banco
     
     for f in feedbacks_ref:
         f_dados = f.to_dict()
+        status = f_dados.get('status')
         
-        # LÓGICA INFALÍVEL:
-        # 1. Se o documento tem o campo 'estrelas', é um FÃ. Aparece automático.
+        # Se tem estrelas, é um fã.
         if 'estrelas' in f_dados:
-            feedbacks_para_exibir.append(f_dados)
+            # 1. CONTAGEM SEMPRE ACONTECE (Mesmo se estiver oculto/excluido)
             total_estrelas += int(f_dados.get('estrelas', 0))
+            qtd_fas += 1
+            
+            # 2. EXIBIÇÃO NO MURAL (Só entra na lista se NÃO for 'excluido')
+            # Aqui corrigimos o erro: se o status for 'excluido', ele não vai para o mural
+            if status != 'excluido':
+                feedbacks_para_exibir.append(f_dados)
         
-        # 2. Se NÃO tem estrelas, é uma MENSAGEM/CONTATO. Só aparece se for APROVADO.
+        # Se não tem estrelas, é mensagem simples (Logica de aprovação estrita)
         else:
-            if f_dados.get('status') == 'aprovado':
+            if status == 'aprovado':
                 feedbacks_para_exibir.append(f_dados)
 
-    # Contagem de fãs (quem tem estrelas)
-    fas_reais = [fb for fb in feedbacks_para_exibir if 'estrelas' in fb]
-    qtd_fas = len(fas_reais)
+    # Média baseada em TODOS os fãs (inclusive os ocultos, para não cair a nota)
     media_estrelas = round(total_estrelas / qtd_fas, 1) if qtd_fas > 0 else 0
 
     return render_template(
         'perfil.html',
         musico=dados,
         agenda=agenda,
-        feedbacks=feedbacks_para_exibir,
-        qtd_fas=qtd_fas,
-        media_estrelas=media_estrelas,
+        feedbacks=feedbacks_para_exibir, # Esta lista agora respeita o filtro de ocultos
+        qtd_fas=qtd_fas,                 # O número total de fãs permanece intacto
+        media_estrelas=media_estrelas,   # A média permanece intacta
         id=musico_id
     )
 
@@ -612,9 +617,12 @@ def aprovar_feedback(id):
 @app.route('/remover_feedback/<string:id>', methods=['POST'])
 def remover_feedback(id):
     try:
-        # No Firestore, deletamos o documento diretamente
-        db.collection('feedbacks').document(id).delete()
-        
+        # EM VEZ DE DELETE, FAZEMOS UPDATE
+        # Isso mantém o documento vivo para as estrelas contarem no perfil
+        feedback_ref = db.collection('feedbacks').document(id)
+        feedback_ref.update({
+            'status': 'excluido'
+        })
         return redirect('/dashboard')
     except Exception as e:
         return redirect('/dashboard')

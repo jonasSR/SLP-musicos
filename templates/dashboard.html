@@ -647,7 +647,6 @@
     </div>
 </section>
 
-<!-- MURAL DE FÂS -->
 <section id="aba-fas" class="fan-section-container">
     <div class="section-header">
         <h2 class="section-label">⭐ Mural de Depoimentos</h2>
@@ -656,33 +655,41 @@
 
     <div class="fan-list">
         {% for feedback in feedbacks %}
-        <div class="fan-row {% if feedback.status == 'pendente' %}status-pendente{% endif %}">
+        <div class="fan-row {% if feedback.status == 'excluido' %}status-pendente{% endif %}" {% if feedback.status == 'excluido' %}style="opacity: 0.5;"{% endif %}>
             <div class="fan-main-info">
                 <div class="fan-meta">
                     <span class="fan-name">{{ feedback.nome_fa }}</span>
                     <span class="fan-stars">
                         {% for i in range(feedback.estrelas|int) %}★{% endfor %}
                     </span>
-                    <span class="status-badge">{{ feedback.status }}</span>
+                    <span class="status-badge">
+                        {% if feedback.status == 'excluido' %}OCULTO{% else %}NO MURAL{% endif %}
+                    </span>
                 </div>
-                <p class="fan-text">"{{ feedback.comentario }}"</p>
+                <p class="fan-text" {% if feedback.status == 'excluido' %}style="text-decoration: line-through;"{% endif %}>
+                    "{{ feedback.comentario }}"
+                </p>
                 <span class="fan-date">{{ feedback.data_postagem }}</span>
             </div>
             
             <div class="fan-actions">
-                {% if feedback.status == 'pendente' %}
+                {# Se estiver oculto, mostra o botão para voltar ao mural (Usa sua rota de aprovar) #}
+                {% if feedback.status == 'excluido' %}
                 <form action="/aprovar_feedback/{{ feedback.id }}" method="POST">
-                    <button type="submit" class="btn-approve-minimal" title="Aprovar depoimento">
+                    <button type="submit" class="btn-approve-minimal" title="Mostrar no mural novamente">
                         ✔
                     </button>
                 </form>
                 {% endif %}
 
+                {# Se NÃO estiver oculto, mostra o botão para ocultar (Usa sua rota de remover) #}
+                {% if feedback.status != 'excluido' %}
                 <form action="/remover_feedback/{{ feedback.id }}" method="POST">
-                    <button type="submit" class="btn-delete-minimal" onclick="return confirm('Remover comentário permanentemente?')" title="Excluir">
+                    <button type="submit" class="btn-delete-minimal" onclick="return confirm('Ocultar comentário? As estrelas continuarão contando.')" title="Ocultar">
                         ✕
                     </button>
                 </form>
+                {% endif %}
             </div>
         </div>
         {% else %}
