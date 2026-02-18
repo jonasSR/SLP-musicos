@@ -241,34 +241,34 @@
                     <div class="agenda-container">
                         <h2 class="section-label">AGENDA</h2>
                         <div class="agenda-list">
-    {% for show in agenda %}
-    <div class="agenda-item-card-public">
-        <div class="card-side-date">
-            <span class="date-number">{{ show.data_dia }}</span>
-            <span class="date-month">{{ show.data_mes }}</span>
-        </div>
+                            {% for show in agenda %}
+                            <div class="agenda-item-card-public">
+                                <div class="card-side-date">
+                                    <span class="date-number">{{ show.data_dia }}</span>
+                                    <span class="date-month">{{ show.data_mes }}</span>
+                                </div>
 
-        <div class="card-main-content">
-            {% if show.nome_festa %}
-            <div class="show-title">{{ show.nome_festa | upper }}</div>
-            {% endif %}
-            
-            <div class="show-details">
-                <span>📍 {{ show.local }}</span>
-                <div class="show-meta-row">
-                    <span>🏙️ {{ show.cidade }}</span>
-                    <span class="separator">•</span>
-                    <span>🕒 {{ show.horario }}</span>
-                </div>
-            </div>
-        </div>
-    </div>
-    {% else %}
-    <div class="empty-state">
-        <p>A agenda de shows está sendo atualizada.</p>
-    </div>
-    {% endfor %}
-</div>
+                                <div class="card-main-content">
+                                    {% if show.nome_festa %}
+                                    <div class="show-title">{{ show.nome_festa | upper }}</div>
+                                    {% endif %}
+                                    
+                                    <div class="show-details">
+                                        <span>📍 {{ show.local }}</span>
+                                        <div class="show-meta-row">
+                                            <span>🏙️ {{ show.cidade }}</span>
+                                            <span class="separator">•</span>
+                                            <span>🕒 {{ show.horario }}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% else %}
+                            <div class="empty-state">
+                                <p>A agenda de shows está sendo atualizada.</p>
+                            </div>
+                            {% endfor %}
+                        </div>
                     </div>
                 </div>
 

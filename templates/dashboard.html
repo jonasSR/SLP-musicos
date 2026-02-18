@@ -121,28 +121,61 @@
         <li><a href="/" class="btn-nav-link" onfocus="this.blur()" style="outline: none; box-shadow: none;"><i class="fas fa-home"></i> <span>HOME</span></a></li>
         
         {% if session.get('user_email') %}
-            <li class="desktop-only-menu"><a href="javascript:void(0)" onclick="showSection('aba-perfil')" onfocus="this.blur()" class="btn-nav-link" style="outline: none; box-shadow: none;"><i class="fas fa-user"></i> <span>PERFIL</span></a></li>
-            <li class="desktop-only-menu"><a href="javascript:void(0)" onclick="showSection('aba-agenda')" onfocus="this.blur()" class="btn-nav-link" style="outline: none; box-shadow: none;"><i class="fas fa-calendar-alt"></i> <span>AGENDA</span></a></li>
-            <li class="desktop-only-menu"><a href="javascript:void(0)" onclick="showSection('aba-inbox')" onfocus="this.blur()" class="btn-nav-link" style="outline: none; box-shadow: none;"><i class="fas fa-envelope"></i> <span>INBOX</span></a></li>
-            <li class="desktop-only-menu"><a href="javascript:void(0)" onclick="showSection('aba-fas')" onfocus="this.blur()" class="btn-nav-link" style="outline: none; box-shadow: none;"><i class="fas fa-users"></i> <span>COMUNIDADE</span></a></li>
-            
-            <li id="container-seguranca" class="desktop-only-menu" style="position: relative;">
-                <a href="javascript:void(0)" onclick="toggleSeguranca(event)" onfocus="this.blur()" class="btn-nav-link" style="display: flex; align-items: center; gap: 8px; outline: none; box-shadow: none;">
-                    <i class="fas fa-shield-alt"></i> 
-                    <span>SEGURANÇA E PRIVACIDADE</span>
-                    <i class="fas fa-chevron-down" id="seta-seguranca" style="font-size: 0.8em; transition: transform 0.3s;"></i>
-                </a>
-                <ul id="lista-seguranca" style="display: none; list-style: none; position: absolute; top: 100%; left: 0; min-width: 220px; z-index: 999; margin-top: 10px; background-color: #1a1a1a; padding: 10px; border-radius: 8px; box-shadow: 0 8px 16px rgba(0,0,0,0.3);">
-                    <li style="margin-bottom: 5px;"><a href="javascript:void(0)" onclick="abrirModalSenha()" class="btn-nav-link" style="color: #fff !important;"><i class="fas fa-lock"></i> <span>ALTERAR SENHA</span></a></li>
-                    <li style="margin-bottom: 5px;"><a href="/termos" class="btn-nav-link" style="color: #fff !important;"><i class="fas fa-file-alt"></i> <span>TERMOS</span></a></li>
-                    <li><a href="/privacidade" class="btn-nav-link" style="color: #fff !important;"><i class="fas fa-user-shield"></i> <span>PRIVACIDADE</span></a></li>
-                </ul>
-            </li>
+    <li class="desktop-only-menu">
+        <a href="javascript:void(0)" onclick="showSection('aba-perfil')" onfocus="this.blur()" class="btn-nav-link" style="outline: none; box-shadow: none;">
+            <i class="fas fa-user"></i> <span>PERFIL</span>
+        </a>
+    </li>
+    
+    <li class="desktop-only-menu">
+        <a href="javascript:void(0)" onclick="showSection('aba-agenda')" onfocus="this.blur()" class="btn-nav-link" style="outline: none; box-shadow: none;">
+            <i class="fas fa-calendar-alt"></i> <span>AGENDA</span>
+        </a>
+    </li>
 
-            <li class="mobile-only-item"><a href="javascript:void(0)" onclick="abrirModalSenha()" onfocus="this.blur()" class="btn-nav-link" style="outline: none; box-shadow: none;"><i class="fas fa-lock"></i> <span>ALTERAR SENHA</span></a></li>
-            
-            <li><a href="/logout" class="btn-logout" onfocus="this.blur()" style="outline: none; box-shadow: none;"><i class="fas fa-sign-out-alt"></i> <span>SAIR</span></a></li>
-        {% endif %}
+    <li class="desktop-only-menu">
+        <a href="javascript:void(0)" onclick="showSection('aba-inbox')" onfocus="this.blur()" class="btn-nav-link" style="outline: none; box-shadow: none; position: relative;">
+            <i class="fas fa-envelope"></i> <span>INBOX</span>
+            {% if notificacoes_mensagens and notificacoes_mensagens > 0 %}
+                <span class="badge-notificacao">{{ notificacoes_mensagens }}</span>
+            {% endif %}
+        </a>
+    </li>
+
+    <li class="desktop-only-menu">
+        <a href="javascript:void(0)" onclick="showSection('aba-fas')" onfocus="this.blur()" class="btn-nav-link" style="outline: none; box-shadow: none; position: relative;">
+            <i class="fas fa-users"></i> <span>COMUNIDADE</span>
+            {% if notificacoes_fas and notificacoes_fas > 0 %}
+                <span class="badge-notificacao">{{ notificacoes_fas }}</span>
+            {% endif %}
+        </a>
+    </li>
+    
+    <li id="container-seguranca" class="desktop-only-menu" style="position: relative;">
+        <a href="javascript:void(0)" onclick="toggleSeguranca(event)" onfocus="this.blur()" class="btn-nav-link" style="display: flex; align-items: center; gap: 8px; outline: none; box-shadow: none; margin-top: 5px;">
+            <i class="fas fa-shield-alt"></i> 
+            <span>SEGURANÇA E PRIVACIDADE</span>
+            <i class="fas fa-chevron-down" id="seta-seguranca" style="font-size: 0.8em; transition: transform 0.3s;"></i>
+        </a>
+        <ul id="lista-seguranca" style="display: none; list-style: none; position: absolute; top: 100%; left: 0; min-width: 220px; z-index: 999; margin-top: 10px; background-color: #1a1a1a; padding: 10px; border-radius: 8px; box-shadow: 0 8px 16px rgba(0,0,0,0.3);">
+            <li style="margin-bottom: 5px;"><a href="javascript:void(0)" onclick="abrirModalSenha()" class="btn-nav-link" style="color: #fff !important;"><i class="fas fa-lock"></i> <span>ALTERAR SENHA</span></a></li>
+            <li style="margin-bottom: 5px;"><a href="/termos" class="btn-nav-link" style="color: #fff !important;"><i class="fas fa-file-alt"></i> <span>TERMOS</span></a></li>
+            <li><a href="/privacidade" class="btn-nav-link" style="color: #fff !important;"><i class="fas fa-user-shield"></i> <span>PRIVACIDADE</span></a></li>
+        </ul>
+    </li>
+
+    <li class="mobile-only-item">
+        <a href="javascript:void(0)" onclick="abrirModalSenha()" onfocus="this.blur()" class="btn-nav-link" style="outline: none; box-shadow: none;">
+            <i class="fas fa-lock"></i> <span>ALTERAR SENHA</span>
+        </a>
+    </li>
+    
+    <li>
+        <a href="/logout" class="btn-logout" onfocus="this.blur()" style="outline: none; box-shadow: none;">
+            <i class="fas fa-sign-out-alt"></i> <span>SAIR</span>
+        </a>
+    </li>
+{% endif %}
 
         <li class="mobile-only-item"><a href="/termos" class="btn-nav-link" onfocus="this.blur()" style="outline: none; box-shadow: none;"><i class="fas fa-file-alt"></i> <span>TERMOS</span></a></li>
         <li class="mobile-only-item"><a href="/privacidade" class="btn-nav-link" onfocus="this.blur()" style="outline: none; box-shadow: none;"><i class="fas fa-shield-alt"></i> <span>PRIVACIDADE</span></a></li>
@@ -170,6 +203,7 @@
     </div>
 </div>
 
+
 <main class="dash-main">
     <header class="dash-intro" style="margin-bottom: 40px;">
         <h1 class="reveal-text" style="font-family: 'Orbitron', sans-serif; letter-spacing: 4px; display: flex; align-items: center; gap: 15px;">
@@ -182,19 +216,18 @@
         <p style="opacity: 0.6; font-size: 0.9rem; margin-top: 5px;">Bem-vindo de volta! Gerencie seus pedidos e sua presença digital.</p>
         
 
-<div class="dashboard-right-align desktop-only-menu"> 
-    <div class="tool-card-simple">
-        <div class="tool-content">
-            <i data-lucide="briefcase" class="icon-tool"></i>
-            <div class="tool-text">
-                <h4>Proposta de Show</h4>
-                <p>Envie orçamentos personalizados.</p>
+        <div class="dashboard-right-align desktop-only-menu"> 
+            <div class="tool-card-simple">
+                <div class="tool-content">
+                    <i data-lucide="briefcase" class="icon-tool"></i>
+                    <div class="tool-text">
+                        <h4>Proposta de Show</h4>
+                        <p>Envie orçamentos personalizados.</p>
+                    </div>
+                </div>
+                <button onclick="openModal('modalProposta')" class="btn-card-action">CRIAR PROPOSTA</button>
             </div>
         </div>
-        <button onclick="openModal('modalProposta')" class="btn-card-action">CRIAR PROPOSTA</button>
-    </div>
-</div>
-
     </header>
 
     <div class="network-presence-pill">
@@ -272,7 +305,6 @@
         </aside>
         
 
-
         <!-- VISTAS DO MêS -->
        <div class="main-content-column" style="display: flex; flex-direction: column; gap: 30px;">
         <div class="dashboard-top-row">
@@ -290,6 +322,7 @@
                     </div>
                 </div>
             </div>
+
 
         <!-- FÂS -->
         <div class="stats-bar-modern compact mobile-hide-control">
@@ -313,7 +346,7 @@
             </div>
         </div> 
 
-
+<!-- PERFIL DO USUARIO -->
 <div id="aba-perfil" class="form-panel glass-card" style="padding: 20px; border-radius: 10px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05);">
     <form action="{{ url_for('cadastrar_musico') }}" method="POST" enctype="multipart/form-data" class="nebula-form" autocomplete="off">
         <div class="form-section">
@@ -456,7 +489,7 @@
     </form>
 </div>        
 
-
+<!-- CAIXA DE ENTRADA - INBOX -->
 <section id="aba-agenda" class="agenda-manager-section section-hidden">
     <div class="agenda-header">
         <h2 class="section-label">📅 GESTÃO DE AGENDA</h2>
@@ -525,6 +558,7 @@
     {% endfor %}
 </div>
 </section>
+
 
 <section id="aba-inbox" class="inbox-container glass-card">
     <div class="inbox-header">
@@ -613,6 +647,7 @@
     </div>
 </section>
 
+<!-- MURAL DE FÂS -->
 <section id="aba-fas" class="fan-section-container">
     <div class="section-header">
         <h2 class="section-label">⭐ Mural de Depoimentos</h2>
@@ -655,10 +690,10 @@
         {% endfor %}
     </div>
 </section>
-        
-    </div> 
-
+ 
 </main>
+
+<!-- PROPOSTA RECEBIDA - SOLICITAÇÃO CONTRATANTE -->
 <div id="modal-leitura" class="modal-overlay">
     <div class="modal-content glass-card">
         <button class="close-modal" onclick="fecharModal()">×</button>
@@ -681,18 +716,18 @@
             <div class="alert-info">Combine os detalhes e o cachê diretamente com o cliente.</div>
         </div>
 
-        <a href="" id="btn-whats-action" target="_blank" class="btn-glow-action" style="text-decoration: none; text-align: center; display: block; background: #25d366; margin-bottom: 10px;">
+        <a href="" id="btn-whats-action" target="_blank" class="btn-whats-email" style="text-decoration: none; text-align: center; display: block; background: #25d366; margin-bottom: 10px;">
             <span>RESPONDER PELO WHATSAPP</span>
         </a>
 
-        <a href="" id="btn-responder" class="btn-glow-action" style="text-decoration: none; text-align: center; display: block; opacity: 0.8;">
+        <a href="" id="btn-responder" class="btn-whats-email" style="text-decoration: none; text-align: center; display: block; opacity: 0.8;">
             <span>RESPONDER POR E-MAIL</span>
         </a>
     </div>
 </div>
 
 
-
+<!-- GERAR PROPOSTA - ORÇAMENTO -->
 <div id="modalProposta" class="modal-overlay">
     <div class="modal-content-large">
         <div class="modal-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
@@ -810,6 +845,6 @@
     window.NOME_DO_ARTISTA = "{{ musico.nome if musico else 'Artista' }}";
 </script>
     
-    <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
 </body>
 </html>

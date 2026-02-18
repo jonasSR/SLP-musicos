@@ -1,19 +1,18 @@
 function showMobileTab(evt, tabName) {
     if (window.innerWidth > 768) return;
 
-    // 1. Atualizado para remover também a tab-fas
+    // 1. Removendo todas as classes possíveis, incluindo a de fãs
     document.body.classList.remove('tab-perfil', 'tab-agenda', 'tab-mensagens', 'tab-fas');
     
-    // 2. Adiciona a nova (funciona automaticamente para 'fas')
+    // 2. Adiciona a nova aba (dinamicamente via tabName)
     document.body.classList.add('tab-' + tabName);
 
-    // 3. Gerencia botões
+    // 3. Gerencia estado ativo dos botões
     document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
     evt.currentTarget.classList.add('active');
 
     window.scrollTo({ top: 0, behavior: 'smooth' });
 }
-
 
 // Inicializa a aba perfil no mobile
 document.addEventListener("DOMContentLoaded", function() {
