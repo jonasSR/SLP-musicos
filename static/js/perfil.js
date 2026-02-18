@@ -48,9 +48,10 @@ try {
             background: '#1a1a1a',
             color: '#fff',
             confirmButtonColor: '#00d2ff'
-        });
-        e.target.reset();
-    }
+        }).then(() => {
+        location.reload(); // Isso faz o fã ver o comentário dele na hora!
+    });
+}
 } catch (error) {
     Swal.fire('Erro', 'Tente novamente mais tarde.', 'error');
 } finally {

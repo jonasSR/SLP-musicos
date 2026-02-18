@@ -148,58 +148,62 @@ def index():
 
 @app.route('/musico/<musico_id>')
 def perfil_musico(musico_id):
-    """Página detalhada de cada artista"""
+    """Página detalhada: Fãs (com estrelas) automático, Mensagens (sem estrelas) moderado"""
     
-    # --- INÍCIO DA PEQUENA ALTERAÇÃO ---
-    # Tenta buscar pelo ID primeiro, se falhar, busca pelo campo 'nome'
+    # --- BUSCA DO MÚSICO ---
     doc_ref = db.collection('artistas').document(musico_id)
     musico = doc_ref.get()
 
     if not musico.exists:
-        # Se não achou pelo ID, tenta buscar pelo nome formatado da URL
         nome_busca = musico_id.replace('-', ' ')
         query = db.collection('artistas').where('nome', '==', nome_busca).limit(1).get()
         if query:
             musico = query[0]
-            doc_ref = musico.reference # Atualiza a referência para o documento real
-            musico_id = musico.id      # Atualiza o ID para o real do Firebase
+            doc_ref = musico.reference
+            musico_id = musico.id
         else:
             return "Músico não encontrado", 404
-    # --- FIM DA ALTERAÇÃO ---
 
-    # Daqui para baixo, o código continua EXATAMENTE como o seu original
     # Incrementa cliques
     doc_ref.update({'cliques': firestore.Increment(1)})
-
     dados = musico.to_dict()
     
     # Buscar Agenda
     agenda_ref = doc_ref.collection('agenda').stream()
     agenda = [show.to_dict() for show in agenda_ref]
 
-    # --- NOVO: BUSCAR FEEDBACKS APROVADOS ---
+    # --- BUSCA DE FEEDBACKS (SEM FILTRO DE STATUS NO BANCO) ---
     feedbacks_ref = db.collection('feedbacks')\
         .where('artista_id', '==', musico_id)\
-        .where('status', '==', 'aprovado')\
         .stream()
     
-    feedbacks_aprovados = []
+    feedbacks_para_exibir = []
     total_estrelas = 0
     
     for f in feedbacks_ref:
         f_dados = f.to_dict()
-        feedbacks_aprovados.append(f_dados)
-        total_estrelas += f_dados.get('estrelas', 5)
+        
+        # LÓGICA INFALÍVEL:
+        # 1. Se o documento tem o campo 'estrelas', é um FÃ. Aparece automático.
+        if 'estrelas' in f_dados:
+            feedbacks_para_exibir.append(f_dados)
+            total_estrelas += int(f_dados.get('estrelas', 0))
+        
+        # 2. Se NÃO tem estrelas, é uma MENSAGEM/CONTATO. Só aparece se for APROVADO.
+        else:
+            if f_dados.get('status') == 'aprovado':
+                feedbacks_para_exibir.append(f_dados)
 
-    # Cálculo de estatísticas para o perfil
-    qtd_fas = len(feedbacks_aprovados)
+    # Contagem de fãs (quem tem estrelas)
+    fas_reais = [fb for fb in feedbacks_para_exibir if 'estrelas' in fb]
+    qtd_fas = len(fas_reais)
     media_estrelas = round(total_estrelas / qtd_fas, 1) if qtd_fas > 0 else 0
 
     return render_template(
         'perfil.html',
         musico=dados,
         agenda=agenda,
-        feedbacks=feedbacks_aprovados,
+        feedbacks=feedbacks_para_exibir,
         qtd_fas=qtd_fas,
         media_estrelas=media_estrelas,
         id=musico_id
@@ -627,7 +631,7 @@ def api_enviar_feedback():
         'nome_fa': request.form.get('nome_fa'),
         'comentario': request.form.get('comentario'),
         'estrelas': int(request.form.get('estrelas', 5)),
-        'status': 'pendente', # Importante: entra como pendente
+        'status': 'aprovado', # Importante: entra como pendente
         'timestamp': firestore.SERVER_TIMESTAMP
     }
     db.collection('feedbacks').add(dados)
