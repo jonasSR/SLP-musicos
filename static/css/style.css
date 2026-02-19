@@ -148,7 +148,7 @@ body {
 
 /* O Botão de Destaque (Neon) */
 .btn-neon {
-    background: #1ea1a8 !important; /* Seu azul neon */
+    background: var(--primary-glow)!important; /* Seu azul neon */
     color: #000 !important;
     box-shadow: 0 0 20px rgba(0, 242, 255, 0.3);
 }
@@ -304,24 +304,24 @@ body {
 /* ##########################################################################
    CARDS HOME
    ########################################################################## */
-   .artist-grid {
+
+.artist-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); 
+    grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
     gap: 15px;
 }
 
 .modern-card {
-    aspect-ratio: 4 / 5; /* Formato Retangular */
+    aspect-ratio: 4 / 5;
     border-radius: 10px;
     position: relative;
     overflow: hidden;
     background: #000;
     border: 1px solid var(--border);
     transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-    /* Atualizações para o link global */
     display: flex;
     flex-direction: column;
-    text-decoration: none; 
+    text-decoration: none;
     cursor: pointer;
 }
 
@@ -343,26 +343,24 @@ body {
     transform: scale(1.1);
 }
 
-/* Container do conteúdo */
 .card-overlay {
     position: absolute;
     inset: 0;
     display: flex;
     flex-direction: column;
-    justify-content: flex-end; /* Empurra o conteúdo para a base */
+    justify-content: flex-end;
     z-index: 2;
 }
 
-/* Nome e Link de Perfil (Flutuando sobre a foto) */
 .artist-main-info {
     padding: 0 15px;
-    margin-bottom: 5px; /* Espaço antes de começar a barra de vidro */
+    margin-bottom: 5px;
 }
 
 .artist-main-info h3 {
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     font-size: 1.1rem;
-    color: #fff; /* Força a cor branca mesmo sendo link */
+    color: #fff;
     text-transform: uppercase;
     margin-bottom: 2px;
     line-height: 1;
@@ -380,10 +378,9 @@ body {
     gap: 5px;
 }
 
-/* A BARRA DE VIDRO NA BASE */
 .glass-footer {
-    background: rgba(255, 255, 255, 0.08); /* Branco translúcido */
-    backdrop-filter: blur(15px);           /* Desfoque do vidro */
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(15px);
     -webkit-backdrop-filter: blur(15px);
     padding: 12px 15px;
     border-top: 1px solid rgba(255, 255, 255, 0.1);
@@ -425,15 +422,14 @@ body {
 /* ##########################################################################
    DIVIDIR GALERIAS
    ########################################################################## */
-   .gallery-section {
+
+.gallery-section {
     padding: 100px 5%;
     max-width: 1600px;
     margin: 0 auto;
-    /* Adicione as linhas abaixo: */
-    border-top: 1px solid rgba(255, 255, 255, 0.1); 
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
     position: relative;
 }
-
 
 .gallery-section::before {
     content: '';
@@ -443,9 +439,8 @@ body {
     transform: translateX(-50%);
     width: 100px;
     height: 3px;
-    background: #ffffff; /* Ou a cor de destaque do seu site */
+    background: #ffffff;
 }
-
 
 .empty-highlights-wrapper {
     display: flex;
@@ -457,7 +452,7 @@ body {
     width: 100%;
     max-width: 800px;
     background: linear-gradient(145deg, rgba(255,255,255,0.02), rgba(0,212,255,0.05));
-    border: 1px dashed rgba(0, 212, 255, 0.2); /* Borda tracejada dá ideia de "vaga aberta" */
+    border: 1px dashed rgba(0, 212, 255, 0.2);
     border-radius: 20px;
     padding: 60px 40px;
     text-align: center;
@@ -466,7 +461,7 @@ body {
 
 .neon-icon-area {
     font-size: 3rem;
-    color: #00d4ff; /* Seu azul padrão */
+    color: #00d4ff;
     margin-bottom: 20px;
     filter: drop-shadow(0 0 10px rgba(0, 212, 255, 0.5));
     animation: pulse-neon 2s infinite ease-in-out;
@@ -474,7 +469,7 @@ body {
 
 .placeholder-title {
     color: #fff;
-    font-family: 'Orbitron', sans-serif;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     font-size: 1.5rem;
     letter-spacing: 2px;
     margin-bottom: 10px;
@@ -509,7 +504,6 @@ body {
     50% { opacity: 1; transform: scale(1.1); }
 }
 
-/* Base do Selo */
 .card-badge {
     position: absolute;
     top: 15px;
@@ -524,24 +518,21 @@ body {
     pointer-events: none;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
     transition: 0.3s ease;
-}
-
-/* Estilo para NOVO (Ciano/Neon) */
-.card-badge {
-    background: #00f2ff; /* Cor que você usa nos filtros */
+    background: #00f2ff;
     color: #000;
 }
 
-/* Estilo para DESTAQUE (Branco/Luxo) */
 .card-badge.highlight {
     background: #fff;
     color: #000;
 }
 
-/* Efeito de aproximação (Hover) */
 .modern-card:hover .card-badge {
     transform: translateY(-3px);
 }
+
+
+
 
 
 
@@ -936,19 +927,94 @@ body {
 .toast.show { transform: translateY(0); opacity: 1; }
 
 
-/* ==========================================================================
-   SEÇÃO DE DESTAQUES MUSICOS
-   ========================================================================== */
-.high-card {
+
+/* Container de posicionamento global */
+body {
     position: relative;
-    width: 280px; 
-    height: 330px; 
-    border-radius: 24px;
+    overflow-x: hidden; /* Evita scroll horizontal por causa da rotação */
+}
+
+.vertical-brand {
+    position: absolute; /* Agora ele acompanha o conteúdo no scroll */
+    right: 30px;
+    transform: rotate(90deg);
+    transform-origin: right center;
+    white-space: nowrap;
+    z-index: 1;
+    pointer-events: none;
+}
+
+.vertical-brand span {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-size: 0.7rem;
+    letter-spacing: 6px;
+    color: rgba(0, 242, 255, 0.2); /* Azul neon bem suave */
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.vertical-brand i {
+    width: 14px;
+    height: 14px;
+    opacity: 0.4;
+    transform: rotate(-90deg); /* Desrotaciona o ícone para ele ficar em pé */
+}
+
+/* Alturas diferentes para preencher o lado direito */
+.v-1 { top: 45%; }
+.v-2 { top: 65%; }
+.v-3 { top: 85%; }
+
+/* Efeito de brilho suave no hover (opcional) */
+.vertical-brand:hover span {
+    color: rgba(0, 242, 255, 0.5);
+    transition: 0.3s;
+}
+
+
+/* --- Ajuste para Dispositivos Móveis --- */
+@media (max-width: 768px) {
+    .vertical-brand {
+        /* Mantém o valor original, mas reduz a distância da borda para não invadir o conteúdo central */
+        right: 10px; 
+    }
+    
+    /* Caso o texto ainda fique muito grande em celulares muito pequenos, 
+       ajustamos apenas a escala para que ele caiba na lateral */
+    .vertical-brand span {
+        font-size: 0.7rem; 
+        letter-spacing: 4px;
+    }
+}
+
+
+
+
+
+/* ==========================================================================
+   SEÇÃO DE DESTAQUES MUSICOS - DESIGN MODERNO INTEGRADO
+   ========================================================================== */
+/* 1. ESTILOS DOS BADGES INTERNOS (SCORES) */
+.badge-symbol { color: #14532d !important; font-size: 1.1rem; }
+.badge-label { color: #14532d !important; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-weight: 700; font-size: 0.9rem; letter-spacing: -0.2px; }
+.badge-score { color: #FFD700 !important; font-weight: 800; font-size: 1rem; margin-left: 10px; }
+.badge-star-icon { color: #FFD700 !important; font-size: 0.85rem; }
+
+/* 2. CONFIGURAÇÃO DOS CARDS */
+.high-card {
+    aspect-ratio: 4 / 5;
+    width: 280px;
+    border-radius: 10px;
+    position: relative;
     overflow: hidden;
-    background: transparent;
-    border: 2px solid transparent;
-    transition: all 0.4s ease;
-    cursor: pointer;
+    background: #000;
+    border: 1px solid rgba(255,255,255,0.1);
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    display: flex;
+    flex-direction: column;
+    z-index: 5; /* Garante que os cards fiquem à frente da mancha */
 }
 
 .high-card:hover {
@@ -962,67 +1028,254 @@ body {
     background-image: var(--bg-image);
     background-size: cover;
     background-position: center;
+    filter: grayscale(0.5) brightness(0.6);
+    transition: 0.8s ease;
     z-index: 1;
-    transition: transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
 .high-card:hover .high-image {
-    transform: scale(1.15);
+    filter: grayscale(0) brightness(0.8);
+    transform: scale(1.1);
+}
+
+.high-badge-container {
+    position: absolute;
+    top: 6px;
+    left: 100px;
+    z-index: 10;
+    background: #ffffff;
+    display: flex;
+    align-items: center;
+    padding: 6px 12px;
+    border-radius: 4px;
+    gap: 8px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
 }
 
 .high-overlay {
     position: absolute;
     inset: 0;
-    z-index: 2;
-    padding: 20px;
     display: flex;
     flex-direction: column;
     justify-content: flex-end;
-    background: linear-gradient(to top, rgba(0,0,0,0.9) 10%, transparent 70%);
-    pointer-events: none;
+    z-index: 2;
+}
+
+.high-artist-main-info {
+    padding: 0 15px;
+    margin-bottom: 5px;
 }
 
 .high-category {
     color: #00f2ff;
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    font-size: 0.75rem;
-    font-weight: 800;
+    font-size: 0.8rem;
+    font-weight: 900;
     text-transform: uppercase;
-    margin-bottom: 2px;
+    display: block;
 }
 
-.high-overlay h3 {
-    color: #fff;
+.high-artist-main-info h3 {
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     font-size: 1.2rem;
-    font-weight: 800;
+    color: #fff;
     text-transform: uppercase;
-    line-height: 1.0;
-    letter-spacing: -0.5px;
-    margin: 0 0 4px 0;
+    margin: 0;
+    text-shadow: 0 2px 10px rgba(0,0,0,0.8);
 }
 
-.high-overlay p {
-    color: rgba(255,255,255,0.7);
-    font-size: 0.85rem;
-    margin-bottom: 15px;
+.high-glass-footer {
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    padding: 12px 15px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.btn-high-view {
-    pointer-events: auto;
-    display: block;
-    width: 100%;
-    background: #00f2ff;
-    color: #000;
-    text-align: center;
-    padding: 12px;
-    border-radius: 12px;
-    font-weight: 900;
-    text-decoration: none;
+.high-footer-line {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.high-location {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.9rem;
+    color: #fff;
+    opacity: 0.7;
     text-transform: uppercase;
+}
+
+.high-tag-type {
+    color: rgba(255, 255, 255, 0.6);
     font-size: 0.8rem;
-    transition: 0.3s;
+    font-weight: 700;
+    text-transform: uppercase;
 }
+
+/* 3. AJUSTE DA SEÇÃO PARA PERMITIR VAZAMENTO E CAMADAS */
+.gallery-section, 
+.highlights-section {
+    position: relative !important;
+    overflow: visible !important; /* Permite que a mancha desça além da borda */
+    z-index: 1; 
+}
+
+/* 4. BADGE "MELHOR PRESENÇA DE PALCO" - AJUSTE DESKTOP */
+.section-spray-badge {
+    position: absolute;
+    bottom: -80px !important; /* Desce para a borda inferior no desktop */
+    right: -15px;
+    z-index: -1 !important;   /* Manda para trás de tudo (cards e conteúdo) */
+    pointer-events: none;
+    width: 300px;
+    height: 185px;
+    transform: rotate(-6deg);
+    transform-origin: bottom right;
+    animation: sprayStamp 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+    animation-delay: 0.3s;
+}
+
+.section-spray-badge .ink-text {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 0 30px 12px 42px;
+    gap: 2px;
+    z-index: 2;
+}
+
+.section-spray-badge .ink-text span {
+    display: block;
+    font-family: 'Bebas Neue', 'Impact', 'Arial Narrow', sans-serif;
+    font-size: 2.7rem;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    line-height: 1.05;
+    color: var(--primary-glow);
+    -webkit-text-stroke: 1px rgba(0, 0, 0, 0.5);
+    text-shadow:
+        1px 1px 0 #000,
+        2px 3px 6px rgba(0, 0, 0, 1),
+        0 0 18px rgba(233, 15, 15, 0);
+}
+
+.section-spray-badge .ink-text span:nth-child(2) {
+    font-size: 2.5rem;
+    margin-left: 12px;
+}
+
+.section-spray-badge {
+    position: absolute;
+    bottom: 0px;
+    right: -10px;
+    z-index: 50;
+    pointer-events: none;
+    width: 400px;
+    height: 185px;
+    transform: rotate(-6deg);
+    transform-origin: bottom right;
+    animation: sprayStamp 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+    animation-delay: 0.3s;
+}
+
+/* 5. ANIMAÇÃO */
+@keyframes sprayStamp {
+    0%   { opacity: 0; transform: rotate(-6deg) scale(1.25); filter: blur(10px); }
+    60%  { opacity: 1; filter: blur(0.5px); }
+    100% { opacity: 1; transform: rotate(-6deg) scale(1); filter: blur(0); }
+}
+
+/* 6. AJUSTES MOBILE (TABLETS E CELULARES) */
+@media (max-width: 768px) {
+    .section-spray-badge {
+        position: absolute !important;
+        top: auto !important;
+        left: auto !important;
+        bottom: -100px !important; /* Valor bem baixo para encostar na borda inferior */
+        right: -25px !important; 
+        width: 280px !important; 
+        height: 130px !important;
+        transform: rotate(-6deg) scale(1.1) !important;
+        z-index: -1 !important; /* Atrás dos cards no mobile também */
+        pointer-events: none; 
+    }
+
+    .section-spray-badge .ink-text {
+        padding: 0 25px 10px 15px !important;
+        text-align: center;
+    }
+
+    .section-spray-badge .ink-text span {
+        font-size: 1.4rem !important;
+        font-weight: 900 !important;
+        line-height: 1.1;
+        letter-spacing: 1px !important;
+        text-transform: uppercase;
+        display: block;
+    }
+}
+
+
+/* No seu CSS */
+.high-card::after {
+    content: "VER PERFIL COMPLETO";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0.9);
+    background: rgba(0, 242, 255, 0.9); /* Ciano para combinar */
+    color: #000;
+    padding: 8px 16px;
+    border-radius: 10px;
+    font-weight: 900;
+    font-size: 0.7rem;
+    opacity: 0;
+    transition: all 0.3s ease;
+    z-index: 15;
+    white-space: nowrap;
+}
+
+.high-card:hover::after {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+}
+
+/* Escondido no Desktop, aparece no Mobile */
+.mobile-cta-badge {
+    display: none;
+}
+
+@media (max-width: 768px) {
+    .mobile-cta-badge {
+        display: flex;
+        position: absolute;
+        bottom: 40px; /* Acima do rodapé de localização */
+        right: 10px;
+        background: rgba(0, 242, 255, 0.9);
+        color: #000;
+        padding: 5px 12px;
+        border-radius: 6px;
+        font-size: 0.65rem;
+        font-weight: 900;
+        align-items: center;
+        gap: 5px;
+        z-index: 20;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    }
+}
+
+/* ==========================================================================
+   HIGHLIGHTS SECTION — position relative obrigatório para o badge funcionar
+   ========================================================================== */
+.highlights-section {
+    position: relative;
+    overflow: hidden;
+}
+
 
 
 /* ==========================================================================
@@ -1167,15 +1420,12 @@ body {
     padding: 10px;
 }
 
-/* ======================================== SEÇAO MOBILE ======================================== */
 
 
 /* ##########################################################################
    6. RESPONSIVIDADE MOBILE (REVISADA E ORGANIZADA)
    ########################################################################## */
-
 @media screen and (max-width: 768px) {
-    
     /* --- CONFIGURAÇÕES GERAIS --- */
     html, body {
         overflow-x: hidden !important;
@@ -1217,22 +1467,93 @@ body {
 
     .sub-hero { font-size: 1.4rem !important; letter-spacing: 3px !important; margin-top: 10px;}
 
-    /* --- 3. SEÇÃO DE DESTAQUES (SLIDER/SWIPER) --- */
-    /* Garante que os cards de destaque não se misturem com o grid debaixo */
+    /* --- SEÇÃO DE DESTAQUES: ASPECTO HARD COM VIDRO REAL --- */
     .high-card {
-        width: 190px !important;
-        height: 260px !important;
-        border-radius: 16px !important;
+        width: 210px !important; 
+        height: 270px !important; 
+        border-radius: 12px !important;
+        position: relative;
+        overflow: hidden;
+        background: #000;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        display: flex;
+        flex-direction: column;
+    }
+    /* SELO (Sua métrica original da medalha) */
+    .high-badge-container {
+        position: absolute;
+        top: 6px;
+        left: 1px;
+        z-index: 10;
+        background: #ffffff;
+        display: flex;
+        align-items: center;
+        padding: 6px 12px;
+        border-radius: 4px;
+        gap: 8px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
     }
 
-    .high-overlay { padding: 12px !important; }
-    
-    /* Esconde a bio/descrição longa para manter o card limpo */
-    .high-overlay p { display: none !important; }
-    
-    .high-overlay h3 { font-size: 1rem !important; margin-bottom: 4px; }
-    
-    .high-category { font-size: 0.6rem !important; font-weight: 800; }
+    .high-overlay { 
+        position: absolute;
+        inset: 0;
+        padding: 0 !important; /* MANTÉM ZERO PARA COLAR A BARRA */
+        z-index: 2;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end;
+    }
+
+    /* A BARRA DE VIDRO (CORRIGIDA: CLARA E TRANSLÚCIDA) */
+    .high-glass-footer {
+        width: 100% !important;
+        /* Voltando para o branco translúcido do Modern Card */
+        background: rgba(255, 255, 255, 0.12) !important; 
+        backdrop-filter: blur(15px) saturate(180%);
+        -webkit-backdrop-filter: blur(15px) saturate(180%);
+        
+        padding: 10px 12px !important;
+        border-top: 1px solid rgba(255, 255, 255, 0.2);
+        box-sizing: border-box !important;
+    }
+
+    /* Detalhes do texto na barra para brilhar no vidro */
+    .high-location {
+        font-size: 0.75rem !important;
+        color: #ffffff !important;
+        text-shadow: 0 1px 4px rgba(0,0,0,0.3);
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        font-weight: 600;
+    }
+
+    .high-tag-type {
+        font-size: 0.65rem !important;
+        font-weight: 800;
+        color: rgba(255, 255, 255, 0.8) !important;
+        text-transform: uppercase;
+    }
+
+    /* Infos do Artista logo acima do vidro */
+    .high-artist-main-info {
+        padding: 0 12px !important;
+        margin-bottom: 8px;
+    }
+
+    .high-category { 
+        color: #00f2ff; /* var(--accent) */
+        font-size: 0.65rem !important; 
+        font-weight: 900;
+        text-transform: uppercase;
+    }
+
+    .high-artist-main-info h3 { 
+        font-size: 1rem !important; 
+        font-weight: 800;
+        color: #fff;
+        text-shadow: 0 2px 10px rgba(0,0,0,0.8);
+    }
 
     /* --- 4. SEÇÃO ARTISTAS LOCAIS (GRID DE BUSCA) --- */
     .local-grid {
@@ -1265,9 +1586,9 @@ body {
     }
 
     .artist-grid .modern-card {
-        aspect-ratio: 4 / 5 !important;
+        aspect-ratio: 4 / 6 !important;
         height: auto !important;
-        border-radius: 12px !important;
+        border-radius: 10px !important;
         margin-bottom: 5px;
     }
 
@@ -1295,7 +1616,7 @@ body {
         text-transform: uppercase;
     }
 
-.music-filter-wrapper {
+    .music-filter-wrapper {
         flex-direction: row !important; /* Mantém lado a lado se couber */
         flex-wrap: wrap !important;     /* Quebra se a tela for muito pequena */
         gap: 10px !important;           /* Reduz espaço entre Cidade e Gênero */
@@ -1483,7 +1804,7 @@ body {
 /* Ajuste para telas menores */
 @media (max-width: 768px) {
     .discovery-header-saas {
-        margin: 40px 0 20px 0;
+        margin: 60px 0 20px 0;
     }
     .discovery-header-saas h2 {
         font-size: 1.2rem;
@@ -1510,7 +1831,7 @@ body {
     margin-bottom: 15px;
     font-size: 1.1rem;
     text-transform: uppercase;
-    font-family: 'Orbitron', sans-serif;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
 .legal-content p {

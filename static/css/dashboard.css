@@ -908,7 +908,7 @@ option {
 
 .fan-row.status-pendente {
     border-left: 4px solid #00f2ff;
-    background: rgba(29, 175, 0, 0.445);
+    background: rgba(29, 156, 0, 0.589);
 }
 
 .fan-meta {
@@ -1849,6 +1849,106 @@ option {
     font-weight: 800;
 }
 
+/* Ajuste para Dispositivos Móveis (telas até 768px) */
+@media (max-width: 768px) {
+    .btn-agenda-add {
+        width: 100% !important;     /* Ocupa toda a largura disponível no celular */
+        padding: 18px 10px;         /* Aumenta um pouco a área de toque vertical */
+        font-size: 0.9rem;          /* Melhora a leitura em telas menores */
+        margin-top: 15px;           /* Dá mais respiro entre elementos */
+        border-radius: 8px;         /* Bordas levemente mais arredondadas ficam melhores no mobile */
+        
+        /* Opcional: Impedir que o texto quebre em duas linhas se for muito longo */
+        white-space: nowrap; 
+    }
+}
+
+.badge-contador-propostas {
+    position: absolute !important;
+    top: -10px !important;
+    right: -10px !important;
+    background-color: #ff3b30 !important; /* Vermelho vibrante */
+    color: white !important;
+    font-size: 10px !important;
+    font-weight: bold !important;
+    width: 20px !important;
+    height: 20px !important;
+    border-radius: 50% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    z-index: 9999 !important; /* Garante que fica na frente de tudo */
+    border: 2px solid #121212 !important;
+    box-shadow: 0 0 8px rgba(255, 59, 48, 0.6) !important;
+}
+
+/* Garante que o card pai não corte a badge */
+.tool-card-simple {
+    position: relative !important;
+    overflow: visible !important;
+}
+
+.badge-atalho-mobile {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background: #ff3b30;
+    color: white;
+    font-size: 10px;
+    font-weight: bold;
+    min-width: 18px;
+    height: 18px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid #1a1a1a; /* Borda para destacar do círculo azul */
+    box-shadow: 0 0 5px rgba(255, 59, 48, 0.5);
+    z-index: 10;
+}
+
+/* Esconde o atalho por padrão em telas grandes (Desktop) */
+@media (min-width: 769px) {
+    .mobile-only-shortcut {
+        display: none !important;
+    }
+}
+
+/* Garante que ele apareça apenas em telas pequenas (Mobile) */
+@media (max-width: 768px) {
+    .mobile-only-shortcut {
+        display: flex !important; /* Volta a ser flex para manter o alinhamento interno */
+    }
+}
+
+/* --- AJUSTE PARA DISPOSITIVOS MÓVEIS (ATÉ 768px) --- */
+@media (max-width: 768px) {
+    .item-proposta {
+        flex-direction: column; /* Empilha os itens verticalmente */
+        align-items: flex-start; /* Alinha o texto à esquerda */
+        gap: 12px;               /* Diminui o espaço entre blocos */
+        padding: 20px 15px;      /* Aumenta o respiro vertical para facilitar o toque */
+        background: rgba(255, 255, 255, 0.02); /* Leve destaque no fundo */
+        margin-bottom: 8px;      /* Separa um card do outro */
+        border-radius: 8px;      /* Transforma o item em um cardzinho */
+        border-bottom: 1px solid rgba(0, 242, 255, 0.1); /* Borda com seu Ciano */
+    }
+
+    /* Ajuste para que os botões (ações) ocupem a largura toda no mobile */
+    .item-proposta .container-acoes { 
+        width: 100%;
+        display: flex;
+        justify-content: flex-start;
+        gap: 10px;
+        margin-top: 5px;
+    }
+
+    /* Se tiver textos muito longos, evita que quebrem o layout */
+    .item-proposta span, .item-proposta strong {
+        font-size: 0.85rem;
+        word-break: break-word;
+    }
+}
 
 /* --- CONTAINER EM GRID --- */
 .agenda-items-list {
@@ -2041,11 +2141,6 @@ option {
     justify-content: space-between;
     align-items: flex-start;
     transition: 0.3s;
-}
-
-.fan-row:hover {
-    background: rgba(255, 255, 255, 0.04);
-    border-color: rgba(0, 242, 255, 0.2);
 }
 
 /* Destaque para Pendentes */
@@ -2427,9 +2522,10 @@ textarea:-webkit-autofill:focus {
   top: 70px;
   /* Em vez de right fixo, usamos o centro como base */
   left: 50%; 
-  margin-left: 340px; /* Metade da largura do seu painel + um pouco de respiro */
+  margin-left: 79px; /* Metade da largura do seu painel + um pouco de respiro */
   display: flex;
   z-index: 100;
+  gap: 10px;
 }
 
 .tool-card-simple {

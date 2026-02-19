@@ -227,6 +227,20 @@
                 </div>
                 <button onclick="openModal('modalProposta')" class="btn-card-action">CRIAR PROPOSTA</button>
             </div>
+            <div class="tool-card-simple" style="position: relative; overflow: visible !important;">
+                {% if total_propostas and total_propostas > 0 %}
+                    <span class="badge-contador-propostas">{{ total_propostas }}</span>
+                {% endif %}
+
+                <div class="tool-content">
+                    <i data-lucide="folder-open" class="icon-tool"></i>
+                    <div class="tool-text">
+                        <h4>Minhas Propostas</h4>
+                        <p>Veja orçamentos enviados.</p>
+                    </div>
+                </div>
+                <button type="button" onclick="openModal('modalHistoricoPropostas')" class="btn-card-action">VER ENVIADAS</button>
+            </div>
         </div>
     </header>
 
@@ -250,40 +264,40 @@
     </div>
 
     {% if musico.nome %}
-    <div class="mobile-tabs">
-        <button class="tab-btn active" onclick="showMobileTab(event, 'perfil')">
-            <i class="icon-user"></i>
-            <span>Perfil</span>
-        </button>
+        <div class="mobile-tabs">
+            <button class="tab-btn active" onclick="showMobileTab(event, 'perfil')">
+                <i class="icon-user"></i>
+                <span>Perfil</span>
+            </button>
 
-        <button class="tab-btn" onclick="showMobileTab(event, 'agenda')">
-            <i class="icon-calendar"></i>
-            <span>Agenda</span>
-        </button>
+            <button class="tab-btn" onclick="showMobileTab(event, 'agenda')">
+                <i class="icon-calendar"></i>
+                <span>Agenda</span>
+            </button>
 
-        <button class="tab-btn" onclick="openModal('modalProposta')">
-            <div class="circle-neon-proposta">
-                <i class="icon-plus"></i>
-            </div>
-            <span>Proposta</span>
-        </button>
+            <button class="tab-btn" onclick="openModal('modalProposta')">
+                <div class="circle-neon-proposta">
+                    <i class="icon-plus"></i>
+                </div>
+                <span>Proposta</span>
+            </button>
 
-        <button class="tab-btn" onclick="showMobileTab(event, 'mensagens')">
-            <i class="icon-mail"></i>
-            <span>Inbox</span>
-        </button>
+            <button class="tab-btn" onclick="showMobileTab(event, 'mensagens')">
+                <i class="icon-mail"></i>
+                <span>Inbox</span>
+            </button>
 
-        <button class="tab-btn" onclick="showMobileTab(event, 'fas')">
-            <div style="position: relative; display: inline-block;">
-                <i class="icon-star"></i>
-                {% if notificacoes_fas > 0 %}
-                    <span class="notification-badge">{{ notificacoes_fas }}</span>
-                {% endif %}
-            </div>
-            <span>Fãs</span>
-        </button>
-    </div>
-{% endif %}
+            <button class="tab-btn" onclick="showMobileTab(event, 'fas')">
+                <div style="position: relative; display: inline-block;">
+                    <i class="icon-star"></i>
+                    {% if notificacoes_fas > 0 %}
+                        <span class="notification-badge">{{ notificacoes_fas }}</span>
+                    {% endif %}
+                </div>
+                <span>Fãs</span>
+            </button>
+        </div>
+    {% endif %}
 
 <!-- SEÇÃO PREVIA DO PERFIL     -->
 <section class="config-grid" style="display: grid; grid-template-columns: 350px 1fr; gap: 30px; align-items: start;">
@@ -313,7 +327,7 @@
                     <div class="stat-icon-main"><i class="icon-trending"></i></div>
                     <div class="stat-info">
                         <span class="stat-value-large">{{ total_cliques or '0' }}</span>
-                        <span class="stat-label">Visitas no Mês</span>
+                        <span class="stat-label">Visitas - Cliques</span>
                     </div>
                     <div class="stat-chart-mini">
                         <svg viewBox="0 0 100 30" class="mini-wave">
@@ -339,7 +353,9 @@
                 <div class="stat-item">
                     <div class="stat-icon-small" style="color: #ffca28;"><i class="fas fa-star"></i></div>
                     <div class="stat-content">
-                        <span class="stat-value-small">{{ "%.1f"|format(media_estrelas|float) if media_estrelas else '0.0' }}</span>
+                        <span class="stat-value-small">
+                            {{ "%.1f"|format(musico.media_estrelas|default(0.0)|float) }}
+                        </span>
                         <span class="stat-label-small">AVALIAÇÃO</span>
                     </div>
                 </div>
@@ -647,6 +663,7 @@
     </div>
 </section>
 
+<!-- MURAL DE FÂS -->
 <section id="aba-fas" class="fan-section-container">
     <div class="section-header">
         <h2 class="section-label">⭐ Mural de Depoimentos</h2>
@@ -655,7 +672,7 @@
 
     <div class="fan-list">
         {% for feedback in feedbacks %}
-        <div class="fan-row {% if feedback.status == 'excluido' %}status-pendente{% endif %}" {% if feedback.status == 'excluido' %}style="opacity: 0.5;"{% endif %}>
+        <div class="fan-row {% if feedback.status == 'pendente' %}status-pendente{% endif %}" {% if feedback.status == 'excluido' %}style="opacity: 0.5;"{% endif %}>
             <div class="fan-main-info">
                 <div class="fan-meta">
                     <span class="fan-name">{{ feedback.nome_fa }}</span>
@@ -663,7 +680,13 @@
                         {% for i in range(feedback.estrelas|int) %}★{% endfor %}
                     </span>
                     <span class="status-badge">
-                        {% if feedback.status == 'excluido' %}OCULTO{% else %}NO MURAL{% endif %}
+                        {% if feedback.status == 'pendente' %}
+                            <b style="color: #00fd15;">● NOVO</b>
+                        {% elif feedback.status == 'excluido' %}
+                            OCULTO
+                        {% else %}
+                            NO MURAL
+                        {% endif %}
                     </span>
                 </div>
                 <p class="fan-text" {% if feedback.status == 'excluido' %}style="text-decoration: line-through;"{% endif %}>
@@ -673,19 +696,19 @@
             </div>
             
             <div class="fan-actions">
-                {# Se estiver oculto, mostra o botão para voltar ao mural (Usa sua rota de aprovar) #}
-                {% if feedback.status == 'excluido' %}
+                {# Botão para marcar como lido ou restaurar #}
+                {% if feedback.status == 'pendente' or feedback.status == 'excluido' %}
                 <form action="/aprovar_feedback/{{ feedback.id }}" method="POST">
-                    <button type="submit" class="btn-approve-minimal" title="Mostrar no mural novamente">
+                    <button type="submit" class="btn-approve-minimal" title="Confirmar/Restaurar">
                         ✔
                     </button>
                 </form>
                 {% endif %}
 
-                {# Se NÃO estiver oculto, mostra o botão para ocultar (Usa sua rota de remover) #}
+                {# Botão para ocultar #}
                 {% if feedback.status != 'excluido' %}
                 <form action="/remover_feedback/{{ feedback.id }}" method="POST">
-                    <button type="submit" class="btn-delete-minimal" onclick="return confirm('Ocultar comentário? As estrelas continuarão contando.')" title="Ocultar">
+                    <button type="submit" class="btn-delete-minimal" onclick="return confirm('Ocultar este comentário do perfil público?')" title="Ocultar">
                         ✕
                     </button>
                 </form>
@@ -733,18 +756,195 @@
     </div>
 </div>
 
+<div id="modalHistoricoPropostas" class="modal" style="display: none; position: fixed; z-index: 9999; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.9); overflow-y: auto;">
+    <div class="modal-content" style="max-width: 650px; background: #0a0a0a; border: 1px solid #00f2ff; margin: 50px auto; padding: 25px; border-radius: 12px; position: relative; box-shadow: 0 0 30px rgba(0, 242, 255, 0.15);">
+        
+        <span class="close" onclick="closeModal('modalHistoricoPropostas')" style="position: absolute; right: 20px; top: 15px; color: #666; font-size: 24px; cursor: pointer; transition: 0.3s;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='#666'">&times;</span>
+        
+        <h2 style="font-family: 'Orbitron', sans-serif; color: #00f2ff; margin-bottom: 20px; font-size: 1.1rem; letter-spacing: 2px;">HISTÓRICO DE PROPOSTAS</h2>
+        
+        <div style="position: relative; margin-bottom: 20px;">
+            <input type="text" id="filtroProposta" onkeyup="filtrarPropostas()" placeholder="Filtrar por nome ou data..." 
+                   style="width: 100%; padding: 12px 15px; background: rgba(255,255,255,0.03); border: 1px solid rgba(0,242,255,0.2); color: white; border-radius: 6px; outline: none; font-size: 0.9rem;">
+        </div>
+
+        <div style="max-height: 450px; overflow-y: auto; padding-right: 10px;" id="listaPropostasContainer">
+            {% if historico_propostas %}
+                {% for prop in historico_propostas %}
+                <div class="item-proposta" style="padding: 15px; border-bottom: 1px solid rgba(255,255,255,0.05); display: flex; justify-content: space-between; align-items: center; gap: 20px; transition: 0.3s;">
+                    
+                    <div style="flex: 1; min-width: 0;">
+                        <strong style="color: #fff; display: block; text-transform: uppercase; font-size: 0.85rem; letter-spacing: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="{{ prop.nome_festa }}">
+                            {{ prop.nome_festa }}
+                        </strong>
+                        <div style="margin-top: 5px; display: flex; align-items: center; gap: 10px; font-size: 0.75rem;">
+                            <span style="color: #00f2ff; opacity: 0.8;">{{ prop.data_festa }}</span>
+                            <span style="width: 4px; height: 4px; background: rgba(255,255,255,0.2); border-radius: 50%;"></span>
+                            <span style="color: #00ff88; font-weight: 600;">R$ {{ prop.valor_cache }}</span>
+                        </div>
+                    </div>
+
+                    <div style="flex-shrink: 0; display: flex; gap: 8px;">
+                        <button onclick="editarProposta(`{{ prop.nome_festa }}`, `{{ prop.local_festa }}`, `{{ prop.data_festa }}`, `{{ prop.hora_festa }}`, `{{ prop.valor_cache }}`, `{{ prop.documento_artista }}`, `{{ prop.detalhes_show | replace('\n', ' ') | replace('\r', ' ') }}`, `{{ prop.auth_id }}`)" 
+                                class="btn-card-action" 
+                                style="padding: 8px 12px; font-size: 0.65rem; background: rgba(255,255,255,0.1); color: #fff; border: 1px solid rgba(255,255,255,0.2); min-width: auto; cursor: pointer;">
+                            EDITAR
+                        </button>
+
+                        <button onclick="reimprimirProposta('{{ prop.auth_id }}')" 
+                                class="btn-card-action" 
+                                style="padding: 8px 16px; font-size: 0.65rem; font-weight: 700; background: #00f2ff; color: #000; min-width: 80px;">
+                            ABRIR
+                        </button>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div style="text-align: center; padding: 60px 20px; color: rgba(255,255,255,0.2);">
+                    <p style="font-size: 0.9rem;">Nenhuma proposta encontrada no seu banco.</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+// Função para abrir a proposta salva
+function reimprimirProposta(authId) {
+    if(authId) {
+        window.open('/gerar_proposta_reimpressao/' + authId, '_blank');
+    }
+}
+
+// Função de filtro ultra-rápida
+function filtrarPropostas() {
+    const input = document.getElementById('filtroProposta').value.toLowerCase();
+    const itens = document.getElementsByClassName('item-proposta');
+    
+    Array.from(itens).forEach(item => {
+        const texto = item.innerText.toLowerCase();
+        item.style.display = texto.includes(input) ? "flex" : "none";
+    });
+}
+
+function editarProposta(nome, local, data, hora, valor, documento, detalhes, tempId) {
+    closeModal('modalHistoricoPropostas');
+    const modal = document.getElementById('modalProposta');
+    modal.style.display = 'flex';
+    
+    const form = modal.querySelector('form');
+    const btnSubmit = document.getElementById('btn-submit-proposta');
+
+    // Preenche os campos
+    form.querySelector('input[name="nome_festa"]').value = nome || '';
+    form.querySelector('input[name="local_festa"]').value = local || '';
+    form.querySelector('input[name="hora_festa"]').value = hora || '';
+    form.querySelector('input[name="valor_cache"]').value = valor || '';
+    form.querySelector('input[name="documento_artista"]').value = documento || '';
+    form.querySelector('textarea[name="detalhes_show"]').value = detalhes || '';
+    
+    if (tempId) {
+        document.getElementById('proposta_temp_id').value = tempId;
+    }
+
+    // Troca o texto e aplica sua cor padrão #00f2ff
+    btnSubmit.innerText = "SALVAR ALTERAÇÕES";
+    btnSubmit.style.background = "#00f2ff"; 
+    btnSubmit.style.color = "#121212"; // Texto escuro para dar contraste no ciano
+    btnSubmit.style.border = "none";
+    btnSubmit.style.fontWeight = "bold";
+
+    // NOVA TRAVA COM MODAL PERSONALIZADA
+    form.onsubmit = function(e) {
+        e.preventDefault(); // Bloqueia o envio automático para perguntar antes
+        
+        const modalConfirma = document.getElementById('modalConfirmacaoEdicao');
+        modalConfirma.style.display = 'flex';
+
+        // Opção 1: SUBSTITUIR (Mantém o ID atual)
+        document.getElementById('btnSubstituir').onclick = function() {
+            modalConfirma.style.display = 'none';
+            form.submit(); // Envia com o ID que já está lá (sobrescreve)
+        };
+
+        // Opção 2: GERAR NOVA (Troca o ID antes de enviar)
+        document.getElementById('btnGerarCopia').onclick = function() {
+            modalConfirma.style.display = 'none';
+            // Gera um ID novo aleatório para o Python achar que é uma nova proposta
+            document.getElementById('proposta_temp_id').value = Math.floor(Math.random() * 999999);
+            form.submit(); 
+        };
+    };
+
+    if (data && data.includes('/')) {
+        const partes = data.split('/');
+        form.querySelector('input[name="data_festa"]').value = `${partes[2]}-${partes[1]}-${partes[0]}`;
+    }
+}
+</script>
+<div id="modalConfirmacaoEdicao" class="modal-overlay" style="display:none; z-index: 10001; background: rgba(0,0,0,0.9);">
+    <div class="modal-content" style="max-width: 400px; text-align: center; border: 1px solid #00f2ff; background: #121212; padding: 30px; border-radius: 12px; box-shadow: 0 0 20px rgba(0, 242, 255, 0.2);">
+        <h3 style="color: #00f2ff; margin-top: 0; font-family: sans-serif;">⚠️ Atenção na Edição</h3>
+        <p style="color: #ffffff; font-size: 0.95rem; margin-bottom: 25px; line-height: 1.5; opacity: 0.9;">
+            Você está editando uma proposta existente. O que deseja fazer?
+        </p>
+        
+        <div style="display: flex; flex-direction: column; gap: 12px;">
+            <button id="btnSubstituir" class="btn-full-premium" 
+                style="background: #00f2ff; color: #000; font-weight: bold; border: none; padding: 14px; cursor: pointer; border-radius: 6px; text-transform: uppercase; transition: 0.3s;">
+                Substituir Original
+            </button>
+            
+            <button id="btnGerarCopia" 
+                style="background: transparent; color: #00f2ff; border: 1px solid #00f2ff; padding: 14px; cursor: pointer; border-radius: 6px; text-transform: uppercase; font-size: 0.75rem; transition: 0.3s;">
+                Gerar como Nova (Criar Cópia)
+            </button>
+            
+            <button onclick="document.getElementById('modalConfirmacaoEdicao').style.display='none'" 
+                style="background:none; border:none; color:#666; cursor:pointer; font-size:0.8rem; margin-top: 10px;">
+                Voltar e continuar editando
+            </button>
+        </div>
+    </div>
+</div>
 
 <!-- GERAR PROPOSTA - ORÇAMENTO -->
 <div id="modalProposta" class="modal-overlay">
     <div class="modal-content-large">
-        <div class="modal-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-            <h2 style="color: #fff; font-size: 1.2rem; margin: 0;">Nova Proposta Comercial</h2>
-            <button onclick="closeModal('modalProposta')" style="background: none; border: none; color: #666; font-size: 1.5rem; cursor: pointer;">&times;</button>
+        <div class="modal-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+    <h2 style="color: #fff; font-size: 1.2rem; margin: 0;">Propostas</h2>
+    <button onclick="closeModal('modalProposta')" style="background: none; border: none; color: #666; font-size: 1.8rem; cursor: pointer;">&times;</button>
+</div>
+
+<div class="container-historico-atalho mobile-only-shortcut" 
+     onclick="closeModal('modalProposta'); setTimeout(() => { openModal('modalHistoricoPropostas'); }, 300);"
+     style="position: relative; background: rgba(0, 242, 255, 0.05); border: 1px dashed rgba(0, 242, 255, 0.3); border-radius: 8px; padding: 15px; margin-bottom: 25px; cursor: pointer; display: flex; align-items: center; justify-content: space-between;">
+    
+    <div style="display: flex; align-items: center; gap: 12px;">
+        <div style="position: relative;">
+            <div style="background: #00f2ff; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #121212;">
+                <i class="fas fa-list-ul"></i>
+            </div>
+            {% if total_propostas and total_propostas > 0 %}
+                <span class="badge-atalho-mobile">{{ total_propostas }}</span>
+            {% endif %}
         </div>
 
-        <form action="{{ url_for('gerar_proposta') }}" method="POST" target="_blank">
-            <div class="modal-body">
+        <div>
+            <span style="color: #00f2ff; display: block; font-weight: bold; font-size: 0.9rem;">MINHAS PROPOSTAS</span>
+            <span style="color: #888; font-size: 0.7rem;">Ver, editar ou baixar propostas enviadas</span>
+        </div>
+    </div>
+    <i class="fas fa-chevron-right" style="color: #444;"></i>
+</div>
 
+<div class="section-title" style="margin-top: 10px;">Criar Nova Proposta</div>
+
+        <form action="{{ url_for('gerar_proposta') }}" method="POST" target="_blank">
+            
+            <input type="hidden" name="proposta_temp_id" id="proposta_temp_id" value="{{ range(1, 999999) | random }}">
+            
+            <div class="modal-body">
                 <div class="section-title">A Festa / Evento</div>
                 <div class="input-grid">
                     <div class="input-item">
@@ -770,8 +970,7 @@
                         <label>Hora de Início</label>
                         <input type="time" name="hora_festa" value="21:00">
                     </div>
-                    <div class="input-item">
-                        </div>
+                    <div class="input-item"></div>
                 </div>
 
                 <div class="section-title">O Show e Valor</div>
@@ -836,11 +1035,10 @@
                         </div>
                     </div>
                 </div>
-
             </div>
 
             <div class="btn-footer-container">
-                <button type="submit" class="btn-full-premium">
+                <button type="submit" id="btn-submit-proposta" class="btn-full-premium">
                     GERAR PROPOSTA COMERCIAL
                 </button>
             </div>

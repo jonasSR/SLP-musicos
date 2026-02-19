@@ -41,17 +41,17 @@ try {
     const res = await response.json();
 
     if (res.status === 'success') {
-        Swal.fire({
-            title: 'Valeu pelo carinho!',
-            text: 'Seu depoimento foi enviado e aparecerá aqui assim que o artista aprovar.',
-            icon: 'success',
-            background: '#1a1a1a',
-            color: '#fff',
-            confirmButtonColor: '#00d2ff'
-        }).then(() => {
-        location.reload(); // Isso faz o fã ver o comentário dele na hora!
-    });
-}
+            Swal.fire({
+                title: 'Valeu pelo carinho! ✨',
+                text: 'Sua vibração foi enviada e você já faz parte da nossa comunidade!',
+                icon: 'success',
+                background: '#1a1a1a',
+                color: '#fff',
+                confirmButtonColor: '#00d2ff'
+            }).then(() => {
+                location.reload(); 
+            });
+        }
 } catch (error) {
     Swal.fire('Erro', 'Tente novamente mais tarde.', 'error');
 } finally {

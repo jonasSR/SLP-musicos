@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0"> <title>Acesso Artista | Pulsa São Luiz</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Syne:wght@800&display=swap" rel="stylesheet">
@@ -94,22 +95,30 @@
         </form>
     </div>
 
-    <div id="modal-escolha-perfil" class="modal-overlay">
-        <div class="modal-content glass-card">
-            <h3>Como deseja entrar?</h3>
-            <p>Selecione seu tipo de perfil para continuar:</p>
+<div id="modal-escolha-perfil" class="modal-overlay">
+    <div class="modal-content glass-card">
+        <button type="button" class="btn-fechar-modal" onclick="document.getElementById('modal-escolha-perfil').style.display='none'">
+            &times;
+        </button>
+
+        <h3>COMO DESEJA ENTRAR?</h3>
+        <p>Selecione seu tipo de perfil para continuar:</p>
+        
+        <div class="opcoes-perfil">
+            <button type="button" class="btn-perfil" id="btn-escolha-musico">
+                <i class="fas fa-guitar icon-grande"></i>
+                <span class="titulo-btn">Sou Artista</span>
+                <span class="subtitulo-btn">Crie seu perfil e seja encontrado</span>
+            </button>
             
-            <div class="opcoes-perfil">
-                <button type="button" class="btn-perfil" id="btn-escolha-musico">
-                    🎸 SOU MÚSICO / BANDA
-                </button>
-                
-                <button type="button" class="btn-perfil" id="btn-escolha-empresa">
-                    🏢 SOU ESTABELECIMENTO
-                </button>
-            </div>
+            <button type="button" class="btn-perfil" id="btn-escolha-empresa">
+                <i class="fas fa-store icon-grande"></i>
+                <span class="titulo-btn">Sou Estabelecimento</span>
+                <span class="subtitulo-btn">Encontre artistas para seu local</span>
+            </button>
         </div>
     </div>
+</div>
 
     <div id="modal-retomar-cadastro" class="modal-overlay">
         <div class="modal-content glass-card">

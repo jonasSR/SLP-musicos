@@ -603,14 +603,14 @@ background: rgba(255, 255, 255, 0.05); /* Fundo sutil */
 
 
 /* #################### MODAL BANDA OU ESTABELECIMENTO #################### */
-/* Container da Modal (Fundo) */
+
 .modal-overlay {
-    display: none;
+    display: none; 
     position: fixed;
     top: 0; left: 0;
     width: 100%; height: 100%;
-    background: rgba(0, 0, 0, 0.85); /* Fundo mais escuro para destaque */
-    backdrop-filter: blur(12px); /* Desfoque de fundo elegante */
+    background: rgba(0, 0, 0, 0.9); 
+    backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
     z-index: 9999;
     justify-content: center;
@@ -618,22 +618,22 @@ background: rgba(255, 255, 255, 0.05); /* Fundo sutil */
     animation: fadeIn 0.3s ease;
 }
 
-/* Caixa da Modal */
 .modal-content {
-    background: rgb(0, 0, 0) !important;
-    border: 1px solid rgba(0, 242, 255, 0.3); /* Borda Neon sutil */
-    padding: 40px;
+    background: #000 !important;
+    border: 1px solid rgba(0, 242, 255, 0.3);
+    padding: 50px 40px;
     border-radius: 28px;
     text-align: center;
-    max-width: 450px;
-    width: 90%;
-    box-shadow: 0 0 40px rgba(0, 242, 255, 0.1), inset 0 0 20px rgba(255, 255, 255, 0.02);
+    max-width: 800px; 
+    width: 95%;
+    box-shadow: 0 0 40px rgba(0, 242, 255, 0.15);
 }
 
 .modal-content h3 {
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-family: 'Inter', sans-serif;
     color: #00f2ff;
     font-size: 1.8rem;
+    font-weight: 800;
     margin-bottom: 10px;
     text-transform: uppercase;
     letter-spacing: 2px;
@@ -641,61 +641,153 @@ background: rgba(255, 255, 255, 0.05); /* Fundo sutil */
 
 .modal-content p {
     color: rgba(255, 255, 255, 0.7);
-    margin-bottom: 30px;
+    margin-bottom: 35px;
     font-size: 0.95rem;
 }
 
-/* Botões de Opção */
+/* Grid para Layout Horizontal */
 .opcoes-perfil {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
 }
 
 .btn-perfil {
-    position: relative;
-    padding: 18px !important;
-    border-radius: 10px !important;
-    font-weight: 800 !important;
-    letter-spacing: 1px;
+    background: rgba(255, 255, 255, 0.03) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    padding: 40px 20px !important;
+    border-radius: 16px !important;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-    overflow: hidden;
     cursor: pointer;
+    outline: none;
 }
 
-/* Estilo específico botão Músico (Cheio) */
-#btn-escolha-musico {
-    background: #00f2ff !important;
-    color: #000 !important;
-    border: none !important;
+/* Estilo do Ícone com Brilho Azul */
+.icon-grande {
+    font-size: 2.5rem; /* Aumentado levemente */
+    color: #00f2ff; 
+    text-shadow: 0 0 10px rgba(0, 242, 255, 0.5); /* Efeito neon no ícone */
 }
 
-#btn-escolha-musico:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 10px 20px rgba(0, 242, 255, 0.4);
-    filter: brightness(1.1);
+.titulo-btn {
+    color: #fff;
+    font-size: 1.4rem;
+    font-weight: 700;
 }
 
-/* Estilo específico botão Empresa (Outline) */
-#btn-escolha-empresa {
-    background: transparent !important;
-    color: #fff !important;
-    border: 2px solid rgba(255, 255, 255, 0.2) !important;
+.subtitulo-btn {
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 0.85rem;
+    line-height: 1.4;
 }
 
-#btn-escolha-empresa:hover {
+/* Hover: Destaque Azul */
+.btn-perfil:hover {
+    transform: translateY(-8px);
+    background: rgba(0, 242, 255, 0.08) !important;
     border-color: #00f2ff !important;
-    color: #00f2ff !important;
-    background: rgba(0, 242, 255, 0.05) !important;
-    transform: translateY(-3px);
+    box-shadow: 0 10px 30px rgba(0, 242, 255, 0.2);
 }
 
+.btn-perfil:hover .icon-grande {
+    filter: brightness(1.3);
+    transform: scale(1.1); /* Ícone pulsa levemente no hover */
+}
+
+/* Botão de Fechar Modal */
+.btn-fechar-modal {
+    position: absolute;
+    top: 20px;
+    right: 25px;
+    background: transparent;
+    border: none;
+    color: rgba(255, 255, 255, 0.5); /* Cor discreta inicial */
+    font-size: 32px;
+    line-height: 1;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    z-index: 10;
+}
+
+.btn-fechar-modal:hover {
+    color: #00f2ff; /* Seu azul original no hover */
+    transform: rotate(90deg) scale(1.2); /* Efeito dinâmico */
+    text-shadow: 0 0 10px rgba(0, 242, 255, 0.8);
+}
 @keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
+    from { opacity: 0; transform: scale(0.95); }
+    to { opacity: 1; transform: scale(1); }
 }
 
+/* #################### CSS PARA DISPOSITIVOS MÓVEIS (ATÉ 768px) #################### */
+@media (max-width: 768px) {
+    
+    /* Ajusta o espaçamento externo para o modal não colar na tela */
+    .modal-overlay {
+        padding: 20px;
+    }
 
+    .btn-fechar-modal {
+        top: 10px;
+        right: 15px;
+        font-size: 28px;
+    }
+
+    /* Reduz o tamanho da caixa para ganhar espaço vertical */
+    .modal-content {
+        padding: 35px 20px !important;
+        width: 100% !important;
+        max-width: 100%;
+        border-radius: 20px !important;
+    }
+
+    /* Título menor para não quebrar em várias linhas */
+    .modal-content h3 {
+        font-size: 1.5rem !important;
+        letter-spacing: 1px !important;
+    }
+
+    .modal-content p {
+        margin-bottom: 25px !important;
+        font-size: 0.85rem !important;
+    }
+
+    /* FORÇA OS BOTÕES A FICAREM UM EMBAIXO DO OUTRO */
+    .opcoes-perfil {
+        grid-template-columns: 1fr !important; /* Muda de 2 colunas para 1 */
+        gap: 15px !important;
+    }
+
+    /* Ajusta o tamanho dos botões (Cards) */
+    .btn-perfil {
+        padding: 25px 15px !important;
+        gap: 10px !important;
+    }
+
+    /* Redimensiona os ícones e títulos internos */
+    .icon-grande {
+        font-size: 2rem !important;
+    }
+
+    .titulo-btn {
+        font-size: 1.2rem !important;
+    }
+
+    .subtitulo-btn {
+        font-size: 0.75rem !important;
+        max-width: 200px; /* Evita que o texto espalhe muito */
+    }
+
+    /* Ajuste de clique para mobile (UX) */
+    .btn-perfil:active {
+        transform: scale(0.98); /* Efeito de apertar ao tocar */
+        background: rgba(0, 242, 255, 0.1) !important;
+    }
+}
 
 
 /* Estilo para o botão de excluir/cancelar na modal */

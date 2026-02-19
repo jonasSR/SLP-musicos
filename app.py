@@ -93,43 +93,61 @@ def inject_firebase():
     }
 
 
-# ======================================================
-# 🌎 ROTAS PÚBLICAS
-# ======================================================
 @app.route('/')
 def index():
     musicos_ref = db.collection('artistas')
     musicos = []
     
-    # 1. Busca feedbacks aprovados para saber quem é relevante
-    feedbacks_ref = db.collection('feedbacks').where('status', '==', 'aprovado').stream()
-    contagem_feedbacks = {}
+    # 1. Busca feedbacks (Removido filtro 'aprovado' para bater com a lógica do perfil que você usa)
+    # Se você quer que a média seja igual, o critério de busca tem que ser o mesmo
+    feedbacks_ref = db.collection('feedbacks').stream()
+    
+    # Dicionário para guardar soma e quantidade por artista
+    stats_feedback = {} 
 
     for f in feedbacks_ref:
         f_dados = f.to_dict()
         aid = f_dados.get('artista_id')
-        if aid:
-            contagem_feedbacks[aid] = contagem_feedbacks.get(aid, 0) + 1
+        status = f_dados.get('status', 'pendente')
+        nota = f_dados.get('estrelas')
+
+        # Mesma regra do perfil: ignora apenas se for 'excluido'
+        if aid and status != 'excluido' and nota is not None:
+            if aid not in stats_feedback:
+                stats_feedback[aid] = {'soma': 0, 'qtd': 0}
+            
+            stats_feedback[aid]['soma'] += int(nota)
+            stats_feedback[aid]['qtd'] += 1
 
     # 2. Processa os músicos
     for doc in musicos_ref.stream():
         dados = doc.to_dict()
-        dados['id'] = doc.id
-        dados['qtd_fb'] = contagem_feedbacks.get(doc.id, 0)
+        aid = doc.id
+        dados['id'] = aid
+        
+        # Pega os dados calculados acima
+        artista_stats = stats_feedback.get(aid, {'soma': 0, 'qtd': 0})
+        dados['total_cliques'] = dados.get('cliques', 0)
+        
+        qtd = artista_stats['qtd']
+        soma = artista_stats['soma']
+        
+        # CÁLCULO DA MÉDIA (Exatamente como no perfil)
+        media = round(soma / qtd, 1) if qtd > 0 else 0.0
+        
+        # INJETA NO DICIONÁRIO (Para o HTML ler musico.media_estrelas)
+        dados['qtd_fb'] = qtd
+        dados['media_estrelas'] = media
+        
         musicos.append(dados)
 
-    # 3. DESTAQUES (Mantido conforme sua solicitação)
+    # 3. DESTAQUES (Agora ordenados pela MÉDIA e depois pela QUANTIDADE)
     destaques = [m for m in musicos if m.get('qtd_fb', 0) > 0]
-    destaques = sorted(destaques, key=lambda x: x['qtd_fb'], reverse=True)[:3]
+    destaques = sorted(destaques, key=lambda x: (x['media_estrelas'], x['qtd_fb']), reverse=True)[:3]
 
+    # --- O resto do código (cidades/filtros) permanece igual ---
     cidade_selecionada = request.args.get('cidade')
-    
-    cidades_disponiveis = sorted(list(set([
-        str(m.get('cidade')).strip() 
-        for m in musicos 
-        if m.get('cidade')
-    ])))
-    
+    cidades_disponiveis = sorted(list(set([str(m.get('cidade')).strip() for m in musicos if m.get('cidade')])))
 
     if cidade_selecionada:
         artistas_locais = [m for m in musicos if str(m.get('cidade')).strip().lower() == cidade_selecionada.strip().lower()]
@@ -148,9 +166,6 @@ def index():
 
 @app.route('/musico/<musico_id>')
 def perfil_musico(musico_id):
-    """Página detalhada: Fãs (com estrelas) automático, Mensagens (sem estrelas) moderado"""
-    
-    # --- BUSCA DO MÚSICO ---
     doc_ref = db.collection('artistas').document(musico_id)
     musico = doc_ref.get()
 
@@ -159,60 +174,38 @@ def perfil_musico(musico_id):
         query = db.collection('artistas').where('nome', '==', nome_busca).limit(1).get()
         if query:
             musico = query[0]
-            doc_ref = musico.reference
-            musico_id = musico.id
+            doc_ref = musico.reference 
+            musico_id = musico.id      
         else:
             return "Músico não encontrado", 404
 
-    # Incrementa cliques
     doc_ref.update({'cliques': firestore.Increment(1)})
     dados = musico.to_dict()
     
-    # Buscar Agenda
     agenda_ref = doc_ref.collection('agenda').stream()
     agenda = [show.to_dict() for show in agenda_ref]
 
-    # --- BUSCA DE FEEDBACKS ---
-    feedbacks_ref = db.collection('feedbacks')\
-        .where('artista_id', '==', musico_id)\
-        .stream()
+    feedbacks_ref = db.collection('feedbacks').where('artista_id', '==', musico_id).stream()
     
     feedbacks_para_exibir = []
-    total_estrelas = 0
-    qtd_fas = 0  # Contador real de documentos no banco
+    total_estrelas, qtd_fas = 0, 0
     
     for f in feedbacks_ref:
         f_dados = f.to_dict()
-        status = f_dados.get('status')
+        status = f_dados.get('status', 'pendente')
         
-        # Se tem estrelas, é um fã.
-        if 'estrelas' in f_dados:
-            # 1. CONTAGEM SEMPRE ACONTECE (Mesmo se estiver oculto/excluido)
-            total_estrelas += int(f_dados.get('estrelas', 0))
-            qtd_fas += 1
-            
-            # 2. EXIBIÇÃO NO MURAL (Só entra na lista se NÃO for 'excluido')
-            # Aqui corrigimos o erro: se o status for 'excluido', ele não vai para o mural
-            if status != 'excluido':
+        if status != 'excluido':
+            if 'estrelas' in f_dados:
+                qtd_fas += 1
+                total_estrelas += int(f_dados.get('estrelas', 0))
                 feedbacks_para_exibir.append(f_dados)
-        
-        # Se não tem estrelas, é mensagem simples (Logica de aprovação estrita)
-        else:
-            if status == 'aprovado':
+            elif status == 'aprovado': # Mensagens sem estrela só se aprovadas
                 feedbacks_para_exibir.append(f_dados)
 
-    # Média baseada em TODOS os fãs (inclusive os ocultos, para não cair a nota)
-    media_estrelas = round(total_estrelas / qtd_fas, 1) if qtd_fas > 0 else 0
+    media_estrelas = round(total_estrelas / qtd_fas, 1) if qtd_fas > 0 else 0.0
+    dados['media_estrelas'] = media_estrelas
 
-    return render_template(
-        'perfil.html',
-        musico=dados,
-        agenda=agenda,
-        feedbacks=feedbacks_para_exibir, # Esta lista agora respeita o filtro de ocultos
-        qtd_fas=qtd_fas,                 # O número total de fãs permanece intacto
-        media_estrelas=media_estrelas,   # A média permanece intacta
-        id=musico_id
-    )
+    return render_template('perfil.html', musico=dados, agenda=agenda, feedbacks=feedbacks_para_exibir, qtd_fas=qtd_fas, media_estrelas=media_estrelas, id=musico_id)
 
 
 @app.route('/set_session', methods=['POST'])
@@ -345,6 +338,14 @@ def login_page():
 @login_required
 def dashboard():
     email_logado = session.get('user_email')
+    # 🔍 BUSCA AS PROPOSTAS
+    propostas_ref = db.collection('propostas').where('dono_email', '==', email_logado).stream()
+    
+    # Converte para lista de dicionários
+    historico = [p.to_dict() for p in propostas_ref]
+    
+    # Ordena para a mais recente aparecer em cima
+    historico.sort(key=lambda x: x.get('timestamp') if x.get('timestamp') else 0, reverse=True)
     
     # 🟢 NOVO: Detecta se o usuário está voltando do checkout (via nosso redirecionamento do login)
     veio_do_checkout_interno = request.args.get('sucesso_pagamento') == 'true'
@@ -425,16 +426,29 @@ def dashboard():
 
         # Feedbacks
         feedbacks_ref = db.collection('feedbacks').where('artista_email', '==', email_logado).stream()
-        for f in feedbacks_ref:
-            f_dados = f.to_dict()
-            f_dados['id'] = f.id
+        # No processamento de feedbacks (DENTRO da condição if artista_docs):
+    total_estrelas = 0
+    qtd_validas = 0 # Contador específico para quem tem estrelas
+    
+    for f in feedbacks_ref:
+        f_dados = f.to_dict()
+        status = f_dados.get('status', 'pendente')
+        
+        # REGRA UNIFICADA: Só ignora se for excluído
+        if status != 'excluido':
             feedbacks.append(f_dados)
-            total_estrelas += int(f_dados.get('estrelas', 0))
-            if f_dados.get('status') == 'pendente':
+            if 'estrelas' in f_dados:
+                total_estrelas += int(f_dados.get('estrelas', 0))
+                qtd_validas += 1
+            if status == 'pendente':
                 notificacoes_fas += 1
 
-    qtd_feedbacks = len(feedbacks)
-    media_estrelas = round(total_estrelas / qtd_feedbacks, 1) if qtd_feedbacks > 0 else 0.0
+    # CÁLCULO DA MÉDIA
+    media_estrelas = round(total_estrelas / qtd_validas, 1) if qtd_validas > 0 else 0.0
+
+    # A LINHA QUE MANDA PARA O HTML:
+    if artista_dados:
+        artista_dados['media_estrelas'] = media_estrelas
 
     # Lógica de datas (Ativação e Vencimento)
     data_ativacao, data_vencimento, dias_restantes = None, None, None
@@ -462,7 +476,9 @@ def dashboard():
         data_ativacao=data_ativacao,
         data_vencimento=data_vencimento,
         dias_restantes=dias_restantes,
-        pagou=pagou
+        pagou=pagou,
+        historico_propostas=historico,
+        total_propostas=len(historico)
     )
 
 
@@ -639,7 +655,7 @@ def api_enviar_feedback():
         'nome_fa': request.form.get('nome_fa'),
         'comentario': request.form.get('comentario'),
         'estrelas': int(request.form.get('estrelas', 5)),
-        'status': 'aprovado', # Importante: entra como pendente
+        'status': 'pendente', # Importante: entra como pendente
         'timestamp': firestore.SERVER_TIMESTAMP
     }
     db.collection('feedbacks').add(dados)
@@ -1102,19 +1118,29 @@ def gerar_proposta():
         return redirect(url_for('dashboard'))
     
     m = artista_docs[0].to_dict()
-    auth_id = str(uuid.uuid4())[:13].upper()
+    
+    # --- AJUSTE PARA NÃO DUPLICAR ---
+    # 1. Pegamos o ID que o JavaScript enviou (seja o aleatório novo ou o original da edição)
+    temp_id = request.form.get('proposta_temp_id')
+    
+    # 2. Definimos o documento_id baseado nesse temp_id
+    documento_id = f"{email_logado}_{temp_id}".replace('.', '_')
+    
+    # 3. O auth_id DEVE ser o mesmo temp_id para que o link de reimpressão funcione
+    # e para que o banco entenda que é o mesmo documento.
+    auth_id = temp_id 
+    # --------------------------------
+    
     agora = datetime.now().strftime('%d/%m/%Y às %H:%M')
 
-    # --- TRATAMENTO DA DATA VINDA DO CALENDÁRIO ---
+    # --- TRATAMENTO DA DATA (Mantido igual) ---
     data_festa_raw = request.form.get('data_festa', '')
     try:
-        # O input type="date" envia AAAA-MM-DD, aqui transformamos em DD/MM/AAAA
         data_festa = datetime.strptime(data_festa_raw, '%Y-%m-%d').strftime('%d/%m/%Y')
     except:
-        # Se por algum motivo não vier no formato de data, mantém o que vier
         data_festa = data_festa_raw
 
-    # --- LÓGICA DO VALOR (MOEDA E EXTENSO) ---
+    # --- LÓGICA DO VALOR (Mantido igual) ---
     valor_input = request.form.get('valor_cache', '0')
     try:
         limpo_v = re.sub(r'[^\d,]', '', valor_input).replace(',', '.')
@@ -1125,7 +1151,7 @@ def gerar_proposta():
         valor_cache_formatado = valor_input
         valor_extenso = "Valor não identificado"
 
-    # --- LÓGICA CPF / CNPJ ---
+    # --- LÓGICA CPF / CNPJ (Mantido igual) ---
     doc_input = request.form.get('documento_artista', '')
     doc_numeros = re.sub(r'\D', '', doc_input)
     if len(doc_numeros) == 11:
@@ -1137,7 +1163,7 @@ def gerar_proposta():
 
     dados_proposta = {
         'nome_festa': request.form.get('nome_festa'),
-        'data_festa': data_festa, # Envia a data formatada para o HTML
+        'data_festa': data_festa,
         'hora_festa': request.form.get('hora_festa'),
         'local_festa': request.form.get('local_festa'),
         'valor_cache': valor_cache_formatado,
@@ -1145,11 +1171,52 @@ def gerar_proposta():
         'detalhes_show': request.form.get('detalhes_show'),
         'cor_proposta': request.form.get('cor_proposta', '#00f2ff'),
         'documento_artista': doc_formatado,
-        'auth_id': auth_id,
-        'data_emissao': agora
+        'auth_id': auth_id, # Agora o auth_id é o próprio temp_id fixo
+        'data_emissao': agora,
+        'dono_email': email_logado,
+        'timestamp': datetime.now()
     }
 
+    # 💾 SALVAMENTO:
+    # Como o documento_id agora é baseado no temp_id que o JS enviou,
+    # o Firestore vai encontrar o documento existente e apenas atualizar os campos.
+    db.collection('propostas').document(documento_id).set(dados_proposta)
+
     return render_template('proposta_template.html', m=m, p=dados_proposta)
+
+
+
+@app.route('/gerar_proposta_reimpressao/<auth_id>')
+@login_required
+def gerar_proposta_reimpressao(auth_id):
+    from google.cloud.firestore_v1.base_query import FieldFilter
+    email_logado = session.get('user_email')
+    
+    # 1. Busca a proposta salva no banco pelo auth_id
+    propostas_ref = db.collection('propostas')\
+        .where(filter=FieldFilter('auth_id', '==', auth_id))\
+        .where(filter=FieldFilter('dono_email', '==', email_logado))\
+        .limit(1).stream()
+    
+    proposta_doc = next(propostas_ref, None)
+
+    if not proposta_doc:
+        return "Proposta não encontrada.", 404
+
+    p = proposta_doc.to_dict()
+
+    # 2. Busca os dados do artista para garantir que o layout use as infos atuais (foto, nome)
+    artista_docs = list(db.collection('artistas')\
+        .where(filter=FieldFilter('dono_email', '==', email_logado))\
+        .limit(1).stream())
+    
+    if not artista_docs:
+        return redirect(url_for('dashboard'))
+    
+    m = artista_docs[0].to_dict()
+
+    # 3. Renderiza o mesmo template, mas com os dados que vieram do banco
+    return render_template('proposta_template.html', m=m, p=p)
 
 
 @app.template_filter('nl2br')

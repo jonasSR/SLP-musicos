@@ -379,6 +379,7 @@ function closeModal(id) {
     document.getElementById(id).style.display = 'none';
     document.body.style.overflow = 'auto'; // Libera o scroll do fundo
 }
+
 window.onclick = function(event) {
     if (event.target.className === 'modal-overlay') { event.target.style.display = "none"; }
 }

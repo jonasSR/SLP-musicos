@@ -6,6 +6,7 @@
     <title>PULSA MUSIC CONECT | O Futuro da Tradição</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 </head>
 <body>
 
@@ -14,6 +15,17 @@
         <div class="orb orb-1"></div>
         <div class="orb orb-2"></div>
         <div class="orb orb-3"></div>
+    </div>
+    <div class="vertical-brand v-1">
+        <span>PULSA MUSIC <i data-lucide="music"></i> CONECTE-SE — 2026</span>
+    </div>
+
+    <div class="vertical-brand v-2">
+        <span><i data-lucide="mic-2"></i> O FUTURO DA TRADIÇÃO — EXPLORE</span>
+    </div>
+
+    <div class="vertical-brand v-3">
+        <span>PULSE AGORA <i data-lucide="disc"></i> DESCUBRA NOVOS SONS</span>
     </div>
 
     <nav class="glass-nav">
@@ -91,13 +103,17 @@
         </div>
     </div>
 </div>
+
+
 <main class="gallery-section" id="destaques">
     {% if destaques %}
     <section class="highlights-section">
         <div class="highlights-container">
-            <div class="section-title-area" style="text-align: center; margin-bottom: 30px;">
+            <div class="section-title-area" style="text-align: center; margin-bottom: 30px; margin-top: -40px;">
                 <h2 class="highlights-main-title">DESTAQUES PULSA MUSIC</h2>
-                <p class="highlights-subtitle">Conheça os talentos que estão fazendo a cena pulsar agora.</p>
+                <p class="highlights-subtitle" style="color: rgba(255,255,255,0.6); font-size: 0.9rem; margin-top: 5px;">
+                    Conheça os talentos que estão fazendo a cena pulsar agora.
+                </p>
             </div>
 
             <div class="swiper highlightsSwiper">
@@ -105,26 +121,103 @@
                     {% for musico in destaques %}
                         {% set url_foto = musico.foto if musico.foto else '/static/img/default.jpg' %}
                         <div class="swiper-slide" style="width: auto;">
-                            <div class="high-card" style="--bg-image: url('{{ url_foto }}');">
-                                <div class="high-image"></div>
-                                <div class="high-overlay">
-                                    <span class="high-category">{{ musico.estilo | upper }}</span>
-                                    <h3>{{ musico.nome | upper }}</h3>
-                                    <p>{{ (musico.cidade or "") | truncate(25) }}</p>
-                                    <a href="{{ url_for('perfil_musico', musico_id=musico.id) }}" class="btn-high-view">VER PERFIL</a>
+                            <a href="{{ url_for('perfil_musico', musico_id=musico.id) }}" class="high-card" style="--bg-image: url('{{ url_foto }}'); text-decoration: none;">
+                                <div class="mobile-cta-badge">
+                                    <span>VER PERFIL</span>
+                                    <i class="fas fa-chevron-right"></i>
                                 </div>
-                            </div>
+                                <div class="high-badge-container">
+                                    <i class="fas fa-award badge-symbol"></i>
+                                    <span class="badge-label">Destaque</span>
+                                    
+                                    <span class="badge-score">{{ musico.media_estrelas }}</span>
+                                    <i class="fas fa-star badge-star-icon"></i>
+
+                                    <div class="badge-divider"></div> 
+                                    
+                                    <i class="fas fa-eye badge-view-icon"></i>
+                                    <span class="badge-visits">{{ musico.total_cliques or '0' }}</span>
+                                </div>
+                                <div class="high-image"></div>
+
+                                <div class="high-overlay">
+                                    {% for m in destaques %}
+                                        <span class="stat-value">{{ "%.1f"|format(m.media_estrelas|float) }}</span>
+                                    {% endfor %}
+                                    <div class="high-glass-footer">
+                                        <div class="high-footer-line">
+                                            <div class="high-location">
+                                                <i class="fas fa-location-dot"></i>
+                                                {{ (musico.cidade or "Brasil") | truncate(20) }}
+                                            </div>
+                                            <span class="high-tag-type">MÚSICO</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </a>
                         </div>
                     {% endfor %}
                 </div>
-                </div>
+            </div>
         </div>
+
+        <div class="section-spray-badge">
+            <svg viewBox="0 0 400 185" xmlns="http://www.w3.org/2000/svg"
+                style="position:absolute;inset:0;width:100%;height:100%;z-index:1;overflow:visible;">
+                <defs>
+                    <filter id="ink" x="-20%" y="-20%" width="140%" height="140%">
+                        <feTurbulence type="fractalNoise" baseFrequency="0.035 0.05"
+                                    numOctaves="5" seed="12" result="noise"/>
+                        <feDisplacementMap in="SourceGraphic" in2="noise"
+                                        scale="16" xChannelSelector="R" yChannelSelector="G"
+                                        result="displaced"/>
+                        <feGaussianBlur in="displaced" stdDeviation="2.5" result="blurred"/>
+                        
+                        <feColorMatrix in="blurred" type="matrix"
+                            values="0 0 0 0 0.07
+                                    0 0 0 0 0.07
+                                    0 0 0 0 0.07
+                                    0 0 0 25 -10"
+                            result="threshold"/>
+                        
+                        <feComposite in="threshold" in2="threshold" operator="over"/>
+                        <feDropShadow dx="0" dy="4" stdDeviation="10"
+                                    flood-color="#000000" flood-opacity="0.5"/>
+                    </filter>
+                </defs>
+                <g filter="url(#ink)">
+                    <ellipse cx="195" cy="95"  rx="175" ry="76" fill="#121212"/>
+                    <ellipse cx="52"  cy="58"  rx="44"  ry="26" fill="#121212"/>
+                    <ellipse cx="348" cy="118" rx="38"  ry="22" fill="#121212"/>
+                    <ellipse cx="125" cy="28"  rx="58"  ry="20" fill="#121212"/>
+                    <ellipse cx="275" cy="155" rx="60"  ry="22" fill="#121212"/>
+                    <ellipse cx="320" cy="42"  rx="36"  ry="18" fill="#121212"/>
+                    <ellipse cx="68"  cy="148" rx="32"  ry="16" fill="#121212"/>
+                    <ellipse cx="380" cy="88"  rx="22"  ry="30" fill="#121212"/>
+                    <circle  cx="15"  cy="92"  r="12" fill="#121212"/>
+                    <circle  cx="10"  cy="72"  r="7"  fill="#121212"/>
+                    <circle  cx="388" cy="62"  r="9"  fill="#121212"/>
+                    <circle  cx="205" cy="6"   r="8"  fill="#121212"/>
+                    <circle  cx="160" cy="168" r="10" fill="#121212"/>
+                    <circle  cx="28"  cy="120" r="7"  fill="#121212"/>
+                    <circle  cx="372" cy="140" r="8"  fill="#121212"/>
+                    <circle  cx="88"  cy="175" r="6"  fill="#121212"/>
+                    <circle  cx="340" cy="20"   r="5"  fill="#121212"/>
+                </g>
+            </svg>
+
+            <div class="ink-text">
+                <span>DESTAQUES PULSA</span>
+                <span>MUSIC CONECT</span>
+            </div>
+
+        </div>
+
     </section>
     {% else %}
     <div class="empty-highlights-wrapper">
         <div class="placeholder-card-neon">
-            <div class="neon-icon-area">
-                <i data-lucide="mic-2"></i> </div>
+            <div class="neon-icon-area"><i data-lucide="mic-2"></i></div>
             <h3 class="placeholder-title">NOVOS DESTAQUES EM BREVE</h3>
             <p class="placeholder-text">Estamos selecionando os melhores talentos para brilhar aqui. Seja o próximo!</p>
             <a href="/login" class="btn-placeholder-action">QUERO ME DESTACAR</a>
