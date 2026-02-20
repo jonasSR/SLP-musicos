@@ -166,32 +166,44 @@ def index():
 
 @app.route('/musico/<musico_id>')
 def perfil_musico(musico_id):
+    # 1. Tenta buscar pelo ID (documento direto)
     doc_ref = db.collection('artistas').document(musico_id)
     musico = doc_ref.get()
 
-    if not musico.exists:
-        nome_busca = musico_id.replace('-', ' ')
-        query = db.collection('artistas').where('nome', '==', nome_busca).limit(1).get()
-        if query:
-            musico = query[0]
-            doc_ref = musico.reference 
-            musico_id = musico.id      
-        else:
-            return "Músico não encontrado", 404
-
-    doc_ref.update({'cliques': firestore.Increment(1)})
+    if musico.exists:
+        # SE CAIR AQUI: O usuário acessou pelo ID (ex: zpC12u...)
+        # Vamos descobrir o nome dele e REDIRECIONAR para a URL com nome
+        dados = musico.to_dict()
+        nome_url = dados.get('nome', '').lower().strip().replace(' ', '-')
+        if nome_url:
+            return redirect(url_for('perfil_musico', musico_id=nome_url))
+    
+    # 2. SE NÃO EXISTE PELO ID: Busca pelo nome (slug) na URL
+    nome_busca = musico_id.replace('-', ' ')
+    query = db.collection('artistas').where('nome', '==', nome_busca).limit(1).get()
+    
+    if not query:
+        return "Músico não encontrado", 404
+        
+    # Encontrou pelo nome! Agora pegamos os dados reais
+    musico = query[0]
+    doc_ref = musico.reference 
+    musico_id_real = musico.id # ID real do banco (ex: zpC12u...)
     dados = musico.to_dict()
 
-    # --- CORREÇÃO DA LETRA MAIÚSCULA ---
-    # Se o nome existir, força a primeira letra de cada palavra para Maiúscula
+    # Incrementa cliques usando o doc_ref correto
+    doc_ref.update({'cliques': firestore.Increment(1)})
+
+    # --- CORREÇÃO DA LETRA MAIÚSCULA PARA O HTML ---
     if 'nome' in dados and dados['nome']:
         dados['nome'] = dados['nome'].title()
-    # -----------------------------------
     
+    # Busca Agenda
     agenda_ref = doc_ref.collection('agenda').stream()
     agenda = [show.to_dict() for show in agenda_ref]
 
-    feedbacks_ref = db.collection('feedbacks').where('artista_id', '==', musico_id).stream()
+    # Busca Feedbacks usando o musico_id_real (ID do documento)
+    feedbacks_ref = db.collection('feedbacks').where('artista_id', '==', musico_id_real).stream()
     
     feedbacks_para_exibir = []
     total_estrelas, qtd_fas = 0, 0
@@ -199,19 +211,16 @@ def perfil_musico(musico_id):
     for f in feedbacks_ref:
         f_dados = f.to_dict()
         status = f_dados.get('status', 'pendente')
-        
         if status != 'excluido':
             if 'estrelas' in f_dados:
                 qtd_fas += 1
                 total_estrelas += int(f_dados.get('estrelas', 0))
                 feedbacks_para_exibir.append(f_dados)
-            elif status == 'aprovado': # Mensagens sem estrela só se aprovadas
+            elif status == 'aprovado':
                 feedbacks_para_exibir.append(f_dados)
 
     media_estrelas = round(total_estrelas / qtd_fas, 1) if qtd_fas > 0 else 0.0
     dados['media_estrelas'] = media_estrelas
-
-    # --- NOVO: CAPTURA A FOTO PARA O METADADO ---
     foto_para_meta = dados.get('foto', '') 
 
     return render_template(
@@ -221,7 +230,7 @@ def perfil_musico(musico_id):
         feedbacks=feedbacks_para_exibir, 
         qtd_fas=qtd_fas, 
         media_estrelas=media_estrelas, 
-        id=musico_id,
+        id=musico_id_real, # Passa o ID real para o botão de feedback funcionar
         foto_meta=foto_para_meta
     )
 
