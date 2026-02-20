@@ -181,6 +181,12 @@ def perfil_musico(musico_id):
 
     doc_ref.update({'cliques': firestore.Increment(1)})
     dados = musico.to_dict()
+
+    # --- CORREÇÃO DA LETRA MAIÚSCULA ---
+    # Se o nome existir, força a primeira letra de cada palavra para Maiúscula
+    if 'nome' in dados and dados['nome']:
+        dados['nome'] = dados['nome'].title()
+    # -----------------------------------
     
     agenda_ref = doc_ref.collection('agenda').stream()
     agenda = [show.to_dict() for show in agenda_ref]
@@ -206,7 +212,6 @@ def perfil_musico(musico_id):
     dados['media_estrelas'] = media_estrelas
 
     # --- NOVO: CAPTURA A FOTO PARA O METADADO ---
-    # Como vimos no seu banco, o campo chama-se 'foto'
     foto_para_meta = dados.get('foto', '') 
 
     return render_template(
@@ -217,7 +222,7 @@ def perfil_musico(musico_id):
         qtd_fas=qtd_fas, 
         media_estrelas=media_estrelas, 
         id=musico_id,
-        foto_meta=foto_para_meta # <-- Passando para o HTML
+        foto_meta=foto_para_meta
     )
 
 @app.route('/set_session', methods=['POST'])
