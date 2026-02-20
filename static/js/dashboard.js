@@ -318,31 +318,37 @@ function mascaraTelefone(input) {
     input.value = value.slice(0, 15);
 }
 
-
 function compartilharPerfil(elemento) {
     const nomeUrl = elemento.getAttribute('data-nome-url');
-    const nomeReal = elemento.getAttribute('data-nome-exibicao');
+    let nomeReal = elemento.getAttribute('data-nome-exibicao') || "";
     
-    // Pega a frase exatamente como está na Meta Tag do HTML
-    const metaDescription = document.querySelector('meta[property="og:description"]').getAttribute('content');
+    // 1. Força o Nome a ter iniciais Maiúsculas (ex: nicolas silva -> Nicolas Silva)
+    nomeReal = nomeReal.toLowerCase().replace(/(^\w|\s\w)/g, m => m.toUpperCase());
+
+    // 2. Pega a descrição da Meta Tag
+    let metaDescription = document.querySelector('meta[property="og:description"]').getAttribute('content') || "";
+    
+    // 3. Garante que a primeira letra da frase da descrição seja Maiúscula
+    if (metaDescription.length > 0) {
+        metaDescription = metaDescription.charAt(0).toUpperCase() + metaDescription.slice(1);
+    }
     
     const urlPublica = window.location.protocol + "//" + window.location.host + "/musico/" + nomeUrl;
 
     if (navigator.share) {
         navigator.share({
             title: nomeReal + ' | Pulsa Music Conect',
-            text: metaDescription, // USA A MESMA FRASE DA META TAG
+            text: metaDescription, 
             url: urlPublica 
         }).catch(err => {
             console.log("Erro ao compartilhar: ", err);
         });
     } else {
         navigator.clipboard.writeText(urlPublica).then(() => {
-            // Usando o SweetAlert que você já tem no projeto
             Swal.fire({
                 icon: 'success',
                 title: 'Link Copiado!',
-                text: 'Agora é só colar e compartilhar!',
+                text: 'Agora é só colar e compartilhar o perfil de ' + nomeReal + '!',
                 timer: 2000,
                 showConfirmButton: false,
                 background: '#1a1a1a',
