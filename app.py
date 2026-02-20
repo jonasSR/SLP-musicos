@@ -205,8 +205,20 @@ def perfil_musico(musico_id):
     media_estrelas = round(total_estrelas / qtd_fas, 1) if qtd_fas > 0 else 0.0
     dados['media_estrelas'] = media_estrelas
 
-    return render_template('perfil.html', musico=dados, agenda=agenda, feedbacks=feedbacks_para_exibir, qtd_fas=qtd_fas, media_estrelas=media_estrelas, id=musico_id)
+    # --- NOVO: CAPTURA A FOTO PARA O METADADO ---
+    # Como vimos no seu banco, o campo chama-se 'foto'
+    foto_para_meta = dados.get('foto', '') 
 
+    return render_template(
+        'perfil.html', 
+        musico=dados, 
+        agenda=agenda, 
+        feedbacks=feedbacks_para_exibir, 
+        qtd_fas=qtd_fas, 
+        media_estrelas=media_estrelas, 
+        id=musico_id,
+        foto_meta=foto_para_meta # <-- Passando para o HTML
+    )
 
 @app.route('/set_session', methods=['POST'])
 def set_session():
@@ -261,7 +273,6 @@ def check_user_type():
 
     # 3. Se chegou aqui, ele nunca escolheu nada (abrir modal)
     return jsonify({"status": "novo"})
-
 
 
 @app.route('/login_session')

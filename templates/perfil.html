@@ -13,9 +13,18 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 
-    <meta property="og:title" content="Perfil de {{ musico.nome }}">
-    <meta property="og:description" content="Confira o trabalho de {{ musico.nome }} no nosso portal.">
-    <meta property="og:image" content="{{ musico.foto_url }}"> <meta property="og:type" content="profile">
+    <meta property="og:title" content="{{ musico.nome }} | Pulsa Music Conect">
+    <meta property="og:description" content="Confira o trabalho de {{ musico.nome }}. Estilo: {{ musico.estilo }}.">
+    
+    <meta property="og:image" content="{{ foto_meta }}">
+    <meta property="og:image:secure_url" content="{{ foto_meta }}">
+    <meta property="og:image:type" content="image/png">
+    
+    <meta property="og:url" content="{{ request.url }}">
+    <meta property="og:type" content="profile">
+
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content="{{ foto_meta }}">
 </head>
 
 <body class="profile-body">
