@@ -323,20 +323,31 @@ function compartilharPerfil(elemento) {
     const nomeUrl = elemento.getAttribute('data-nome-url');
     const nomeReal = elemento.getAttribute('data-nome-exibicao');
     
-    // Certifique-se que essa URL pública é a página que tem as METATAGS configuradas
+    // Pega a frase exatamente como está na Meta Tag do HTML
+    const metaDescription = document.querySelector('meta[property="og:description"]').getAttribute('content');
+    
     const urlPublica = window.location.protocol + "//" + window.location.host + "/musico/" + nomeUrl;
 
     if (navigator.share) {
         navigator.share({
-            title: 'Perfil de ' + nomeReal,
-            text: 'Confira o trabalho de ' + nomeReal,
-            url: urlPublica // O app de destino lerá a foto através desta URL
+            title: nomeReal + ' | Pulsa Music Conect',
+            text: metaDescription, // USA A MESMA FRASE DA META TAG
+            url: urlPublica 
         }).catch(err => {
             console.log("Erro ao compartilhar: ", err);
         });
     } else {
         navigator.clipboard.writeText(urlPublica).then(() => {
-            alert("Link de " + nomeReal + " copiado!");
+            // Usando o SweetAlert que você já tem no projeto
+            Swal.fire({
+                icon: 'success',
+                title: 'Link Copiado!',
+                text: 'Agora é só colar e compartilhar!',
+                timer: 2000,
+                showConfirmButton: false,
+                background: '#1a1a1a',
+                color: '#ffffff'
+            });
         });
     }
 }
