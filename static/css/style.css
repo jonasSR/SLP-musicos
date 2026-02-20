@@ -1041,7 +1041,7 @@ body {
 .high-badge-container {
     position: absolute;
     top: 6px;
-    left: 100px;
+    left: 60px;
     z-index: 10;
     background: #ffffff;
     display: flex;
