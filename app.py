@@ -171,38 +171,38 @@ def perfil_musico(musico_id):
     musico = doc_ref.get()
 
     if musico.exists:
-        # SE CAIR AQUI: O usuário acessou pelo ID (ex: zpC12u...)
-        # Vamos descobrir o nome dele e REDIRECIONAR para a URL com nome
         dados = musico.to_dict()
+        # Aqui garantimos que a URL final seja SEMPRE minúscula
         nome_url = dados.get('nome', '').lower().strip().replace(' ', '-')
         if nome_url:
             return redirect(url_for('perfil_musico', musico_id=nome_url))
     
     # 2. SE NÃO EXISTE PELO ID: Busca pelo nome (slug) na URL
-    nome_busca = musico_id.replace('-', ' ')
+    # AQUI ESTAVA O ERRO: Precisamos do .lower() para bater com o banco minúsculo
+    nome_busca = musico_id.replace('-', ' ').lower().strip()
+    
+    # Agora a busca ignora se você digitou maiúsculo na URL
     query = db.collection('artistas').where('nome', '==', nome_busca).limit(1).get()
     
     if not query:
         return "Músico não encontrado", 404
         
-    # Encontrou pelo nome! Agora pegamos os dados reais
     musico = query[0]
     doc_ref = musico.reference 
-    musico_id_real = musico.id # ID real do banco (ex: zpC12u...)
+    musico_id_real = musico.id 
     dados = musico.to_dict()
 
-    # Incrementa cliques usando o doc_ref correto
     doc_ref.update({'cliques': firestore.Increment(1)})
 
-    # --- CORREÇÃO DA LETRA MAIÚSCULA PARA O HTML ---
+    # --- AQUI É ONDE O NOME FICA BONITO PARA A TELA ---
+    # O banco continua minúsculo, mas o HTML recebe "Nicolas"
     if 'nome' in dados and dados['nome']:
         dados['nome'] = dados['nome'].title()
     
-    # Busca Agenda
+    # ... Resto do código (Agenda e Feedbacks) continua igual ...
     agenda_ref = doc_ref.collection('agenda').stream()
     agenda = [show.to_dict() for show in agenda_ref]
 
-    # Busca Feedbacks usando o musico_id_real (ID do documento)
     feedbacks_ref = db.collection('feedbacks').where('artista_id', '==', musico_id_real).stream()
     
     feedbacks_para_exibir = []
@@ -230,7 +230,7 @@ def perfil_musico(musico_id):
         feedbacks=feedbacks_para_exibir, 
         qtd_fas=qtd_fas, 
         media_estrelas=media_estrelas, 
-        id=musico_id_real, # Passa o ID real para o botão de feedback funcionar
+        id=musico_id_real, 
         foto_meta=foto_para_meta
     )
 
